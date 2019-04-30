@@ -1,0 +1,27 @@
+Package: NeuralSens
+Title: Sensibility Analysis of Neural Networks
+Version: 0.0.1
+Authors@R: c(
+    person("Jose", "Portela González", email = "Jose.Portela@iit.comillas.edu", role = "aut"),    
+    person("Jaime", "Pizarroso Gonzalo", email = "jpizarroso@alu.comillas.edu", role = c("ctb", "cre")))
+Description: Analysis of the importance of the variables in the output prediction of neural networks.
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+Suggests:
+    ggplot2,
+    gridExtra,
+    NeuralNetTools,
+    reshape2, 
+    caret,
+    forecast,
+    h2o,
+    neural,
+    RSNNS,
+    neuralnet,
+    fastDummies,
+    stringr,
+    Hmisc,
+    e1071
+RoxygenNote: 6.1.1
+NeedsCompilation: no
