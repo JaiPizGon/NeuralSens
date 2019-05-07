@@ -7,6 +7,5 @@
 \title{NeuralSens: Sensibility analysis to NeuralNets}
 \description{
 Visualization and analysis tools to aid in the interpretation of
-neural network models.  Functions are available for plotting,
-quantifying variable importance, conducting a sensitivity analysis...
+neural network models.
 }

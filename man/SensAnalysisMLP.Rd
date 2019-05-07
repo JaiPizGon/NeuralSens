@@ -68,7 +68,6 @@ Function for evaluating the sensitivities of the inputs variables in a mlp model
 \dontrun{
 ## Load necessary libraries ----------------------------------------------------
 library(ggplot2)
-library(forecast)
 library(caret)
 library(h2o)
 library(neural)
@@ -76,13 +75,10 @@ library(RSNNS)
 library(neuralnet)
 
 ## Load data -------------------------------------------------------------------
-data("DAILY_DEMAND_TR")
+data(DAILY_DEMAND_TR)
 fdata <- DAILY_DEMAND_TR
 
 ## Parameters of the NNET ------------------------------------------------------
-TEMP_lags <- 2
-WD_lags <- 3
-DEM_lags <- 1
 hidden_neurons <- 5
 iters <- 250
 decay <- 0.1
@@ -112,7 +108,7 @@ RegNNET$caret <- caret::train(form = DEM~.,
                               data = fdata.Reg.tr,
                               method = "nnet",
                               linout = TRUE,
-                              tuneGrid = data.frame(size = 3,
+                              tuneGrid = data.frame(size = hidden_neurons,
                                                     decay = decay),
                               maxit = iters,
                               preProcess = c("center","scale"),
