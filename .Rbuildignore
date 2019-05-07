@@ -5,3 +5,8 @@
 ^revdep$
 cran-comments.md
 ^\.travis\.yml$
+README.md
+README.Rmd
+README.html
+^README_files/.*
+^appveyor\.yml$
