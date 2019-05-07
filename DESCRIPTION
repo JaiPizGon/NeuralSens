@@ -8,7 +8,7 @@ Description: Analysis of the importance of the variables in the output predictio
 License: file LICENSE
 Encoding: UTF-8
 LazyData: true
-Suggests:
+Imports:
     ggplot2,
     gridExtra,
     NeuralNetTools,
@@ -22,8 +22,7 @@ Suggests:
     fastDummies,
     stringr,
     Hmisc,
-    e1071,
-    testthat (>= 2.1.0)
+    e1071
 RoxygenNote: 6.1.1
 NeedsCompilation: no
 URL: https://github.com/JaiPizGon/NeuralSens
