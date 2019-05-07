@@ -1,6 +1,6 @@
 ## Test environments
 * Windows 10 Home x64, R 3.6.0
-* ubuntu 12.04 (on travis-ci), R 3.1.2
+* ubuntu 14.01 (on travis-ci), R 3.5.3
 * win-builder (devel, release and oldrelease)
 
 ## R CMD check results
