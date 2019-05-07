@@ -1,17 +1,10 @@
 ## Test environments
 * Windows 10 Home x64, R 3.6.0
 * ubuntu 12.04 (on travis-ci), R 3.1.2
-* win-builder (devel and release)
+* win-builder (devel, release and oldrelease)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs. 
-
-There was 1 NOTE:
-
-* checking dependencies in R code ... NOTE
-  Namespace in Imports field not imported from: 'R6'
-
-  R6 is a build-time dependency.
+There were no ERRORs, WARNINGs or NOTEs. 
 
 ## Downstream dependencies
 I have also run R CMD check on downstream dependencies of httr 

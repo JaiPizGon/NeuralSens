@@ -12,7 +12,7 @@ Suggests:
     ggplot2,
     gridExtra,
     NeuralNetTools,
-    reshape2, 
+    reshape2,
     caret,
     forecast,
     h2o,
@@ -22,6 +22,9 @@ Suggests:
     fastDummies,
     stringr,
     Hmisc,
-    e1071
+    e1071,
+    testthat (>= 2.1.0)
 RoxygenNote: 6.1.1
 NeedsCompilation: no
+URL: https://github.com/JaiPizGon/NeuralSens
+BugReports: https://github.com/JaiPizGon/NeuralSens/issues
