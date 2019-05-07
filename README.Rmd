@@ -70,7 +70,7 @@ The second plot gives an absolute measure to the importance of the inputs, by ca
 The third plot is a density plot of the partial derivatives of the output to the inputs among the training data, giving similar information as the first plot.
 
 
-```{r, results = 'hide', fig.height = 6, fig.width = 7}
+```{r, results = 'hide', message=FALSE, fig.height = 6, fig.width = 9}
 # Scale the data
 DAILY_DEMAND_TR[,3:4] <- DAILY_DEMAND_TR[,3:4]/10
 DAILY_DEMAND_TR[,2] <- DAILY_DEMAND_TR[,2]/100

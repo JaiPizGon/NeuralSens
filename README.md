@@ -1,4 +1,3 @@
-
 ## NeuralNetTools
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@alu.comillas.edu*
@@ -71,17 +70,6 @@ decay <- 0.1
 
 # create neural network
 library(caret)
-```
-
-```
-## Loading required package: lattice
-```
-
-```
-## Loading required package: ggplot2
-```
-
-```r
 ctrl_tune <- trainControl(method = "boot",
                           savePredictions = FALSE,
                           summaryFunction = defaultSummary)
@@ -101,7 +89,7 @@ mod <- caret::train(form = DEM~TEMP + WD,
 SensAnalysisMLP(mod)
 ```
 
-![](README_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+![](README_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 ### License
 
