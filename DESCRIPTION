@@ -15,14 +15,15 @@ Imports:
     reshape2,
     caret,
     forecast,
-    h2o,
-    neural,
-    RSNNS,
-    neuralnet,
     fastDummies,
     stringr,
     Hmisc,
     e1071
+Suggests:
+  h2o,
+  neural,
+  RSNNS,
+  neuralnet
 RoxygenNote: 6.1.1
 NeedsCompilation: no
 URL: https://github.com/JaiPizGon/NeuralSens

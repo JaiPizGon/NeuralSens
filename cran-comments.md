@@ -1,17 +1,12 @@
 ## Test environments
 * Windows 10 Home x64, R 3.6.0
-* ubuntu 12.04 (on travis-ci), R 3.1.2
-* win-builder (devel, release and oldrelease)
+* ubuntu 14.05.5 (on travis-ci), R (oldrel, release and devel)
+* Mac OS X 10.13.3 (on travis-ci), R (oldrel, release and devel)
+* win-builder, R (oldrelease, release and devel)
+* macOS Sierra 10.12.6, R 3.5.1
 
-## R CMD check results
+## R MD check results
 There were no ERRORs, WARNINGs or NOTEs. 
 
 ## Downstream dependencies
-I have also run R CMD check on downstream dependencies of httr 
-(https://github.com/wch/checkresults/blob/master/httr/r-release). 
-All packages that I could install passed except:
-
-* Ecoengine: this appears to be a failure related to config on 
-  that machine. I couldn't reproduce it locally, and it doesn't 
-  seem to be related to changes in httr (the same problem exists 
-  with httr 0.4).
+I have also run R CMD check on downstream dependencies of NeuralSens.
