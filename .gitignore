@@ -1,6 +1,5 @@
 .Rproj.user
 *.Rhistory
-*.Rdata
 \~$*
 *.tmp
 
