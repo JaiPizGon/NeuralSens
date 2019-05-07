@@ -16,6 +16,7 @@ cache:
 environment:
   global:
     WARNINGS_ARE_ERRORS: 1
+  RTOOLS_VERSION: 35
   NOT_CRAN: true
   # env vars that may need to be set, at least temporarily, from time to time
   # see https://github.com/krlmlr/r-appveyor#readme for details
@@ -31,8 +32,7 @@ test_script:
   - travis-tool.sh run_tests
 
 on_failure:
-  - 7z a failure.zip *.Rcheck\*
-  - appveyor PushArtifact failure.zip
+  - travis-tool.sh dump_logs
 
 artifacts:
   - path: '*.Rcheck\**\*.log'
