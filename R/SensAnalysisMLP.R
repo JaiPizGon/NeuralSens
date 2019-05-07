@@ -26,7 +26,7 @@
 #' library(neuralnet)
 #'
 #' ## Load data -------------------------------------------------------------------
-#' data("DAILY_DEMAND_TR")
+#' data(DAILY_DEMAND_TR)
 #' fdata <- DAILY_DEMAND_TR
 #'
 #' ## Parameters of the NNET ------------------------------------------------------

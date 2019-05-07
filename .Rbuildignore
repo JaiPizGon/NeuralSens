@@ -4,3 +4,4 @@
 ^Papers$
 ^revdep$
 cran-comments.md
+^\.travis\.yml$
