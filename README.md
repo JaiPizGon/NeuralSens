@@ -1,8 +1,14 @@
 ## NeuralNetTools
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@alu.comillas.edu*
+Linux build:<!-- badges: start -->
+[![Travis build status](https://travis-ci.org/JaiPizGon/NeuralSens.svg?branch=master)](https://travis-ci.org/JaiPizGon/NeuralSens)
+<!-- badges: end -->
 
-
+Windows build:<!-- badges: start -->
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/JaiPizGon/NeuralSens?branch=master&svg=true)](https://ci.appveyor.com/project/JaiPizGon/NeuralSens)
+<!-- badges: end -->
+  
 This is the development repository for the NeuralSens package.  Functions within this package can be used for the analysis of neural network models created in R. 
 
 The current version of this package can be installed from Github:
@@ -42,6 +48,185 @@ One function is available to analyze the sensitivity of a multilayer perceptron,
 Start by loading the package and the sample dataset.
 
 
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(f, n): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
+
+```
+## Warning in readLines(file): incomplete final line found on 'C:/Users/jaime/
+## trabajo/IIT/NeuralSens/DESCRIPTION'
+```
 
 ```r
 library(NeuralNetTools)
