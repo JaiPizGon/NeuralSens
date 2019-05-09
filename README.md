@@ -25,7 +25,7 @@ The current release can not be installed from CRAN, we are working on it:
 
 ```r
 # ## DON'T RUN
-# install.packages('NeuralNetTools')
+# install.packages('NeuralSens')
 ```
 
 ### Bug reports

@@ -33,7 +33,7 @@ The current release can not be installed from CRAN, we are working on it:
 
 ```{r, eval = FALSE}
 # ## DON'T RUN
-# install.packages('NeuralNetTools')
+# install.packages('NeuralSens')
 ```
 
 ### Bug reports
