@@ -5,7 +5,7 @@ Authors@R: c(
     person("Jose", "Portela González", email = "Jose.Portela@iit.comillas.edu", role = "aut"),    
     person("Jaime", "Pizarroso Gonzalo", email = "jpizarroso@alu.comillas.edu", role = c("ctb", "cre")))
 Description: Analysis of the importance of the variables in the output prediction of neural networks.
-License: file LICENSE
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports:
