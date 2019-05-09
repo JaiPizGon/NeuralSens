@@ -294,7 +294,6 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
   #   - Name of the inputs      -> MLP.fit$coefnames
   #   - trData [output + inputs], output's name must be .outcome
   #   - modelType: "Regression" or "Classification"
-  options(warn = -1)
 
   # Obtain structure of fitted model
   mlpstr <- MLP.fit$n
@@ -429,7 +428,6 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
   gridExtra::grid.arrange(grobs = plotlist,
                           nrow  = length(plotlist),
                           ncols = 1)
-  options(warn = 0)
 
   if (.returnSens) {
     return(sens)

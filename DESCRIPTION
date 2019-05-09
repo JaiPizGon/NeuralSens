@@ -14,11 +14,8 @@ Imports:
     NeuralNetTools,
     reshape2,
     caret,
-    forecast,
     fastDummies,
-    stringr,
-    Hmisc,
-    e1071
+    stringr
 Suggests:
   h2o,
   neural,
