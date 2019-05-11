@@ -1,3 +1,4 @@
+
 ## NeuralNetTools
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@alu.comillas.edu*
@@ -43,14 +44,8 @@ Start by loading the package and the sample dataset.
 
 
 
-One function is available to analyze the sensitivity of a multilayer perceptron, evaluating variable importance and plotting the analysis results. A sample dataset is also provided for use with the examples. The function has S3 methods developed for neural networks from the following packages: [nnet](https://cran.r-project.org/package=nnet), [neuralnet](https://cran.r-project.org/package=neuralnet), [RSNNS](https://cran.r-project.org/package=RSNNS), [caret](https://cran.r-project.org/package=caret), and [h2o](https://cran.r-project.org/package=h2o).  Numeric inputs that describe model weights are also acceptable. 
- 
-Start by loading the package and the sample dataset.
-
-
-
 ```r
-library(NeuralNetTools)
+library(NeuralSens)
 data(DAILY_DEMAND_TR)
 ```
 
@@ -95,7 +90,7 @@ mod <- caret::train(form = DEM~TEMP + WD,
 SensAnalysisMLP(mod)
 ```
 
-![](README_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+![](README_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 ### License
 
