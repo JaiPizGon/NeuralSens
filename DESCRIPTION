@@ -1,13 +1,10 @@
 Package: NeuralSens
-Title: Sensibility Analysis of Neural Networks
 Version: 0.0.1
-Authors@R: c(
-    person("Jose", "Portela González", email = "Jose.Portela@iit.comillas.edu", role = "aut"),    
-    person("Jaime", "Pizarroso Gonzalo", email = "jpizarroso@alu.comillas.edu", role = c("ctb", "cre")))
+Title: Sensibility Analysis of Neural Networks
+Date: 2019-05-11
 Description: Analysis of the importance of the variables in the output prediction of neural networks.
-License: GPL-3
-Encoding: UTF-8
-LazyData: true
+Author: Jose Portela González. Contributions from Jaime Pizarroso Gonzalo.
+Maintainer: Jaime Pizarroso Gonzalo <jpizarroso@alu.comillas.edu>
 Imports:
     ggplot2,
     gridExtra,
@@ -20,8 +17,12 @@ Suggests:
   h2o,
   neural,
   RSNNS,
+  nnet,
   neuralnet
 RoxygenNote: 6.1.1
 NeedsCompilation: no
 URL: https://github.com/JaiPizGon/NeuralSens
 BugReports: https://github.com/JaiPizGon/NeuralSens/issues
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true

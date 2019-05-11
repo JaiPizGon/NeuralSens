@@ -2,11 +2,11 @@
 
 S3method(SensAnalysisMLP,H2OMultinomialModel)
 S3method(SensAnalysisMLP,H2ORegressionModel)
-S3method(SensAnalysisMLP,NARMAX)
 S3method(SensAnalysisMLP,default)
 S3method(SensAnalysisMLP,list)
 S3method(SensAnalysisMLP,mlp)
 S3method(SensAnalysisMLP,nn)
+S3method(SensAnalysisMLP,nnet)
 S3method(SensAnalysisMLP,train)
 export(ActFunc)
 export(DerActFunc)

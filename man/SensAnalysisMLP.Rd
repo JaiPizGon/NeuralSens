@@ -6,10 +6,10 @@
 \alias{SensAnalysisMLP.train}
 \alias{SensAnalysisMLP.H2OMultinomialModel}
 \alias{SensAnalysisMLP.H2ORegressionModel}
-\alias{SensAnalysisMLP.NARMAX}
 \alias{SensAnalysisMLP.list}
 \alias{SensAnalysisMLP.mlp}
 \alias{SensAnalysisMLP.nn}
+\alias{SensAnalysisMLP.nnet}
 \title{Sensitivity of NNET models}
 \usage{
 SensAnalysisMLP(MLP.fit, .returnSens = TRUE, ...)
@@ -26,13 +26,13 @@ SensAnalysisMLP(MLP.fit, .returnSens = TRUE, ...)
 \method{SensAnalysisMLP}{H2ORegressionModel}(MLP.fit, .returnSens = TRUE,
   ...)
 
-\method{SensAnalysisMLP}{NARMAX}(MLP.fit, .returnSens = TRUE, ...)
-
 \method{SensAnalysisMLP}{list}(MLP.fit, .returnSens = TRUE, trData, ...)
 
 \method{SensAnalysisMLP}{mlp}(MLP.fit, .returnSens = TRUE, trData, ...)
 
 \method{SensAnalysisMLP}{nn}(MLP.fit, .returnSens = TRUE, ...)
+
+\method{SensAnalysisMLP}{nnet}(MLP.fit, .returnSens = TRUE, trData, ...)
 }
 \arguments{
 \item{MLP.fit}{fitted model from caret package using nnet method}
@@ -65,17 +65,8 @@ Function for evaluating the sensitivities of the inputs variables in a mlp model
 }
 
 \examples{
-\dontrun{
-## Load necessary libraries ----------------------------------------------------
-library(ggplot2)
-library(caret)
-library(h2o)
-library(neural)
-library(RSNNS)
-library(neuralnet)
-
 ## Load data -------------------------------------------------------------------
-data(DAILY_DEMAND_TR)
+data("DAILY_DEMAND_TR")
 fdata <- DAILY_DEMAND_TR
 
 ## Parameters of the NNET ------------------------------------------------------
@@ -86,8 +77,6 @@ decay <- 0.1
 ################################################################################
 #########################  REGRESSION NNET #####################################
 ################################################################################
-## Begin empty list of nnets ---------------------------------------------------
-RegNNET <- NULL
 ## Regression dataframe --------------------------------------------------------
 # Scale the data
 fdata.Reg.tr <- fdata[,2:ncol(fdata)]
@@ -98,17 +87,34 @@ fdata.Reg.tr[,1] <- fdata.Reg.tr[,1]/1000
 preProc <- caret::preProcess(fdata.Reg.tr, method = c("center","scale"))
 nntrData <- predict(preProc, fdata.Reg.tr)
 
+#' ## TRAIN nnet NNET --------------------------------------------------------
+# Create a formula to train NNET
+form <- paste(names(fdata.Reg.tr)[2:ncol(fdata.Reg.tr)], collapse = " + ")
+form <- formula(paste(names(fdata.Reg.tr)[1], form, sep = " ~ "))
+
+set.seed(150)
+nnetmod <- nnet::nnet(form,
+                           data = nntrData,
+                           linear.output = TRUE,
+                           size = hidden_neurons,
+                           decay = decay,
+                           maxit = iters)
+# Try SensAnalysisMLP
+NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData)
+
+\donttest{
+
 ## Train caret NNET ------------------------------------------------------------
 # Create trainControl
-ctrl_tune <- trainControl(method = "boot",
-                          savePredictions = FALSE,
-                          summaryFunction = defaultSummary)
+ctrl_tune <- caret::trainControl(method = "boot",
+                                 savePredictions = FALSE,
+                                 summaryFunction = caret::defaultSummary)
 set.seed(150) #For replication
-RegNNET$caret <- caret::train(form = DEM~.,
+caretmod <- caret::train(form = DEM~.,
                               data = fdata.Reg.tr,
                               method = "nnet",
                               linout = TRUE,
-                              tuneGrid = data.frame(size = hidden_neurons,
+                              tuneGrid = data.frame(size = 3,
                                                     decay = decay),
                               maxit = iters,
                               preProcess = c("center","scale"),
@@ -116,36 +122,71 @@ RegNNET$caret <- caret::train(form = DEM~.,
                               metric = "RMSE")
 
 # Try SensAnalysisMLP
-NeuralSens::SensAnalysisMLP(RegNNET$caret)
+NeuralSens::SensAnalysisMLP(caretmod)
+
+## Train h2o NNET --------------------------------------------------------------
+# Creaci?n de un cluster local con todos los cores disponibles
+h2o::h2o.init(ip = "localhost",
+              # -1 indica que se empleen todos los cores disponibles.
+              nthreads = 4,
+              # M?xima memoria disponible para el cluster.
+              max_mem_size = "2g")
+
+# Se eliminan los datos del cluster por si ya hab?a sido iniciado.
+h2o::h2o.removeAll()
+fdata_h2o <- h2o::as.h2o(x = fdata.Reg.tr, destination_frame = "fdata_h2o")
+
+set.seed(150)
+h2omod <-h2o:: h2o.deeplearning(x = names(fdata.Reg.tr)[2:ncol(fdata.Reg.tr)],
+                                     y = names(fdata.Reg.tr)[1],
+                                     distribution = "AUTO",
+                                     training_frame = fdata_h2o,
+                                     standardize = TRUE,
+                                     activation = "Tanh",
+                                     hidden = c(hidden_neurons),
+                                     stopping_rounds = 0,
+                                     epochs = iters,
+                                     seed = 150,
+                                     model_id = "nnet_h2o",
+                                     adaptive_rate = FALSE,
+                                     rate_decay = decay,
+                                     export_weights_and_biases = TRUE)
+
+# Try SensAnalysisMLP
+NeuralSens::SensAnalysisMLP(h2omod)
+
+# Apaga el cluster
+h2o::h2o.shutdown(prompt = FALSE)
+rm(fdata_h2o)
 
 ## Train neural NNET -----------------------------------------------------------
 set.seed(150)
-RegNNET$neural <- mlptrain(as.matrix(nntrData[,2:ncol(nntrData)]),
-                           hidden_neurons,
-                           as.matrix(nntrData[1]),
-                           it=iters,
-                           visual=FALSE)
+neuralmod <- neural::mlptrain(as.matrix(nntrData[,2:ncol(nntrData)]),
+                                   hidden_neurons,
+                                   as.matrix(nntrData[1]),
+                                   it=iters,
+                                   visual=FALSE)
 
 # Try SensAnalysisMLP
 trData <- nntrData
 names(trData)[1] <- ".outcome"
-NeuralSens::SensAnalysisMLP(RegNNET$neural, trData = trData)
+NeuralSens::SensAnalysisMLP(neuralmod, trData = trData)
 
 ## Train RSNNS NNET ------------------------------------------------------------
 # Normalize data using RSNNS algorithms
 trData <- as.data.frame(RSNNS::normalizeData(fdata.Reg.tr))
 names(trData) <- names(fdata.Reg.tr)
 set.seed(150)
-RegNNET$RSNNS <- mlp(x = trData[,2:ncol(trData)],
-                     y = trData[,1],
-                     size = hidden_neurons,
-                     linOut = TRUE,
-                     learnFuncParams=c(decay),
-                     maxit=iters)
+RSNNSmod <-RSNNS::mlp(x = trData[,2:ncol(trData)],
+                           y = trData[,1],
+                           size = hidden_neurons,
+                           linOut = TRUE,
+                           learnFuncParams=c(decay),
+                           maxit=iters)
 names(trData)[1] <- ".outcome"
 
 # Try SensAnalysisMLP
-NeuralSens::SensAnalysisMLP(RegNNET$RSNNS, trData = trData)
+NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData)
 
 ## TRAIN neuralnet NNET --------------------------------------------------------
 # Create a formula to train NNET
@@ -153,25 +194,24 @@ form <- paste(names(fdata.Reg.tr)[2:ncol(fdata.Reg.tr)], collapse = " + ")
 form <- formula(paste(names(fdata.Reg.tr)[1], form, sep = " ~ "))
 
 set.seed(150)
-RegNNET$nn <- neuralnet(form,
-                        nntrData,
-                        linear.output = TRUE,
-                        rep = 1,
-                        hidden = hidden_neurons,
-                        lifesign = "minimal",
-                        threshold = 7,
-                        stepmax = iters,
-                        learningrate = decay,
-                        act.fct = "tanh")
+nnmod <- neuralnet::neuralnet(form,
+                                   nntrData,
+                                   linear.output = TRUE,
+                                   rep = 1,
+                                   hidden = hidden_neurons,
+                                   lifesign = "minimal",
+                                   threshold = 7,
+                                   stepmax = iters,
+                                   learningrate = decay,
+                                   act.fct = "tanh")
 
 # Try SensAnalysisMLP
-NeuralSens::SensAnalysisMLP(RegNNET$nn)
+NeuralSens::SensAnalysisMLP(nnmod)
+
 
 ################################################################################
 #########################  CLASSIFICATION NNET #################################
 ################################################################################
-## Begin empty list of nnets ---------------------------------------------------
-ClassNNET <- NULL
 ## Regression dataframe --------------------------------------------------------
 # Scale the data
 fdata.Reg.cl <- fdata[,2:ncol(fdata)]
@@ -191,11 +231,11 @@ nntrData <- predict(preProc, fdata.Reg.cl)
 
 ## Train caret NNET ------------------------------------------------------------
 # Create trainControl
-ctrl_tune <- trainControl(method = "boot",
-                          savePredictions = FALSE,
-                          summaryFunction = defaultSummary)
+ctrl_tune <- caret::trainControl(method = "boot",
+                                 savePredictions = FALSE,
+                                 summaryFunction = caret::defaultSummary)
 set.seed(150) #For replication
-ClassNNET$caret <- caret::train(form = DEM~.,
+caretmod <- caret::train(form = DEM~.,
                                 data = fdata.Reg.cl,
                                 method = "nnet",
                                 linout = FALSE,
@@ -207,33 +247,69 @@ ClassNNET$caret <- caret::train(form = DEM~.,
                                 metric = "Accuracy")
 
 # Try SensAnalysisMLP
-NeuralSens::SensAnalysisMLP(ClassNNET$caret)
+NeuralSens::SensAnalysisMLP(caretmod)
+
+## Train h2o NNET --------------------------------------------------------------
+# Creaci?n de un cluster local con todos los cores disponibles
+h2o::h2o.init(ip = "localhost",
+              # -1 indica que se empleen todos los cores disponibles.
+              nthreads = 4,
+              # M?xima memoria disponible para el cluster.
+              max_mem_size = "2g")
+
+# Se eliminan los datos del cluster por si ya hab?a sido iniciado.
+h2o::h2o.removeAll()
+fdata_h2o <- h2o::as.h2o(x = fdata.Reg.cl, destination_frame = "fdata_h2o")
+
+set.seed(150)
+h2omod <- h2o::h2o.deeplearning(x = names(fdata.Reg.cl)[2:ncol(fdata.Reg.cl)],
+                                       y = names(fdata.Reg.cl)[1],
+                                       distribution = "AUTO",
+                                       training_frame = fdata_h2o,
+                                       standardize = TRUE,
+                                       activation = "Tanh",
+                                       hidden = c(hidden_neurons),
+                                       stopping_rounds = 0,
+                                       epochs = iters,
+                                       seed = 150,
+                                       model_id = "nnet_h2o",
+                                       adaptive_rate = FALSE,
+                                       rate_decay = decay,
+                                       export_weights_and_biases = TRUE)
+
+# Try SensAnalysisMLP
+NeuralSens::SensAnalysisMLP(h2omod)
+
+# Apaga el cluster
+h2o::h2o.shutdown(prompt = FALSE)
+rm(fdata_h2o)
+
 ## Train neural NNET -----------------------------------------------------------
 # set.seed(150)
-# ClassNNET$neural <-mlptrain(as.matrix(nntrData[,2:ncol(nntrData)]),
+# neuralmod <-mlptrain(as.matrix(nntrData[,2:ncol(nntrData)]),
 #                           hidden_neurons,
 #                           as.matrix(nntrData[1]),
 #                           it=iters,
 #                           visual=FALSE)
 #
 # # Try SensAnalysisMLP
-# NeuralSens::SensAnalysisMLP(ClassNNET$neural, trData = trData)
+# NeuralSens::SensAnalysisMLP(neuralmod, trData = trData)
 
-### Train RSNNS NNET ------------------------------------------------------------
-## Normalize data using RSNNS algorithms
-#trData <- as.data.frame(RSNNS::normalizeData(fdata.Reg.cl))
-#names(trData) <- names(fdata.Reg.tr)
-#set.seed(150)
-#ClassNNET$RSNNS <- mlp(x = trData[,2:ncol(trData)],
-#                       y = trData[,1],
-#                       size = hidden_neurons,
-#                       linOut = FALSE,
-#                       learnFuncParams=c(decay),
-#                       maxit=iters)
-#names(trData)[1] <- ".outcome"
-
-## Try SensAnalysisMLP
-#NeuralSens::SensAnalysisMLP(ClassNNET$RSNNS, trData = trData)
+# ## Train RSNNS NNET ------------------------------------------------------------
+# # Normalize data using RSNNS algorithms
+# trData <- as.data.frame(RSNNS::normalizeData(fdata.Reg.cl))
+# names(trData) <- names(fdata.Reg.tr)
+# set.seed(150)
+# RSNNSmod <- RSNNS::mlp(x = trData[,2:ncol(trData)],
+#                      y = trData[,1],
+#                      size = hidden_neurons,
+#                      linOut = FALSE,
+#                      learnFuncParams=c(decay),
+#                      maxit=iters)
+# names(trData)[1] <- ".outcome"
+#
+# # Try SensAnalysisMLP
+# NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData)
 
 ## TRAIN neuralnet NNET --------------------------------------------------------
 # Create a formula to train NNET
@@ -241,88 +317,33 @@ NeuralSens::SensAnalysisMLP(ClassNNET$caret)
 # form <- formula(paste(names(fdata.Reg.tr)[1], form, sep = " ~ "))
 #
 # set.seed(150)
-# ClassNNET$nn <- neuralnet(form,
-#                         nntrData,
-#                         linear.output = FALSE,
-#                         rep = 1,
-#                         hidden = hidden_neurons,
-#                         lifesign = "minimal",
-#                         threshold = 4,
-#                         stepmax = iters,
-#                         learningrate = decay,
-#                         act.fct = "tanh")
+# nnmod <- neuralnet(form,
+#                    nntrData,
+#                    linear.output = FALSE,
+#                    rep = 1,
+#                    hidden = hidden_neurons,
+#                    lifesign = "minimal",
+#                    threshold = 4,
+#                    stepmax = iters,
+#                    learningrate = decay,
+#                    act.fct = "tanh")
 #
 # # Try SensAnalysisMLP
-# NeuralSens::SensAnalysisMLP(ClassNNET$nn)
-## Train h2o NNET --------------------------------------------------------------
-# Creaci?n de un cluster local con todos los cores disponibles
-h2o.init(ip = "localhost",
-         # -1 indica que se empleen todos los cores disponibles.
-         nthreads = 4,
-         # M?xima memoria disponible para el cluster.
-         max_mem_size = "2g")
+# NeuralSens::SensAnalysisMLP(nnmod)
 
-# Se eliminan los datos del cluster por si ya hab?a sido iniciado.
-h2o.removeAll()
-fdata_h2o <- as.h2o(x = fdata.Reg.tr, destination_frame = "fdata_h2o")
+## TRAIN nnet NNET --------------------------------------------------------
+# Create a formula to train NNET
+form <- paste(names(fdata.Reg.tr)[2:ncol(fdata.Reg.tr)], collapse = " + ")
+form <- formula(paste(names(fdata.Reg.tr)[1], form, sep = " ~ "))
 
 set.seed(150)
-RegNNET$h2o <- h2o.deeplearning(x = names(fdata.Reg.tr)[2:ncol(fdata.Reg.tr)],
-                                y = names(fdata.Reg.tr)[1],
-                                distribution = "AUTO",
-                                training_frame = fdata_h2o,
-                                standardize = TRUE,
-                                activation = "Tanh",
-                                hidden = c(hidden_neurons),
-                                stopping_rounds = 0,
-                                epochs = iters,
-                                seed = 150,
-                                model_id = "nnet_h2o",
-                                adaptive_rate = FALSE,
-                                rate_decay = decay,
-                                export_weights_and_biases = TRUE)
-
+nnetmod <- nnet::nnet(form,
+                      data = nntrData,
+                      linear.output = TRUE,
+                      size = hidden_neurons,
+                      decay = decay,
+                      maxit = iters)
 # Try SensAnalysisMLP
-NeuralSens::SensAnalysisMLP(RegNNET$h2o)
-
-# Apaga el cluster
-h2o.shutdown(prompt = FALSE)
-rm(fdata_h2o)
-
-## Train h2o NNET --------------------------------------------------------------
-# Creaci?n de un cluster local con todos los cores disponibles
-h2o.init(ip = "localhost",
-         # -1 indica que se empleen todos los cores disponibles.
-         nthreads = 4,
-         # M?xima memoria disponible para el cluster.
-         max_mem_size = "2g")
-
-# Se eliminan los datos del cluster por si ya hab?a sido iniciado.
-h2o.removeAll()
-fdata_h2o <- as.h2o(x = fdata.Reg.cl, destination_frame = "fdata_h2o")
-
-set.seed(150)
-ClassNNET$h2o <- h2o.deeplearning(x = names(fdata.Reg.cl)[2:ncol(fdata.Reg.cl)],
-                                  y = names(fdata.Reg.cl)[1],
-                                  distribution = "AUTO",
-                                  training_frame = fdata_h2o,
-                                  standardize = TRUE,
-                                  activation = "Tanh",
-                                  hidden = c(hidden_neurons),
-                                  stopping_rounds = 0,
-                                  epochs = iters,
-                                  seed = 150,
-                                  model_id = "nnet_h2o",
-                                  adaptive_rate = FALSE,
-                                  rate_decay = decay,
-                                  export_weights_and_biases = TRUE)
-
-# Try SensAnalysisMLP
-NeuralSens::SensAnalysisMLP(ClassNNET$h2o)
-
-# Apaga el cluster
-h2o.shutdown(prompt = FALSE)
-rm(fdata_h2o)
-
+NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData)
 }
 }
