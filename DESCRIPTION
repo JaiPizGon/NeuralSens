@@ -1,5 +1,5 @@
 Package: NeuralSens
-Version: 0.0.1
+Version: 0.0.2
 Title: Sensibility Analysis of Neural Networks
 Date: 2019-05-11
 Description: Analysis of the importance of the variables in the output prediction of neural networks.
