@@ -10,3 +10,6 @@ There were no ERRORs, WARNINGs or NOTEs.
 
 ## Downstream dependencies
 I have also run R CMD check on downstream dependencies of NeuralSens.
+
+## Feedback to CRAN
+Thanks Martina Schmirl for the fast reply, you guys do an amazing job.
