@@ -363,12 +363,6 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
     TestData <- stats::predict(preProc, TestData[, varnames])
   }
 
-  # Output structure with the partial derivatives of the output by the input
-  # and the output value for all the input data
-  der <- array(rep(0, dim(TestData)[1]*dim(TestData)[2]*mlpstr[length(mlpstr)]),
-              dim = c(dim(TestData)[1],dim(TestData)[2],mlpstr[length(mlpstr)]))
-  out <- array(rep(0, dim(TestData)[1]*mlpstr[length(mlpstr)]),
-               dim = c(dim(TestData)[1],mlpstr[length(mlpstr)]))
   # Intermediate structures with data necessary to calculate the structures above
   #    - Z stores the values just before entering the neuron, i.e., sum(weights*inputs)
   #    for each layer of neurons
@@ -382,30 +376,44 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
   # Initialize the activation and the derivative of the activation function for each layer
   ActivationFunction <- lapply(actfunc, NeuralSens::ActFunc)
   DerActivationFunction <- lapply(actfunc, NeuralSens::DerActFunc)
+
   # Build the jacobian of the first layer
-  D[[1]] <- diag(ncol(TestData))
-  W[[1]] <- matrix(c(0,rep(1,ncol(TestData))),nrow = ncol(TestData)+1, ncol = 1)
+  D[[1]] <- array(diag(ncol(TestData)),c(ncol(TestData),ncol(TestData),nrow(TestData)))
+  W[[1]] <- array(c(0,rep(1,ncol(TestData))),c(ncol(TestData)+1,1,nrow(TestData)))
   # For each row in the TestData
-  for (irow in 1:nrow(TestData)) {
-    Z[[1]] <- as.numeric(TestData[irow,])
-    O[[1]] <- sapply(as.numeric(TestData[irow,]),ActivationFunction[[1]])
-    # Z[[1]] <- as.matrix.data.frame(TestData)
-    # O[[1]] <- sapply(TestData, function(x){sapply(x,ActivationFunction[[1]])})
+  Z[[1]] <- as.matrix(TestData)
+  O[[1]] <- apply(Z[[1]],c(1,2),
+                  function(x){unlist(lapply(x, ActivationFunction[[1]]))})
 
-    # For each layer, calculate the input to the activation functions of each layer
-    # This inputs are gonna be used to calculate the derivatives and the output of each layer
-    for (l in 2:length(mlpstr)){
-      W[[l]] <- data.matrix(as.data.frame(wts[(sum(mlpstr[1:(l-1)])-mlpstr[1]+1):(sum(mlpstr[1:l])-mlpstr[1])]))
-      Z[[l]] <- as.vector(c(1, O[[l-1]]) %*% W[[l]])
-      O[[l]] <- sapply(Z[[l]],ActivationFunction[[l]])
-      D[[l]] <- t(W[[l]][2:nrow(W[[l]]),] *
-                    sapply(Z[[l-1]], DerActivationFunction[[l-1]])) %*% D[[l-1]]
-      }
-    # Output of the neural network is the output of the last layer
-    out[irow,] <- O[[length(O)]]
-    der[irow,,] <- (D[[length(D)]] * sapply(Z[[length(Z)]], DerActivationFunction[[length(Z)]]))[1,]
+  # For each layer, calculate the input to the activation functions of each layer
+  # This inputs are gonna be used to calculate the derivatives and the output of each layer
+  for (l in 2:length(mlpstr)){
+    W[[l]] <- data.matrix(as.data.frame(wts[(sum(mlpstr[1:(l-1)])-mlpstr[1]+1):(sum(mlpstr[1:l])-mlpstr[1])]))
+    Z[[l]] <- cbind(1, O[[l-1]]) %*% W[[l]]
+    O[[l]] <- apply(Z[[l]],c(1,2),
+                    function(x){unlist(lapply(x, ActivationFunction[[l]]))})
+
+    # Detect if it's a vector because we need it in row vectors and in r a vector is a column
+    m <- W[[l]][2:nrow(W[[l]]),]
+    z <- apply(Z[[l-1]],c(1,2),
+               function(x){unlist(lapply(x, DerActivationFunction[[l-1]]))})
+    # d__ <- do.call(rbind,
+    #                lapply(seq_len(dim(D[[l-1]])[3]),
+    #                       function(i) t(m*z[i,])%*%D[[l-1]][,,i]))
+    d_ <- array(NA, dim=c(mlpstr[l], mlpstr[1], nrow(TestData)))
+    for(irow in 1:nrow(TestData)){
+      d_[,,irow] <- t(m*z[irow,]) %*% D[[l-1]][,,irow]
+    }
+    D[[l]] <- d_
   }
-
+  # Output of the neural network is the output of the last layer
+  out <- O[[length(O)]]
+  # Apply last derivative
+  z <- apply(Z[[l]],c(1,2),
+             function(x){unlist(lapply(x, DerActivationFunction[[l]]))})
+  a <- aperm(D[[length(D)]],c(3,2,1))
+  der <- array(do.call(rbind,lapply(seq_len(dim(a)[1]),function(i) a[i,,]*z[i,])),
+                       c(dim(a)))
   sens <-
     data.frame(
       varNames = varnames,
@@ -472,11 +480,11 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
 #'
 #' @method SensAnalysisMLP train
 SensAnalysisMLP.train <- function(MLP.fit, .returnSens = TRUE, ...) {
-  actfunc <- c("linear", "sigmoid", ifelse(MLP.fit$modelType == "Regression", "linear", "sigmoid"))
-  SensAnalysisMLP.default(MLP.fit$finalModel, trData = MLP.fit$trainingData,
-                          actfunc = actfunc,
-                          .returnSens = .returnSens, preProc = MLP.fit$preProcess,
-                          terms = MLP.fit$terms, ...)
+  SensAnalysisMLP(MLP.fit$finalModel,
+                  trData = MLP.fit$trainingData,
+                  .returnSens = .returnSens,
+                  preProc = MLP.fit$preProcess,
+                  terms = MLP.fit$terms, ...)
 }
 
 #' @rdname SensAnalysisMLP
@@ -804,7 +812,7 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, trData,...) {
 #' @export
 #'
 #' @method SensAnalysisMLP mlp
-SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, trData, ...) {
+SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, trData, preProc = NULL, terms = NULL, ...) {
   # For a RSNNS mlp
   netInfo <- RSNNS::extractNetInfo(MLP.fit)
   nwts <- NeuralNetTools::neuralweights(MLP.fit)
@@ -848,8 +856,8 @@ SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, trData, ...) {
                           trData = trData,
                           actfunc = actfun,
                           .returnSens = .returnSens,
-                          preProc = NULL,
-                          terms = NULL, ...)
+                          preProc = preProc,
+                          terms = terms, ...)
 }
 
 #' @rdname SensAnalysisMLP
@@ -857,7 +865,7 @@ SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, trData, ...) {
 #' @export
 #'
 #' @method SensAnalysisMLP nn
-SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, ...) {
+SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, preProc = NULL, terms = NULL, ...) {
   # For a neuralnet nn
   finalModel <- NULL
   finalModel$n <- c(nrow(MLP.fit$weights[[1]][[1]])-1,ncol(MLP.fit$weights[[1]][[1]]),ncol(MLP.fit$weights[[1]][[2]]))
@@ -879,8 +887,8 @@ SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, ...) {
                           trData = trData,
                           actfunc = actfun,
                           .returnSens = .returnSens,
-                          preProc = NULL,
-                          terms = NULL, ...)
+                          preProc = preProc,
+                          terms = terms, ...)
 }
 
 #' @rdname SensAnalysisMLP
@@ -888,7 +896,7 @@ SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, ...) {
 #' @export
 #'
 #' @method SensAnalysisMLP nnet
-SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, trData, ...) {
+SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, trData, preProc = NULL, terms = NULL, ...) {
   # For a nnet nnet
   finalModel <- NULL
   finalModel$n <- MLP.fit$n
@@ -901,6 +909,6 @@ SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, trData, ...) {
                           trData = trData,
                           actfunc = actfun,
                           .returnSens = .returnSens,
-                          preProc = NULL,
-                          terms = NULL, ...)
+                          preProc = preProc,
+                          terms = terms, ...)
 }

@@ -28,11 +28,14 @@ SensAnalysisMLP(MLP.fit, .returnSens = TRUE, ...)
 
 \method{SensAnalysisMLP}{list}(MLP.fit, .returnSens = TRUE, trData, ...)
 
-\method{SensAnalysisMLP}{mlp}(MLP.fit, .returnSens = TRUE, trData, ...)
+\method{SensAnalysisMLP}{mlp}(MLP.fit, .returnSens = TRUE, trData,
+  preProc = NULL, terms = NULL, ...)
 
-\method{SensAnalysisMLP}{nn}(MLP.fit, .returnSens = TRUE, ...)
+\method{SensAnalysisMLP}{nn}(MLP.fit, .returnSens = TRUE,
+  preProc = NULL, terms = NULL, ...)
 
-\method{SensAnalysisMLP}{nnet}(MLP.fit, .returnSens = TRUE, trData, ...)
+\method{SensAnalysisMLP}{nnet}(MLP.fit, .returnSens = TRUE, trData,
+  preProc = NULL, terms = NULL, ...)
 }
 \arguments{
 \item{MLP.fit}{fitted model from caret package using nnet method}
