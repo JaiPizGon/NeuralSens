@@ -904,7 +904,7 @@ SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, trData, preProc = 
   finalModel$coefnames <- MLP.fit$coefnames
   names(trData)[!names(trData) %in% MLP.fit$coefnames] <- ".outcome"
   actfun <- c("linear","sigmoid",
-              ifelse(is.factor(trData$.outcome), "linear", "sigmoid"))
+              ifelse(is.factor(trData$.outcome),"sigmoid","linear"))
   SensAnalysisMLP.default(finalModel,
                           trData = trData,
                           actfunc = actfun,
