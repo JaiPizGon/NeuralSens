@@ -1,5 +1,5 @@
 
-## NeuralNetTools
+## NeuralSens
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@alu.comillas.edu*
 Linux build:<!-- badges: start -->
@@ -72,6 +72,10 @@ decay <- 0.1
 
 # create neural network
 library(caret)
+```
+
+
+```r
 ctrl_tune <- trainControl(method = "boot",
                           savePredictions = FALSE,
                           summaryFunction = defaultSummary)
