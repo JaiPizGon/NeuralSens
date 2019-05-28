@@ -1,5 +1,5 @@
 
-## NeuralNetTools
+## NeuralSens
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@alu.comillas.edu*
 Linux build:<!-- badges: start -->
@@ -72,6 +72,17 @@ decay <- 0.1
 
 # create neural network
 library(caret)
+```
+
+```
+## Warning: package 'caret' was built under R version 3.5.3
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.5.3
+```
+
+```r
 ctrl_tune <- trainControl(method = "boot",
                           savePredictions = FALSE,
                           summaryFunction = defaultSummary)
