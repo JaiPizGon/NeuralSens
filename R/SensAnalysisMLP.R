@@ -446,7 +446,8 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
   dataplot <- reshape2::melt(der2, measure.vars = varnames)
   # bwidth <- sd(dataplot$value)/(1.34*(dim(dataplot)[1]/length(varnames)))
   # In case the data std is too narrow and erase the data
-  if (any(abs(dataplot$value) > 2*max(sens$std, na.rm = TRUE))) {
+  if (any(abs(dataplot$value) > 2*max(sens$std, na.rm = TRUE)) ||
+      max(abs(dataplot$value)) < max(sens$std, na.rm = TRUE)) {
     plotlist[[3]] <- ggplot2::ggplot(dataplot) +
       ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
                             alpha = 0.4,
