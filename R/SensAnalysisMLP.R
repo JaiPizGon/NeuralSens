@@ -453,8 +453,8 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
                             alpha = 0.4,
                             bw = "bcv") +
       ggplot2::labs(x = "Sens", y = "density(Sens)") +
-      ggplot2::xlim(-1.1 * max(abs(dataplot$value), na.rm = TRUE),
-                    1.1 * max(abs(dataplot$value), na.rm = TRUE))
+      ggplot2::xlim(-1 * max(abs(dataplot$value), na.rm = TRUE),
+                    1 * max(abs(dataplot$value), na.rm = TRUE))
   } else {
     plotlist[[3]] <- ggplot2::ggplot(dataplot) +
       ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),

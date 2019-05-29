@@ -2,7 +2,7 @@ Package: NeuralSens
 Version: 0.0.2
 Title: Sensibility Analysis of Neural Networks
 Date: 2019-05-11
-Description: Analysis of the importance of the variables in the output prediction of neural networks.
+Description: Analysis of the output sensitivity with respect to the inputs in neural networks
 Author: Jose Portela González. Contributions from Jaime Pizarroso Gonzalo.
 Maintainer: Jaime Pizarroso Gonzalo <jpizarroso@alu.comillas.edu>
 Imports:
