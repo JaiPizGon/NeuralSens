@@ -53,7 +53,8 @@ SensAnalysisMLP(MLP.fit, .returnSens = TRUE, ...)
 \item{terms}{function applied to the training data to create factors}
 }
 \value{
-dataframe with the sensitivities obtained for each variable if .returnSens \code{TRUE}
+dataframe with the sensitivities obtained for each variable if .returnSens \code{TRUE}.
+If there is more than one output, the sensitivities of each output are given in a list.
 }
 \description{
 Function for evaluating the sensitivities of the inputs variables in a mlp model

@@ -8,7 +8,8 @@
 #' @param preProc preProcess structure applied to the training data
 #' @param terms function applied to the training data to create factors
 #' @param ...	additional arguments passed to or from other methods
-#' @return dataframe with the sensitivities obtained for each variable if .returnSens \code{TRUE}
+#' @return dataframe with the sensitivities obtained for each variable if .returnSens \code{TRUE}.
+#' If there is more than one output, the sensitivities of each output are given in a list.
 #' @section Output:
 #' \itemize{
 #'   \item Plot 1: colorful plot with the classification of the classes in a 2D map
@@ -471,6 +472,19 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
                           ncols = 1)
 
   if (.returnSens) {
+    # Check if there are more than one output
+    if (dim(der)[3] > 1) {
+      sens <- list(sens)
+      for (i in 2:dim(der)[3]) {
+        sens[[i]] <- data.frame(
+          varNames = varnames,
+          mean = colMeans(der[, , i], na.rm = TRUE),
+          std = apply(der[, , i], 2, stats::sd, na.rm = TRUE),
+          meanSensSQ = colMeans(der[, , i] ^ 2, na.rm = TRUE)
+        )
+      }
+      names(sens) <- make.names(levels(trData$.outcome), unique = TRUE)
+    }
     return(sens)
   }
 }
