@@ -47,6 +47,8 @@ Thumbs.db
 # Papers to study # 
 ###################
 /Papers/*
+/Paper/*
+!/Paper/article.tex
 
 # Development of the package #
 ##############################
