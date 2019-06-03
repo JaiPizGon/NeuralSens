@@ -2,8 +2,12 @@ Package: NeuralSens
 Version: 0.0.2
 Title: Sensibility Analysis of Neural Networks
 Date: 2019-05-11
-Description: Analysis of the output sensitivity with respect to the inputs in neural networks.
-Author: Jose Portela González. Contributions from Jaime Pizarroso Gonzalo.
+Description: Analysis functions to quantify inputs importance in neural network models. 
+  Functions are available for calculating and plotting the inputs importance and obtaining 
+  the activation function of each neuron layer and its derivatives. The importance of a given 
+  input is defined as the distribution of the derivatives of the output with respect to that 
+  input in each training data point.
+Author: José Portela González. Contributions from Jaime Pizarroso Gonzalo.
 Maintainer: Jaime Pizarroso Gonzalo <jpizarroso@alu.comillas.edu>
 Imports:
     ggplot2,
@@ -26,3 +30,9 @@ BugReports: https://github.com/JaiPizGon/NeuralSens/issues
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
+Authors@R: c(
+    person(given = "José", family = "Portela González", 
+      email = "Jose.Portela@iit.comillas.edu", role = "aut"),
+    person(given = "Jaime", family = "Pizarroso Gonzalo", 
+      email = "jpizarroso@alu.comillas.edu", role = c("ctb", "cre"))
+    )
