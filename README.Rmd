@@ -29,11 +29,10 @@ library(devtools)
 install_github('JaiPizGon/NeuralSens')
 ```
 
-The current release can not be installed from CRAN, we are working on it:
+The last version can be installed from CRAN:
 
 ```{r, eval = FALSE}
-# ## DON'T RUN
-# install.packages('NeuralSens')
+install.packages('NeuralSens')
 ```
 
 ### Bug reports

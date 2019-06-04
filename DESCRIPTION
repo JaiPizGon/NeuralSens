@@ -1,13 +1,13 @@
 Package: NeuralSens
 Version: 0.0.2
-Title: Sensibility Analysis of Neural Networks
+Title: Sensitivity Analysis of Neural Networks
 Date: 2019-05-11
 Description: Analysis functions to quantify inputs importance in neural network models. 
   Functions are available for calculating and plotting the inputs importance and obtaining 
   the activation function of each neuron layer and its derivatives. The importance of a given 
   input is defined as the distribution of the derivatives of the output with respect to that 
   input in each training data point.
-Author: José Portela González. Contributions from Jaime Pizarroso Gonzalo.
+Author: José Portela González [aut], Jaime Pizarroso Gonzalo [ctb, cre]
 Maintainer: Jaime Pizarroso Gonzalo <jpizarroso@alu.comillas.edu>
 Imports:
     ggplot2,

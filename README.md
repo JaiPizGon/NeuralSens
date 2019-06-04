@@ -21,12 +21,11 @@ library(devtools)
 install_github('JaiPizGon/NeuralSens')
 ```
 
-The current release can not be installed from CRAN, we are working on it:
+The last version can be installed from CRAN:
 
 
 ```r
-# ## DON'T RUN
-# install.packages('NeuralSens')
+install.packages('NeuralSens')
 ```
 
 ### Bug reports
@@ -72,10 +71,6 @@ decay <- 0.1
 
 # create neural network
 library(caret)
-```
-
-
-```r
 ctrl_tune <- trainControl(method = "boot",
                           savePredictions = FALSE,
                           summaryFunction = defaultSummary)
