@@ -59,6 +59,12 @@ If there is more than one output, the sensitivities of each output are given in 
 \description{
 Function for evaluating the sensitivities of the inputs variables in a mlp model
 }
+\details{
+In case of using an input of class \code{factor} and a package which need to enter
+the input data as matrix, the dummies must be created before training the neural network.
+
+After that, the training data must be given to the function using the \code{trData} argument.
+}
 \section{Output}{
 
 \itemize{
