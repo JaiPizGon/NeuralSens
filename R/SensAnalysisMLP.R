@@ -1,26 +1,33 @@
 #' Sensitivity of NNET models
 #'
-#' @description Function for evaluating the sensitivities of the inputs variables in a mlp model
+#' @description Function for evaluating the sensitivities of the inputs
+#'   variables in a mlp model
 #' @param MLP.fit fitted model from caret package using nnet method
 #' @param trData data frame containing the training data of the model
-#' @param actfunc character vector indicating the activation function of each neurons layer.
-#' @param .returnSens logical value. If \code{TRUE}, sensibility of the model is returned.
-#' @param preProc preProcess structure applied to the training data
-#' @param terms function applied to the training data to create factors
+#' @param actfunc character vector indicating the activation function of each
+#'   neurons layer.
+#' @param .returnSens logical value. If \code{TRUE}, sensibility of the model is
+#'   returned.
+#' @param preProc preProcess structure applied to the training data. See also
+#'   \code{\link[caret]{preProcess}}
+#' @param terms function applied to the training data to create factors. See
+#'   also \code{\link[caret]{train}}
+#' @param plot \code{logical} whether or not to plot the analysis. By default
+#'   is \code{TRUE}.
 #' @param ...	additional arguments passed to or from other methods
-#' @return dataframe with the sensitivities obtained for each variable if .returnSens \code{TRUE}.
-#' If there is more than one output, the sensitivities of each output are given in a list.
-#' @section Output:
-#' \itemize{
-#'   \item Plot 1: colorful plot with the classification of the classes in a 2D map
-#'   \item Plot 2: b/w plot with probability of the chosen class in a 2D map
-#'   \item Plot 3: plot with the stats::predictions of the data provided
-#' }
-#' @details
-#' In case of using an input of class \code{factor} and a package which need to enter
-#' the input data as matrix, the dummies must be created before training the neural network.
+#' @return dataframe with the sensitivities obtained for each variable if
+#'   .returnSens \code{TRUE}. If there is more than one output, the
+#'   sensitivities of each output are given in a list.
+#' @section Output: \itemize{ \item Plot 1: colorful plot with the
+#'   classification of the classes in a 2D map \item Plot 2: b/w plot with
+#'   probability of the chosen class in a 2D map \item Plot 3: plot with the
+#'   stats::predictions of the data provided }
+#' @details In case of using an input of class \code{factor} and a package which
+#'   need to enter the input data as matrix, the dummies must be created before
+#'   training the neural network.
 #'
-#' After that, the training data must be given to the function using the \code{trData} argument.
+#'   After that, the training data must be given to the function using the
+#'   \code{trData} argument.
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")
@@ -305,14 +312,14 @@
 #' }
 #' @export
 #' @rdname SensAnalysisMLP
-SensAnalysisMLP <- function(MLP.fit, .returnSens = TRUE, ...) UseMethod('SensAnalysisMLP')
+SensAnalysisMLP <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, ...) UseMethod('SensAnalysisMLP')
 
 #' @rdname SensAnalysisMLP
 #'
 #' @export
 #'
 #' @method SensAnalysisMLP default
-SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
+SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trData,
                                     actfunc = c('linear', 'sigmoid','linear'),preProc = NULL,
                                     terms = NULL, ...) {
   ### Things needed for calculating the sensibilities:
@@ -428,53 +435,53 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
       meanSensSQ = colMeans(der[, , 1] ^ 2, na.rm = TRUE)
     )
 
+  if (plot) {
+    plotlist <- list()
 
-  plotlist <- list()
-
-  plotlist[[1]] <- ggplot2::ggplot(sens) +
-    ggplot2::geom_point(ggplot2::aes_string(x = "mean", y = "std")) +
-    ggplot2::geom_label(ggplot2::aes_string(x = "mean", y = "std", label = "varnames"),
-                        position = "nudge") +
-    ggplot2::geom_point(ggplot2::aes(x = 0, y = 0), size = 5, color = "blue") +
-    ggplot2::geom_hline(ggplot2::aes(yintercept = 0), color = "blue") +
-    ggplot2::geom_vline(ggplot2::aes(xintercept = 0), color = "blue") +
-    # coord_cartesian(xlim = c(min(sens$mean,0)-0.1*abs(min(sens$mean,0)), max(sens$mean)+0.1*abs(max(sens$mean))), ylim = c(0, max(sens$std)*1.1))+
-    ggplot2::labs(x = "mean(Sens)", y = "std(Sens)")
+    plotlist[[1]] <- ggplot2::ggplot(sens) +
+      ggplot2::geom_point(ggplot2::aes_string(x = "mean", y = "std")) +
+      ggplot2::geom_label(ggplot2::aes_string(x = "mean", y = "std", label = "varnames"),
+                          position = "nudge") +
+      ggplot2::geom_point(ggplot2::aes(x = 0, y = 0), size = 5, color = "blue") +
+      ggplot2::geom_hline(ggplot2::aes(yintercept = 0), color = "blue") +
+      ggplot2::geom_vline(ggplot2::aes(xintercept = 0), color = "blue") +
+      # coord_cartesian(xlim = c(min(sens$mean,0)-0.1*abs(min(sens$mean,0)), max(sens$mean)+0.1*abs(max(sens$mean))), ylim = c(0, max(sens$std)*1.1))+
+      ggplot2::labs(x = "mean(Sens)", y = "std(Sens)")
 
 
-  plotlist[[2]] <- ggplot2::ggplot() +
-    ggplot2::geom_col(ggplot2::aes(x = varnames, y = colMeans(der[, , 1] ^ 2, na.rm = TRUE),
-                                  fill = colMeans(der[, , 1] ^ 2, na.rm = TRUE))) +
-    ggplot2::labs(x = "Input variables", y = "mean(Sens^2)") + ggplot2::guides(fill = "none")
+    plotlist[[2]] <- ggplot2::ggplot() +
+      ggplot2::geom_col(ggplot2::aes(x = varnames, y = colMeans(der[, , 1] ^ 2, na.rm = TRUE),
+                                     fill = colMeans(der[, , 1] ^ 2, na.rm = TRUE))) +
+      ggplot2::labs(x = "Input variables", y = "mean(Sens^2)") + ggplot2::guides(fill = "none")
 
-  der2 <- as.data.frame(der[, , 1])
-  colnames(der2) <- varnames
-  dataplot <- reshape2::melt(der2, measure.vars = varnames)
-  # bwidth <- sd(dataplot$value)/(1.34*(dim(dataplot)[1]/length(varnames)))
-  # In case the data std is too narrow and erase the data
-  if (any(abs(dataplot$value) > 2*max(sens$std, na.rm = TRUE)) ||
-      max(abs(dataplot$value)) < max(sens$std, na.rm = TRUE)) {
-    plotlist[[3]] <- ggplot2::ggplot(dataplot) +
-      ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
-                            alpha = 0.4,
-                            bw = "bcv") +
-      ggplot2::labs(x = "Sens", y = "density(Sens)") +
-      ggplot2::xlim(-1 * max(abs(dataplot$value), na.rm = TRUE),
-                    1 * max(abs(dataplot$value), na.rm = TRUE))
-  } else {
-    plotlist[[3]] <- ggplot2::ggplot(dataplot) +
-      ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
-                            alpha = 0.4,
-                            bw = "bcv") +
-      ggplot2::labs(x = "Sens", y = "density(Sens)") +
-      ggplot2::xlim(-2 * max(sens$std, na.rm = TRUE), 2 * max(sens$std, na.rm = TRUE))
+    der2 <- as.data.frame(der[, , 1])
+    colnames(der2) <- varnames
+    dataplot <- reshape2::melt(der2, measure.vars = varnames)
+    # bwidth <- sd(dataplot$value)/(1.34*(dim(dataplot)[1]/length(varnames)))
+    # In case the data std is too narrow and erase the data
+    if (any(abs(dataplot$value) > 2*max(sens$std, na.rm = TRUE)) ||
+        max(abs(dataplot$value)) < max(sens$std, na.rm = TRUE)) {
+      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
+        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
+                              alpha = 0.4,
+                              bw = "bcv") +
+        ggplot2::labs(x = "Sens", y = "density(Sens)") +
+        ggplot2::xlim(-1 * max(abs(dataplot$value), na.rm = TRUE),
+                      1 * max(abs(dataplot$value), na.rm = TRUE))
+    } else {
+      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
+        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
+                              alpha = 0.4,
+                              bw = "bcv") +
+        ggplot2::labs(x = "Sens", y = "density(Sens)") +
+        ggplot2::xlim(-2 * max(sens$std, na.rm = TRUE), 2 * max(sens$std, na.rm = TRUE))
+    }
+    # Plot the list of plots created before
+    gridExtra::grid.arrange(grobs = plotlist,
+                            nrow  = length(plotlist),
+                            ncols = 1)
   }
 
-
-  # Plot the list of plots created before
-  gridExtra::grid.arrange(grobs = plotlist,
-                          nrow  = length(plotlist),
-                          ncols = 1)
 
   if (.returnSens) {
     # Check if there are more than one output
@@ -499,12 +506,13 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, trData,
 #' @export
 #'
 #' @method SensAnalysisMLP train
-SensAnalysisMLP.train <- function(MLP.fit, .returnSens = TRUE, ...) {
+SensAnalysisMLP.train <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, ...) {
   SensAnalysisMLP(MLP.fit$finalModel,
                   trData = MLP.fit$trainingData,
                   .returnSens = .returnSens,
                   preProc = MLP.fit$preProcess,
-                  terms = MLP.fit$terms, ...)
+                  terms = MLP.fit$terms,
+                  plot = plot, ...)
 }
 
 #' @rdname SensAnalysisMLP
@@ -512,7 +520,7 @@ SensAnalysisMLP.train <- function(MLP.fit, .returnSens = TRUE, ...) {
 #' @export
 #'
 #' @method SensAnalysisMLP H2OMultinomialModel
-SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, ...) {
+SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, ...) {
   createDummiesH2O <- function(trData) {
     # H2O dummies create all levels of factor variables and an extra level for missing (NA).
     # This is different in caret where it creates all levels minus 1 of factor variables.
@@ -645,7 +653,8 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, ...
                           actfunc = actfun,
                           .returnSens = .returnSens,
                           preProc = preProc,
-                          terms = NULL, ...)
+                          terms = NULL,
+                          plot = plot, ...)
 }
 
 #' @rdname SensAnalysisMLP
@@ -653,7 +662,7 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, ...
 #' @export
 #'
 #' @method SensAnalysisMLP H2ORegressionModel
-SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, ...) {
+SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, ...) {
   createDummiesH2O <- function(trData) {
     # H2O dummies create all levels of factor variables and an extra level for missing (NA).
     # This is different in caret where it creates all levels minus 1 of factor variables.
@@ -785,7 +794,8 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, ...)
                           actfunc = actfun,
                           .returnSens = .returnSens,
                           preProc = preProc,
-                          terms = NULL, ...)
+                          terms = NULL,
+                          plot = plot, ...)
 }
 
 
@@ -794,7 +804,7 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, ...)
 #' @export
 #'
 #' @method SensAnalysisMLP list
-SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, trData,...) {
+SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trData,...) {
   # For a neural nnet
   ## Detect that it's from the neural package
   neuralfields <- c("weight","dist", "neurons", "actfns", "diffact")
@@ -824,7 +834,8 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, trData,...) {
                           modelType = modelType,
                           .returnSens = .returnSens,
                           preProc = NULL,
-                          terms = NULL, ...)
+                          terms = NULL,
+                          plot = plot, ...)
 }
 
 #' @rdname SensAnalysisMLP
@@ -832,7 +843,7 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, trData,...) {
 #' @export
 #'
 #' @method SensAnalysisMLP mlp
-SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, trData, preProc = NULL, terms = NULL, ...) {
+SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trData, preProc = NULL, terms = NULL, ...) {
   # For a RSNNS mlp
   netInfo <- RSNNS::extractNetInfo(MLP.fit)
   nwts <- NeuralNetTools::neuralweights(MLP.fit)
@@ -877,7 +888,8 @@ SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, trData, preProc = N
                           actfunc = actfun,
                           .returnSens = .returnSens,
                           preProc = preProc,
-                          terms = terms, ...)
+                          terms = terms,
+                          plot = plot, ...)
 }
 
 #' @rdname SensAnalysisMLP
@@ -885,7 +897,7 @@ SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, trData, preProc = N
 #' @export
 #'
 #' @method SensAnalysisMLP nn
-SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, preProc = NULL, terms = NULL, ...) {
+SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, preProc = NULL, terms = NULL, ...) {
   # For a neuralnet nn
   finalModel <- NULL
   finalModel$n <- c(nrow(MLP.fit$weights[[1]][[1]])-1,ncol(MLP.fit$weights[[1]][[1]]),ncol(MLP.fit$weights[[1]][[2]]))
@@ -908,7 +920,8 @@ SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, preProc = NULL, term
                           actfunc = actfun,
                           .returnSens = .returnSens,
                           preProc = preProc,
-                          terms = terms, ...)
+                          terms = terms,
+                          plot = plot, ...)
 }
 
 #' @rdname SensAnalysisMLP
@@ -916,7 +929,7 @@ SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, preProc = NULL, term
 #' @export
 #'
 #' @method SensAnalysisMLP nnet
-SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, trData, preProc = NULL, terms = NULL, ...) {
+SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trData, preProc = NULL, terms = NULL, ...) {
   # For a nnet nnet
   finalModel <- NULL
   finalModel$n <- MLP.fit$n
@@ -933,5 +946,6 @@ SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, trData, preProc = 
                           actfunc = actfun,
                           .returnSens = .returnSens,
                           preProc = preProc,
-                          terms = terms, ...)
+                          terms = terms,
+                          plot = plot, ...)
 }

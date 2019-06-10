@@ -12,66 +12,77 @@
 \alias{SensAnalysisMLP.nnet}
 \title{Sensitivity of NNET models}
 \usage{
-SensAnalysisMLP(MLP.fit, .returnSens = TRUE, ...)
+SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE, ...)
 
-\method{SensAnalysisMLP}{default}(MLP.fit, .returnSens = TRUE, trData,
-  actfunc = c("linear", "sigmoid", "linear"), preProc = NULL,
-  terms = NULL, ...)
+\method{SensAnalysisMLP}{default}(MLP.fit, .returnSens = TRUE,
+  plot = TRUE, trData, actfunc = c("linear", "sigmoid", "linear"),
+  preProc = NULL, terms = NULL, ...)
 
-\method{SensAnalysisMLP}{train}(MLP.fit, .returnSens = TRUE, ...)
+\method{SensAnalysisMLP}{train}(MLP.fit, .returnSens = TRUE,
+  plot = TRUE, ...)
 
 \method{SensAnalysisMLP}{H2OMultinomialModel}(MLP.fit,
-  .returnSens = TRUE, ...)
+  .returnSens = TRUE, plot = TRUE, ...)
 
 \method{SensAnalysisMLP}{H2ORegressionModel}(MLP.fit, .returnSens = TRUE,
-  ...)
+  plot = TRUE, ...)
 
-\method{SensAnalysisMLP}{list}(MLP.fit, .returnSens = TRUE, trData, ...)
+\method{SensAnalysisMLP}{list}(MLP.fit, .returnSens = TRUE,
+  plot = TRUE, trData, ...)
 
-\method{SensAnalysisMLP}{mlp}(MLP.fit, .returnSens = TRUE, trData,
+\method{SensAnalysisMLP}{mlp}(MLP.fit, .returnSens = TRUE, plot = TRUE,
+  trData, preProc = NULL, terms = NULL, ...)
+
+\method{SensAnalysisMLP}{nn}(MLP.fit, .returnSens = TRUE, plot = TRUE,
   preProc = NULL, terms = NULL, ...)
 
-\method{SensAnalysisMLP}{nn}(MLP.fit, .returnSens = TRUE,
-  preProc = NULL, terms = NULL, ...)
-
-\method{SensAnalysisMLP}{nnet}(MLP.fit, .returnSens = TRUE, trData,
-  preProc = NULL, terms = NULL, ...)
+\method{SensAnalysisMLP}{nnet}(MLP.fit, .returnSens = TRUE,
+  plot = TRUE, trData, preProc = NULL, terms = NULL, ...)
 }
 \arguments{
 \item{MLP.fit}{fitted model from caret package using nnet method}
 
-\item{.returnSens}{logical value. If \code{TRUE}, sensibility of the model is returned.}
+\item{.returnSens}{logical value. If \code{TRUE}, sensibility of the model is
+returned.}
+
+\item{plot}{\code{logical} whether or not to plot the analysis. By default
+is \code{TRUE}.}
 
 \item{...}{additional arguments passed to or from other methods}
 
 \item{trData}{data frame containing the training data of the model}
 
-\item{actfunc}{character vector indicating the activation function of each neurons layer.}
+\item{actfunc}{character vector indicating the activation function of each
+neurons layer.}
 
-\item{preProc}{preProcess structure applied to the training data}
+\item{preProc}{preProcess structure applied to the training data. See also
+\code{\link[caret]{preProcess}}}
 
-\item{terms}{function applied to the training data to create factors}
+\item{terms}{function applied to the training data to create factors. See
+also \code{\link[caret]{train}}}
 }
 \value{
-dataframe with the sensitivities obtained for each variable if .returnSens \code{TRUE}.
-If there is more than one output, the sensitivities of each output are given in a list.
+dataframe with the sensitivities obtained for each variable if
+  .returnSens \code{TRUE}. If there is more than one output, the
+  sensitivities of each output are given in a list.
 }
 \description{
-Function for evaluating the sensitivities of the inputs variables in a mlp model
+Function for evaluating the sensitivities of the inputs
+  variables in a mlp model
 }
 \details{
-In case of using an input of class \code{factor} and a package which need to enter
-the input data as matrix, the dummies must be created before training the neural network.
+In case of using an input of class \code{factor} and a package which
+  need to enter the input data as matrix, the dummies must be created before
+  training the neural network.
 
-After that, the training data must be given to the function using the \code{trData} argument.
+  After that, the training data must be given to the function using the
+  \code{trData} argument.
 }
 \section{Output}{
-
-\itemize{
-  \item Plot 1: colorful plot with the classification of the classes in a 2D map
-  \item Plot 2: b/w plot with probability of the chosen class in a 2D map
-  \item Plot 3: plot with the stats::predictions of the data provided
-}
+ \itemize{ \item Plot 1: colorful plot with the
+  classification of the classes in a 2D map \item Plot 2: b/w plot with
+  probability of the chosen class in a 2D map \item Plot 3: plot with the
+  stats::predictions of the data provided }
 }
 
 \examples{
