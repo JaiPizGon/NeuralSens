@@ -14,6 +14,9 @@
 #'   also \code{\link[caret]{train}}
 #' @param plot \code{logical} whether or not to plot the analysis. By default
 #'   is \code{TRUE}.
+#' @param raw \code{logical} whether or not to return the sensitivity of each row
+#' of the data provided, or return the mean, sd and mean of the square of the
+#' sensitivities. By default is \code{FALSE}.
 #' @param ...	additional arguments passed to or from other methods
 #' @return dataframe with the sensitivities obtained for each variable if
 #'   .returnSens \code{TRUE}. If there is more than one output, the
@@ -312,14 +315,14 @@
 #' }
 #' @export
 #' @rdname SensAnalysisMLP
-SensAnalysisMLP <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, ...) UseMethod('SensAnalysisMLP')
+SensAnalysisMLP <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, raw = FALSE, ...) UseMethod('SensAnalysisMLP')
 
 #' @rdname SensAnalysisMLP
 #'
 #' @export
 #'
 #' @method SensAnalysisMLP default
-SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trData,
+SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, raw = FALSE, trData,
                                     actfunc = c('linear', 'sigmoid','linear'),preProc = NULL,
                                     terms = NULL, ...) {
   ### Things needed for calculating the sensibilities:
@@ -484,20 +487,26 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, tr
 
 
   if (.returnSens) {
-    # Check if there are more than one output
-    if (dim(der)[3] > 1) {
-      sens <- list(sens)
-      for (i in 2:dim(der)[3]) {
-        sens[[i]] <- data.frame(
-          varNames = varnames,
-          mean = colMeans(der[, , i], na.rm = TRUE),
-          std = apply(der[, , i], 2, stats::sd, na.rm = TRUE),
-          meanSensSQ = colMeans(der[, , i] ^ 2, na.rm = TRUE)
-        )
+    if(!raw) {
+      # Check if there are more than one output
+      if (dim(der)[3] > 1) {
+        sens <- list(sens)
+        for (i in 2:dim(der)[3]) {
+          sens[[i]] <- data.frame(
+            varNames = varnames,
+            mean = colMeans(der[, , i], na.rm = TRUE),
+            std = apply(der[, , i], 2, stats::sd, na.rm = TRUE),
+            meanSensSQ = colMeans(der[, , i] ^ 2, na.rm = TRUE)
+          )
+        }
+        names(sens) <- make.names(levels(trData$.outcome), unique = TRUE)
       }
-      names(sens) <- make.names(levels(trData$.outcome), unique = TRUE)
+      return(sens)
+    } else {
+      # Return sensitivities without processing
+      colnames(der) <- varnames
+      return(der)
     }
-    return(sens)
   }
 }
 
@@ -511,6 +520,7 @@ SensAnalysisMLP.train <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, ...)
   SensAnalysisMLP(MLP.fit$finalModel,
                   trData = if ("trData" %in% names(args)) {args$trData} else {MLP.fit$trainingData},
                   .returnSens = .returnSens,
+                  raw = raw,
                   preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
                   terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
                   plot = plot, args[!names(args) %in% c("trData","preProc","terms")])
@@ -658,6 +668,7 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
                           trData = trData,
                           actfunc = actfun,
                           .returnSens = .returnSens,
+                          raw = raw,
                           preProc = preProc,
                           terms = NULL,
                           plot = plot, args[!names(args) %in% c("trData")])
@@ -804,6 +815,7 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
                           trData = trData,
                           actfunc = actfun,
                           .returnSens = .returnSens,
+                          raw = raw,
                           preProc = preProc,
                           terms = NULL,
                           plot = plot, args[!names(args) %in% c("trData")])
@@ -815,7 +827,7 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
 #' @export
 #'
 #' @method SensAnalysisMLP list
-SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trData,...) {
+SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, raw = FALSE, trData,...) {
   # For a neural nnet
   ## Detect that it's from the neural package
   neuralfields <- c("weight","dist", "neurons", "actfns", "diffact")
@@ -844,6 +856,7 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trDat
                           trData = trData,
                           modelType = modelType,
                           .returnSens = .returnSens,
+                          raw = raw,
                           preProc = NULL,
                           terms = NULL,
                           plot = plot, ...)
@@ -854,7 +867,7 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trDat
 #' @export
 #'
 #' @method SensAnalysisMLP mlp
-SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trData, preProc = NULL, terms = NULL, ...) {
+SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, raw = FALSE, trData, preProc = NULL, terms = NULL, ...) {
   # For a RSNNS mlp
   netInfo <- RSNNS::extractNetInfo(MLP.fit)
   nwts <- NeuralNetTools::neuralweights(MLP.fit)
@@ -898,6 +911,7 @@ SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trData
                           trData = trData,
                           actfunc = actfun,
                           .returnSens = .returnSens,
+                          raw = raw,
                           preProc = preProc,
                           terms = terms,
                           plot = plot, ...)
@@ -930,6 +944,7 @@ SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, preProc
                           trData = trData,
                           actfunc = actfun,
                           .returnSens = .returnSens,
+                          raw = raw,
                           preProc = preProc,
                           terms = terms,
                           plot = plot, ...)
@@ -940,7 +955,7 @@ SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, preProc
 #' @export
 #'
 #' @method SensAnalysisMLP nnet
-SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trData, preProc = NULL, terms = NULL, ...) {
+SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, raw = FALSE, trData, preProc = NULL, terms = NULL, ...) {
   # For a nnet nnet
   finalModel <- NULL
   finalModel$n <- MLP.fit$n
@@ -956,6 +971,7 @@ SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, trDat
                           trData = trData,
                           actfunc = actfun,
                           .returnSens = .returnSens,
+                          raw = raw,
                           preProc = preProc,
                           terms = terms,
                           plot = plot, ...)
