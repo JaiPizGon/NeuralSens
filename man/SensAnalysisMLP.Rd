@@ -12,32 +12,34 @@
 \alias{SensAnalysisMLP.nnet}
 \title{Sensitivity of NNET models}
 \usage{
-SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE, ...)
+SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE,
+  .rawSens = FALSE, ...)
 
 \method{SensAnalysisMLP}{default}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, trData, actfunc = c("linear", "sigmoid", "linear"),
-  preProc = NULL, terms = NULL, ...)
+  plot = TRUE, .rawSens = FALSE, trData, actfunc = c("linear",
+  "sigmoid", "linear"), preProc = NULL, terms = NULL, ...)
 
 \method{SensAnalysisMLP}{train}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, ...)
+  plot = TRUE, .rawSens = FALSE, ...)
 
 \method{SensAnalysisMLP}{H2OMultinomialModel}(MLP.fit,
-  .returnSens = TRUE, plot = TRUE, ...)
+  .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, ...)
 
 \method{SensAnalysisMLP}{H2ORegressionModel}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, ...)
+  plot = TRUE, .rawSens = FALSE, ...)
 
 \method{SensAnalysisMLP}{list}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, trData, ...)
+  plot = TRUE, .rawSens = FALSE, trData, ...)
 
 \method{SensAnalysisMLP}{mlp}(MLP.fit, .returnSens = TRUE, plot = TRUE,
-  trData, preProc = NULL, terms = NULL, ...)
+  .rawSens = FALSE, trData, preProc = NULL, terms = NULL, ...)
 
 \method{SensAnalysisMLP}{nn}(MLP.fit, .returnSens = TRUE, plot = TRUE,
-  preProc = NULL, terms = NULL, ...)
+  .rawSens = FALSE, preProc = NULL, terms = NULL, ...)
 
 \method{SensAnalysisMLP}{nnet}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, trData, preProc = NULL, terms = NULL, ...)
+  plot = TRUE, .rawSens = FALSE, trData, preProc = NULL,
+  terms = NULL, ...)
 }
 \arguments{
 \item{MLP.fit}{fitted model from caret package using nnet method}
@@ -47,6 +49,10 @@ returned.}
 
 \item{plot}{\code{logical} whether or not to plot the analysis. By default
 is \code{TRUE}.}
+
+\item{.rawSens}{\code{logical} whether or not to return the sensitivity of each row
+of the data provided, or return the mean, sd and mean of the square of the
+sensitivities. By default is \code{FALSE}.}
 
 \item{...}{additional arguments passed to or from other methods}
 
