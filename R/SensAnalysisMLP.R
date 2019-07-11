@@ -429,7 +429,7 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
              function(x){unlist(lapply(x, DerActivationFunction[[l]]))})
   a <- aperm(D[[length(D)]],c(3,2,1))
   der <- array(do.call(rbind,lapply(seq_len(dim(a)[1]),function(i) a[i,,]*z[i,])),
-                       c(dim(a)))
+               c(dim(a)))
   sens <-
     data.frame(
       varNames = varnames,
@@ -606,10 +606,10 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
     } else {
       as.data.frame(eval(parse(text = MLP.fit@parameters$training_frame)))
     }
-      }, error=function(cond) {
-      stop("The training data has not been detected, load the data to the h2o cluster\n")
-    },
-    finally={}
+  }, error=function(cond) {
+    stop("The training data has not been detected, load the data to the h2o cluster\n")
+  },
+  finally={}
   )
   # Change the name of the output in trData
   if(MLP.fit@parameters$y %in% names(trData)) {
@@ -672,7 +672,7 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
                           preProc = preProc,
                           terms = NULL,
                           plot = plot, args[!names(args) %in% c("trData")])
-}
+  }
 
 #' @rdname SensAnalysisMLP
 #'
@@ -743,7 +743,7 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
   }
   if (is.null(wts)) {
     stop("No weights have been detected
-    Use argument export_weights_and_biases = TRUE when training the nnet")
+         Use argument export_weights_and_biases = TRUE when training the nnet")
   }
   finalModel$wts <- wts
   # Try to extract the training data of the model
@@ -819,7 +819,7 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
                           preProc = preProc,
                           terms = NULL,
                           plot = plot, args[!names(args) %in% c("trData")])
-}
+  }
 
 
 #' @rdname SensAnalysisMLP
