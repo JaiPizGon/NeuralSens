@@ -507,12 +507,13 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, tr
 #'
 #' @method SensAnalysisMLP train
 SensAnalysisMLP.train <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, ...) {
+  args <- list(...)
   SensAnalysisMLP(MLP.fit$finalModel,
-                  trData = MLP.fit$trainingData,
+                  trData = if ("trData" %in% names(args)) {args$trData} else {MLP.fit$trainingData},
                   .returnSens = .returnSens,
-                  preProc = MLP.fit$preProcess,
-                  terms = MLP.fit$terms,
-                  plot = plot, ...)
+                  preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
+                  terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
+                  plot = plot, args[!names(args) %in% c("trData","preProc","terms")])
 }
 
 #' @rdname SensAnalysisMLP
@@ -521,6 +522,7 @@ SensAnalysisMLP.train <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, ...)
 #'
 #' @method SensAnalysisMLP H2OMultinomialModel
 SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, ...) {
+  args <- list(...)
   createDummiesH2O <- function(trData) {
     # H2O dummies create all levels of factor variables and an extra level for missing (NA).
     # This is different in caret where it creates all levels minus 1 of factor variables.
@@ -588,9 +590,13 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
   finalModel$wts <- wts
 
   # Try to extract the training data of the model
-  trData <- tryCatch(
-    {as.data.frame(eval(parse(text = MLP.fit@parameters$training_frame)))},
-    error=function(cond) {
+  trData <- tryCatch({
+    if ("trData" %in% names(args)) {
+      args$trData
+    } else {
+      as.data.frame(eval(parse(text = MLP.fit@parameters$training_frame)))
+    }
+      }, error=function(cond) {
       stop("The training data has not been detected, load the data to the h2o cluster\n")
     },
     finally={}
@@ -654,7 +660,7 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
                           .returnSens = .returnSens,
                           preProc = preProc,
                           terms = NULL,
-                          plot = plot, ...)
+                          plot = plot, args[!names(args) %in% c("trData")])
 }
 
 #' @rdname SensAnalysisMLP
@@ -663,6 +669,7 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
 #'
 #' @method SensAnalysisMLP H2ORegressionModel
 SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, ...) {
+  args <- list(...)
   createDummiesH2O <- function(trData) {
     # H2O dummies create all levels of factor variables and an extra level for missing (NA).
     # This is different in caret where it creates all levels minus 1 of factor variables.
@@ -729,12 +736,16 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
   }
   finalModel$wts <- wts
   # Try to extract the training data of the model
-  trData <- tryCatch(
-    {as.data.frame(eval(parse(text = MLP.fit@parameters$training_frame)))},
-    error=function(cond) {
-      stop("The training data has not been detected, load the data to the h2o cluster\n")
-    },
-    finally={}
+  trData <- tryCatch({
+    if ("trData" %in% names(args)) {
+      args$trData
+    } else {
+      as.data.frame(eval(parse(text = MLP.fit@parameters$training_frame)))
+    }
+  }, error=function(cond) {
+    stop("The training data has not been detected, load the data to the h2o cluster\n")
+  },
+  finally={}
   )
   # Change the name of the output in trData
   if(MLP.fit@parameters$y %in% names(trData)) {
@@ -795,7 +806,7 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
                           .returnSens = .returnSens,
                           preProc = preProc,
                           terms = NULL,
-                          plot = plot, ...)
+                          plot = plot, args[!names(args) %in% c("trData")])
 }
 
 
