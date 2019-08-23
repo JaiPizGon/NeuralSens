@@ -1,7 +1,7 @@
 Package: NeuralSens
-Version: 0.0.5
+Version: 0.0.6
 Title: Sensitivity Analysis of Neural Networks
-Date: 2019-05-11
+Date: 2019-07-11
 Description: Analysis functions to quantify inputs importance in neural network models. 
   Functions are available for calculating and plotting the inputs importance and obtaining 
   the activation function of each neuron layer and its derivatives. The importance of a given 
@@ -16,7 +16,8 @@ Imports:
     reshape2,
     caret,
     fastDummies,
-    stringr
+    stringr,
+    Hmisc
 Suggests:
   h2o,
   neural,

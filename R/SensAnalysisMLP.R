@@ -976,3 +976,138 @@ SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawS
                           terms = terms,
                           plot = plot, ...)
 }
+
+#' @rdname SensAnalysisMLP
+#'
+#' @export
+#'
+#' @method SensAnalysisMLP nnetar
+SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE,...) {
+  # Create the lags in the trData
+  args = list(...)
+  if (!is.null(MLP.fit$xreg)) {
+    if ("trData" %in% names(args)) {
+      xreg <- trData
+      outcome <- trData$.outcome
+      trData$.output <- NULL
+    } else {
+      xreg <- as.data.frame(MLP.fit$xreg)
+      outcome <- MLP.fit$x[MLP.fit$subset]
+    }
+  }
+  # Scale the regressors
+  if (!is.null(MLP.fit$scalexreg)) {
+    for (i in 1:ncol(xreg)) {
+      varname <- names(xreg)[[i]]
+      indexscale <- which(attr(MLP.fit$scalexreg$center,"names") == varname)
+      xreg[[i]] <- (xreg[[i]] - MLP.fit$scalexreg$center[indexscale])/MLP.fit$scalexreg$scale[indexscale]
+    }
+  }
+  # Scale the output
+  if (!is.null(MLP.fit$scalex)) {
+    outcome <- (outcome - MLP.fit$scalex$center)/MLP.fit$scalex$scale
+  }
+
+  # Create lagged outcome as input
+  ylagged <- NULL
+  for (i in 1:MLP.fit$p) {
+    ylagged[[i]] <- Hmisc::Lag(outcome, i)
+    names(ylagged)[i] <- paste0(".outcome_Lag",as.character(i))
+  }
+  ylagged <- as.data.frame(ylagged)
+
+  trData <- cbind(ylagged, xreg, as.data.frame(outcome))
+  names(trData)[ncol(trData)] <- ".outcome"
+  # Get rid of rows with NAs
+  trData <- trData[stats::complete.cases(trData),]
+
+  # For a nnet nnet
+  finalModel <- NULL
+  sensitivities <- list()
+  finalModel$n <- MLP.fit$model[[1]]$n
+  actfun <- c("linear","sigmoid",
+              ifelse(is.factor(trData$.outcome),"sigmoid","linear"))
+  finalModel$coefnames <- c(names(trData)[1:MLP.fit$p],names(as.data.frame(MLP.fit$xreg)))
+  # Apply default function to all the models in the nnetar object
+  for (i in 1:length(MLP.fit$model)) {
+    finalModel$wts <- MLP.fit$model[[1]]$wts
+    sensitivities[[i]] <-  SensAnalysisMLP.default(finalModel,
+                                              trData = trData,
+                                              actfunc = actfun,
+                                              .returnSens = TRUE,
+                                              .rawSens = TRUE,
+                                              preProc = NULL,
+                                              terms = NULL,
+                                              plot = FALSE)
+  }
+  sensitivities <- as.data.frame(do.call("rbind",lapply(sensitivities,
+                                               function(x) {
+                                                 as.data.frame(x[1:dim(x)[1],1:dim(x)[2],1])
+                                               })))
+
+  sens <-
+    data.frame(
+      varNames = c(names(trData)[1:MLP.fit$p],names(as.data.frame(MLP.fit$xreg))),
+      mean = base::colMeans(sensitivities, na.rm = TRUE),
+      std = sapply(sensitivities,stats::sd, na.rm = TRUE),
+      meanSensSQ = base::colMeans(sensitivities ^ 2, na.rm = TRUE)
+    )
+
+  if (plot) {
+    plotlist <- list()
+
+    plotlist[[1]] <- ggplot2::ggplot(sens) +
+      ggplot2::geom_point(ggplot2::aes_string(x = "mean", y = "std")) +
+      ggplot2::geom_label(ggplot2::aes_string(x = "mean", y = "std", label = "varnames"),
+                          position = "nudge") +
+      ggplot2::geom_point(ggplot2::aes(x = 0, y = 0), size = 5, color = "blue") +
+      ggplot2::geom_hline(ggplot2::aes(yintercept = 0), color = "blue") +
+      ggplot2::geom_vline(ggplot2::aes(xintercept = 0), color = "blue") +
+      # coord_cartesian(xlim = c(min(sens$mean,0)-0.1*abs(min(sens$mean,0)), max(sens$mean)+0.1*abs(max(sens$mean))), ylim = c(0, max(sens$std)*1.1))+
+      ggplot2::labs(x = "mean(Sens)", y = "std(Sens)")
+
+
+    plotlist[[2]] <- ggplot2::ggplot() +
+      ggplot2::geom_col(ggplot2::aes(x = sens$varNames, y = colMeans(sensitivities[, , 1] ^ 2, na.rm = TRUE),
+                                     fill = colMeans(sensitivities[, , 1] ^ 2, na.rm = TRUE))) +
+      ggplot2::labs(x = "Input variables", y = "mean(Sens^2)") + ggplot2::guides(fill = "none")
+
+    der2 <- as.data.frame(sensitivities[, , 1])
+    colnames(der2) <- sens$varNames
+    dataplot <- reshape2::melt(der2, measure.vars = sens$varNames)
+    # bwidth <- sd(dataplot$value)/(1.34*(dim(dataplot)[1]/length(varnames)))
+    # In case the data std is too narrow and erase the data
+    if (any(abs(dataplot$value) > 2*max(sens$std, na.rm = TRUE)) ||
+        max(abs(dataplot$value)) < max(sens$std, na.rm = TRUE)) {
+      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
+        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
+                              alpha = 0.4,
+                              bw = "bcv") +
+        ggplot2::labs(x = "Sens", y = "density(Sens)") +
+        ggplot2::xlim(-1 * max(abs(dataplot$value), na.rm = TRUE),
+                      1 * max(abs(dataplot$value), na.rm = TRUE))
+    } else {
+      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
+        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
+                              alpha = 0.4,
+                              bw = "bcv") +
+        ggplot2::labs(x = "Sens", y = "density(Sens)") +
+        ggplot2::xlim(-2 * max(sens$std, na.rm = TRUE), 2 * max(sens$std, na.rm = TRUE))
+    }
+    # Plot the list of plots created before
+    gridExtra::grid.arrange(grobs = plotlist,
+                            nrow  = length(plotlist),
+                            ncols = 1)
+  }
+
+  if (.returnSens) {
+    if(!.rawSens) {
+      # Check if there are more than one output
+      return(sens)
+    } else {
+      # Return sensitivities without processing
+      colnames(sensitivities) <- finalModel$coefnames
+      return(sensitivities)
+    }
+  }
+}
