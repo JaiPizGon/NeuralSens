@@ -37,8 +37,8 @@ Please submit any bug reports (or suggestions) using the [issues](https://github
 
 One function is available to analyze the sensitivity of a multilayer perceptron, 
 evaluating variable importance and plotting the analysis results. A sample dataset is also provided for use with the examples. The function has S3 methods developed for neural networks from the following packages: [nnet](https://cran.r-project.org/package=nnet), [neuralnet](https://cran.r-project.org/package=neuralnet), [RSNNS](https://cran.r-project.org/package=RSNNS), [caret](https://cran.r-project.org/package=caret),
-[neural](https://cran.r-project.org/package=neural), and
-[h2o](https://cran.r-project.org/package=h2o).  Numeric inputs that describe model weights are also acceptable. 
+[neural](https://cran.r-project.org/package=neural),
+[h2o](https://cran.r-project.org/package=h2o) and [forecast](https://cran.r-project.org/package=forecast).  Numeric inputs that describe model weights are also acceptable. 
  
 Start by loading the package and the sample dataset.
 

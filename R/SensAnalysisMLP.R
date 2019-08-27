@@ -987,13 +987,17 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
   args = list(...)
   if (!is.null(MLP.fit$xreg)) {
     if ("trData" %in% names(args)) {
-      xreg <- trData
-      outcome <- trData$.outcome
-      trData$.output <- NULL
+      xreg <- args$trData[,attr(MLP.fit$xreg,"dimnames")[[2]]]
+      if(!".outcome" %in% names(args$trData)) {
+        stop("Change the name of the output variable to '.outcome'")
+      }
+      outcome <- args$trData$.outcome
     } else {
-      xreg <- as.data.frame(MLP.fit$xreg)
+      xreg <- as.data.frame(MLP.fit$xreg)[MLP.fit$subset,]
       outcome <- MLP.fit$x[MLP.fit$subset]
     }
+  } else {
+    outcome <- MLP.fit$x[MLP.fit$subset]
   }
   # Scale the regressors
   if (!is.null(MLP.fit$scalexreg)) {
@@ -1016,7 +1020,14 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
   }
   ylagged <- as.data.frame(ylagged)
 
-  trData <- cbind(ylagged, xreg, as.data.frame(outcome))
+  if (!is.null(MLP.fit$xreg)) {
+    trData <- cbind(ylagged, xreg, as.data.frame(outcome))
+    varnames <- c(names(trData)[1:MLP.fit$p],names(as.data.frame(MLP.fit$xreg)))
+  } else {
+    trData <- cbind(ylagged, as.data.frame(outcome))
+    varnames <- names(trData)[1:MLP.fit$p]
+  }
+
   names(trData)[ncol(trData)] <- ".outcome"
   # Get rid of rows with NAs
   trData <- trData[stats::complete.cases(trData),]
@@ -1027,7 +1038,7 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
   finalModel$n <- MLP.fit$model[[1]]$n
   actfun <- c("linear","sigmoid",
               ifelse(is.factor(trData$.outcome),"sigmoid","linear"))
-  finalModel$coefnames <- c(names(trData)[1:MLP.fit$p],names(as.data.frame(MLP.fit$xreg)))
+  finalModel$coefnames <- varnames
   # Apply default function to all the models in the nnetar object
   for (i in 1:length(MLP.fit$model)) {
     finalModel$wts <- MLP.fit$model[[1]]$wts
@@ -1040,6 +1051,7 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
                                               terms = NULL,
                                               plot = FALSE)
   }
+
   sensitivities <- as.data.frame(do.call("rbind",lapply(sensitivities,
                                                function(x) {
                                                  as.data.frame(x[1:dim(x)[1],1:dim(x)[2],1])
@@ -1047,7 +1059,7 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
 
   sens <-
     data.frame(
-      varNames = c(names(trData)[1:MLP.fit$p],names(as.data.frame(MLP.fit$xreg))),
+      varNames = varnames,
       mean = base::colMeans(sensitivities, na.rm = TRUE),
       std = sapply(sensitivities,stats::sd, na.rm = TRUE),
       meanSensSQ = base::colMeans(sensitivities ^ 2, na.rm = TRUE)
@@ -1068,13 +1080,13 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
 
 
     plotlist[[2]] <- ggplot2::ggplot() +
-      ggplot2::geom_col(ggplot2::aes(x = sens$varNames, y = colMeans(sensitivities[, , 1] ^ 2, na.rm = TRUE),
+      ggplot2::geom_col(ggplot2::aes(x = varnames, y = colMeans(sensitivities[, , 1] ^ 2, na.rm = TRUE),
                                      fill = colMeans(sensitivities[, , 1] ^ 2, na.rm = TRUE))) +
       ggplot2::labs(x = "Input variables", y = "mean(Sens^2)") + ggplot2::guides(fill = "none")
 
     der2 <- as.data.frame(sensitivities[, , 1])
-    colnames(der2) <- sens$varNames
-    dataplot <- reshape2::melt(der2, measure.vars = sens$varNames)
+    colnames(der2) <- varnames
+    dataplot <- reshape2::melt(der2, measure.vars = varnames)
     # bwidth <- sd(dataplot$value)/(1.34*(dim(dataplot)[1]/length(varnames)))
     # In case the data std is too narrow and erase the data
     if (any(abs(dataplot$value) > 2*max(sens$std, na.rm = TRUE)) ||
