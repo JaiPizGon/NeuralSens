@@ -1005,11 +1005,19 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
 
   # Create lagged outcome as input
   ylagged <- NULL
-  for (i in 1:MLP.fit$p) {
+  p <- MLP.fit$p
+  P <- MLP.fit$P
+  m <- MLP.fit$m
+  if (P > 0) {
+    lags <- sort(unique(c(1:p, m * (1:P))))
+  } else {
+    lags <- 1:p
+  }
+  for (i in lags) {
     ylagged[[i]] <- Hmisc::Lag(outcome, i)
     names(ylagged)[i] <- paste0(".outcome_Lag",as.character(i))
   }
-  ylagged <- as.data.frame(ylagged)
+  ylagged <- as.data.frame(ylagged[lags])
 
   if (!is.null(MLP.fit$xreg)) {
     trData <- cbind(ylagged, xreg, as.data.frame(outcome))

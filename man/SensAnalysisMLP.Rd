@@ -17,8 +17,8 @@ SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE,
   .rawSens = FALSE, ...)
 
 \method{SensAnalysisMLP}{default}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, .rawSens = FALSE, trData, actfunc = c("linear",
-  "sigmoid", "linear"), preProc = NULL, terms = NULL, ...)
+  plot = TRUE, .rawSens = FALSE, trData, actfunc = NULL,
+  preProc = NULL, terms = NULL, ...)
 
 \method{SensAnalysisMLP}{train}(MLP.fit, .returnSens = TRUE,
   plot = TRUE, .rawSens = FALSE, ...)
