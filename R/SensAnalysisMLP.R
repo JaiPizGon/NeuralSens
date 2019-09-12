@@ -323,7 +323,7 @@ SensAnalysisMLP <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens =
 #'
 #' @method SensAnalysisMLP default
 SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, trData,
-                                    actfunc = c('linear', 'sigmoid','linear'),preProc = NULL,
+                                    actfunc = NULL,preProc = NULL,
                                     terms = NULL, ...) {
   ### Things needed for calculating the sensibilities:
   #   - Structure of the model  -> MLP.fit$n
@@ -393,43 +393,34 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
   ActivationFunction <- lapply(actfunc, NeuralSens::ActFunc)
   DerActivationFunction <- lapply(actfunc, NeuralSens::DerActFunc)
 
-  # Build the jacobian of the first layer
-  D[[1]] <- array(diag(ncol(TestData)),c(ncol(TestData),ncol(TestData),nrow(TestData)))
   W[[1]] <- array(c(0,rep(1,ncol(TestData))),c(ncol(TestData)+1,1,nrow(TestData)))
   # For each row in the TestData
   Z[[1]] <- as.matrix(TestData)
-  O[[1]] <- apply(Z[[1]],c(1,2),
-                  function(x){unlist(lapply(x, ActivationFunction[[1]]))})
-
+  O[[1]] <- ActivationFunction[[1]](Z[[1]])
+  # Build the jacobian of the first layer
+  D[[1]] <- array(NA, dim=c(mlpstr[1], mlpstr[1], nrow(TestData)))
+  for(irow in 1:nrow(TestData)){
+    D[[1]][,,irow] <- DerActivationFunction[[1]](Z[[1]][irow,])
+  }
   # For each layer, calculate the input to the activation functions of each layer
   # This inputs are gonna be used to calculate the derivatives and the output of each layer
   for (l in 2:length(mlpstr)){
     W[[l]] <- data.matrix(as.data.frame(wts[(sum(mlpstr[1:(l-1)])-mlpstr[1]+1):(sum(mlpstr[1:l])-mlpstr[1])]))
     Z[[l]] <- cbind(1, O[[l-1]]) %*% W[[l]]
-    O[[l]] <- apply(Z[[l]],c(1,2),
-                    function(x){unlist(lapply(x, ActivationFunction[[l]]))})
+    O[[l]] <- ActivationFunction[[l]](Z[[l]])
 
     # Detect if it's a vector because we need it in row vectors and in r a vector is a column
     m <- W[[l]][2:nrow(W[[l]]),]
-    z <- apply(Z[[l-1]],c(1,2),
-               function(x){unlist(lapply(x, DerActivationFunction[[l-1]]))})
-    # d__ <- do.call(rbind,
-    #                lapply(seq_len(dim(D[[l-1]])[3]),
-    #                       function(i) t(m*z[i,])%*%D[[l-1]][,,i]))
-    d_ <- array(NA, dim=c(mlpstr[l], mlpstr[1], nrow(TestData)))
+    D[[l]]<- array(NA, dim=c(mlpstr[1], mlpstr[l], nrow(TestData)))
+    # Chain rule for calculate the derivatives between layers
     for(irow in 1:nrow(TestData)){
-      d_[,,irow] <- t(m*z[irow,]) %*% D[[l-1]][,,irow]
+      z <- DerActivationFunction[[l]](Z[[l]][irow,])
+      D[[l]][,,irow] <- D[[l-1]][,,irow] %*% m %*% z
     }
-    D[[l]] <- d_
   }
   # Output of the neural network is the output of the last layer
   out <- O[[length(O)]]
-  # Apply last derivative
-  z <- apply(Z[[l]],c(1,2),
-             function(x){unlist(lapply(x, DerActivationFunction[[l]]))})
-  a <- aperm(D[[length(D)]],c(3,2,1))
-  der <- array(do.call(rbind,lapply(seq_len(dim(a)[1]),function(i) a[i,,]*z[i,])),
-               c(dim(a)))
+  der <- aperm(D[[l]],c(3,1,2))
   sens <-
     data.frame(
       varNames = varnames,
@@ -614,7 +605,7 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
   # Change the name of the output in trData
   if(MLP.fit@parameters$y %in% names(trData)) {
     names(trData)[which(MLP.fit@parameters$y == names(trData))] <- ".outcome"
-  } else {
+  } else if (!".outcome" %in% names(trData)) {
     stop(paste0("Output ",MLP.fit@parameters$y," has not been found in training data"))
   }
   trData <- trData[,c(".outcome",MLP.fit@parameters$x)]
@@ -656,7 +647,7 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
              stop("SensAnalysisMLP function is not ready for Maxout layers")
            },
            Softmax = {
-             return("sigmoid")
+             return("softmax")
            },
            {
              stop("SensAnalysisMLP is not ready for the activation function used")
@@ -761,7 +752,7 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
   # Change the name of the output in trData
   if(MLP.fit@parameters$y %in% names(trData)) {
     names(trData)[which(MLP.fit@parameters$y == names(trData))] <- ".outcome"
-  } else {
+  } else if (!".outcome" %in% names(trData)) {
     stop(paste0("Output ",MLP.fit@parameters$y," has not been found in training data"))
   }
   trData <- trData[,c(".outcome",MLP.fit@parameters$x)]
