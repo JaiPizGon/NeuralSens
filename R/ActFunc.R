@@ -10,7 +10,7 @@
 #' # Return the tanh activation function of a neuron
 #' ActivationFunction <- ActFunc("tanh")
 #' # Return the activation function of several layers of neurons
-#' actfuncs <- c("linear","sigmoid","linear)
+#' actfuncs <- c("linear","sigmoid","linear")
 #' ActivationFunctions <- sapply(actfuncs, ActFunc)
 #' @export ActFunc
 ActFunc <- function(type = "sigmoid", ...) {
@@ -105,7 +105,7 @@ ActFunc <- function(type = "sigmoid", ...) {
 #' # Return derivative of the tanh activation function of a neuron
 #' ActivationFunction <- DerActFunc("tanh")
 #' # Return derivative of the activation function of several layers of neurons
-#' actfuncs <- c("linear","sigmoid","linear)
+#' actfuncs <- c("linear","sigmoid","linear")
 #' ActivationFunctions <- sapply(actfuncs, DerActFunc)
 #' @export DerActFunc
 DerActFunc <- function(type = "sigmoid", ...) {

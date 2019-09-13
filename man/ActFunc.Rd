@@ -17,3 +17,12 @@ ActFunc(type = "sigmoid", ...)
 \description{
 Evaluate activation function of a neuron
 }
+\examples{
+# Return the sigmoid activation function of a neuron
+ActivationFunction <- ActFunc("sigmoid")
+# Return the tanh activation function of a neuron
+ActivationFunction <- ActFunc("tanh")
+# Return the activation function of several layers of neurons
+actfuncs <- c("linear","sigmoid","linear")
+ActivationFunctions <- sapply(actfuncs, ActFunc)
+}

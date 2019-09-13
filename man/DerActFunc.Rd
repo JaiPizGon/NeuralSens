@@ -17,3 +17,12 @@ DerActFunc(type = "sigmoid", ...)
 \description{
 Evaluate derivate of activation function of a neuron
 }
+\examples{
+# Return derivative of the sigmoid activation function of a neuron
+ActivationFunction <- DerActFunc("sigmoid")
+# Return derivative of the tanh activation function of a neuron
+ActivationFunction <- DerActFunc("tanh")
+# Return derivative of the activation function of several layers of neurons
+actfuncs <- c("linear","sigmoid","linear")
+ActivationFunctions <- sapply(actfuncs, DerActFunc)
+}
