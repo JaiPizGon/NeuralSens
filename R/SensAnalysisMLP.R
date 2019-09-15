@@ -2,11 +2,11 @@
 #'
 #' @description Function for evaluating the sensitivities of the inputs
 #'   variables in a mlp model
-#' @param MLP.fit fitted model from caret package using nnet method
-#' @param trData data frame containing the training data of the model
-#' @param actfunc character vector indicating the activation function of each
+#' @param MLP.fit fitted neural network model
+#' @param trData \code{data.frame} containing the data to evaluate the sensitivity of the model
+#' @param actfunc \code{character} vector indicating the activation function of each
 #'   neurons layer.
-#' @param .returnSens logical value. If \code{TRUE}, sensibility of the model is
+#' @param .returnSens \code{logical} value. If \code{TRUE}, sensibility of the model is
 #'   returned.
 #' @param preProc preProcess structure applied to the training data. See also
 #'   \code{\link[caret]{preProcess}}
@@ -315,7 +315,7 @@
 #' }
 #' @export
 #' @rdname SensAnalysisMLP
-SensAnalysisMLP <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, ...) UseMethod('SensAnalysisMLP')
+SensAnalysisMLP <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, ...) UseMethod('SensAnalysisMLP', MLP.fit)
 
 #' @rdname SensAnalysisMLP
 #'

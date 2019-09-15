@@ -46,9 +46,9 @@ SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE,
   plot = TRUE, .rawSens = FALSE, ...)
 }
 \arguments{
-\item{MLP.fit}{fitted model from caret package using nnet method}
+\item{MLP.fit}{fitted neural network model}
 
-\item{.returnSens}{logical value. If \code{TRUE}, sensibility of the model is
+\item{.returnSens}{\code{logical} value. If \code{TRUE}, sensibility of the model is
 returned.}
 
 \item{plot}{\code{logical} whether or not to plot the analysis. By default
@@ -60,9 +60,9 @@ sensitivities. By default is \code{FALSE}.}
 
 \item{...}{additional arguments passed to or from other methods}
 
-\item{trData}{data frame containing the training data of the model}
+\item{trData}{\code{data.frame} containing the data to evaluate the sensitivity of the model}
 
-\item{actfunc}{character vector indicating the activation function of each
+\item{actfunc}{\code{character} vector indicating the activation function of each
 neurons layer.}
 
 \item{preProc}{preProcess structure applied to the training data. See also
