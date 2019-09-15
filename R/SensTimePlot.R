@@ -1,4 +1,4 @@
-#' Sensitivity analysis plot among time of the data
+#' Sensitivity analysis plot over time of the data
 #'
 #' @description Plot of sensitivity of the neural network output respect
 #' to the inputs over the time variable from the data provided

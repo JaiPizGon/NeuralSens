@@ -2,7 +2,7 @@
 % Please edit documentation in R/SensTimePlot.R
 \name{SensTimePlot}
 \alias{SensTimePlot}
-\title{Sensitivity analysis plot among time of the data}
+\title{Sensitivity analysis plot over time of the data}
 \usage{
 SensTimePlot(object, fdata = NULL, date.var = NULL, facet = FALSE)
 }
