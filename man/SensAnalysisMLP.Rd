@@ -73,7 +73,8 @@ also \code{\link[caret]{train}}}
 }
 \value{
 dataframe with the sensitivities obtained for each variable if
-  .returnSens \code{TRUE}. If there is more than one output, the
+  \code{.returnSens = TRUE}. If \code{.returnSens = FALSE}, the sensitivities without
+  processing are returned in a 3D array. If there is more than one output, the
   sensitivities of each output are given in a list.
 }
 \description{
@@ -88,7 +89,7 @@ In case of using an input of class \code{factor} and a package which
   After that, the training data must be given to the function using the
   \code{trData} argument.
 }
-\section{Output}{
+\section{Plots}{
  \itemize{ \item Plot 1: colorful plot with the
   classification of the classes in a 2D map \item Plot 2: b/w plot with
   probability of the chosen class in a 2D map \item Plot 3: plot with the

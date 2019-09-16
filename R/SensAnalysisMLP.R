@@ -19,9 +19,10 @@
 #' sensitivities. By default is \code{FALSE}.
 #' @param ...	additional arguments passed to or from other methods
 #' @return dataframe with the sensitivities obtained for each variable if
-#'   .returnSens \code{TRUE}. If there is more than one output, the
+#'   \code{.returnSens = TRUE}. If \code{.returnSens = FALSE}, the sensitivities without
+#'   processing are returned in a 3D array. If there is more than one output, the
 #'   sensitivities of each output are given in a list.
-#' @section Output: \itemize{ \item Plot 1: colorful plot with the
+#' @section Plots: \itemize{ \item Plot 1: colorful plot with the
 #'   classification of the classes in a 2D map \item Plot 2: b/w plot with
 #'   probability of the chosen class in a 2D map \item Plot 3: plot with the
 #'   stats::predictions of the data provided }
@@ -421,6 +422,8 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
   # Output of the neural network is the output of the last layer
   out <- O[[length(O)]]
   der <- aperm(D[[l]],c(3,1,2))
+  colnames(der) <- varnames
+  # Obtain sensitivities of the first output and create plots if required
   sens <-
     data.frame(
       varNames = varnames,
@@ -430,56 +433,14 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
     )
 
   if (plot) {
-    plotlist <- list()
-
-    plotlist[[1]] <- ggplot2::ggplot(sens) +
-      ggplot2::geom_point(ggplot2::aes_string(x = "mean", y = "std")) +
-      ggplot2::geom_label(ggplot2::aes_string(x = "mean", y = "std", label = "varnames"),
-                          position = "nudge") +
-      ggplot2::geom_point(ggplot2::aes(x = 0, y = 0), size = 5, color = "blue") +
-      ggplot2::geom_hline(ggplot2::aes(yintercept = 0), color = "blue") +
-      ggplot2::geom_vline(ggplot2::aes(xintercept = 0), color = "blue") +
-      # coord_cartesian(xlim = c(min(sens$mean,0)-0.1*abs(min(sens$mean,0)), max(sens$mean)+0.1*abs(max(sens$mean))), ylim = c(0, max(sens$std)*1.1))+
-      ggplot2::labs(x = "mean(Sens)", y = "std(Sens)")
-
-
-    plotlist[[2]] <- ggplot2::ggplot() +
-      ggplot2::geom_col(ggplot2::aes(x = varnames, y = colMeans(der[, , 1] ^ 2, na.rm = TRUE),
-                                     fill = colMeans(der[, , 1] ^ 2, na.rm = TRUE))) +
-      ggplot2::labs(x = "Input variables", y = "mean(Sens^2)") + ggplot2::guides(fill = "none")
-
-    der2 <- as.data.frame(der[, , 1])
-    colnames(der2) <- varnames
-    dataplot <- reshape2::melt(der2, measure.vars = varnames)
-    # bwidth <- sd(dataplot$value)/(1.34*(dim(dataplot)[1]/length(varnames)))
-    # In case the data std is too narrow and erase the data
-    if (any(abs(dataplot$value) > 2*max(sens$std, na.rm = TRUE)) ||
-        max(abs(dataplot$value)) < max(sens$std, na.rm = TRUE)) {
-      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
-        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
-                              alpha = 0.4,
-                              bw = "bcv") +
-        ggplot2::labs(x = "Sens", y = "density(Sens)") +
-        ggplot2::xlim(-1 * max(abs(dataplot$value), na.rm = TRUE),
-                      1 * max(abs(dataplot$value), na.rm = TRUE))
-    } else {
-      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
-        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
-                              alpha = 0.4,
-                              bw = "bcv") +
-        ggplot2::labs(x = "Sens", y = "density(Sens)") +
-        ggplot2::xlim(-2 * max(sens$std, na.rm = TRUE), 2 * max(sens$std, na.rm = TRUE))
-    }
-    # Plot the list of plots created before
-    gridExtra::grid.arrange(grobs = plotlist,
-                            nrow  = length(plotlist),
-                            ncols = 1)
+    # show plots if required
+    NeuralSens::SensitivityPlots(sens,der = der[,,1])
   }
-
 
   if (.returnSens) {
     if(!.rawSens) {
-      # Check if there are more than one output
+      # Check if there are more than one output and return a list
+      # with the sensitivities of each output. If not, return a data.frame
       if (dim(der)[3] > 1) {
         sens <- list(sens)
         for (i in 2:dim(der)[3]) {
@@ -495,7 +456,6 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
       return(sens)
     } else {
       # Return sensitivities without processing
-      colnames(der) <- varnames
       return(der)
     }
   }
