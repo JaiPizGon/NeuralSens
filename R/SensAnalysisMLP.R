@@ -177,6 +177,13 @@
 #' NeuralSens::SensAnalysisMLP(nnmod)
 #'
 #'
+#' ## USE DEFAULT METHOD ----------------------------------------------------------
+#' NeuralSens::SensAnalysisMLP(RegNNET$caret$finalModel$wts,
+#'                             trData = fdata.Reg.tv,
+#'                             mlpstr = RegNNET$caret$finalModel$n,
+#'                             coefnames = RegNNET$caret$coefnames,
+#'                             actfun = c("linear","sigmoid","linear"))
+#'
 #' ################################################################################
 #' #########################  CLASSIFICATION NNET #################################
 #' ################################################################################
