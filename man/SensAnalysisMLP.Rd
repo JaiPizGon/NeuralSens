@@ -11,6 +11,7 @@
 \alias{SensAnalysisMLP.nn}
 \alias{SensAnalysisMLP.nnet}
 \alias{SensAnalysisMLP.nnetar}
+\alias{SensAnalysisMLP.numeric}
 \title{Sensitivity of NNET models}
 \usage{
 SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE,
@@ -44,6 +45,10 @@ SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE,
 
 \method{SensAnalysisMLP}{nnetar}(MLP.fit, .returnSens = TRUE,
   plot = TRUE, .rawSens = FALSE, ...)
+
+\method{SensAnalysisMLP}{numeric}(MLP.fit, .returnSens = TRUE,
+  plot = TRUE, .rawSens = FALSE, trData, preProc = NULL,
+  terms = NULL, ...)
 }
 \arguments{
 \item{MLP.fit}{fitted neural network model}

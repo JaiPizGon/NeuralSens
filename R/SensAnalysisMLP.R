@@ -331,7 +331,6 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
   #   - Weights of the model    -> MLP.fit$wts
   #   - Name of the inputs      -> MLP.fit$coefnames
   #   - trData [output + inputs], output's name must be .outcome
-  #   - modelType: "Regression" or "Classification"
 
   # Obtain structure of fitted model
   mlpstr <- MLP.fit$n
@@ -798,14 +797,9 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawS
   }
   finalModel$wts <- wts
   finalModel$coefnames <- names(trData)[names(trData) != ".outcome"]
-  if (is.factor(trData$.outcome)) {
-    modelType <- "Classification"
-  } else {
-    modelType <- "Regression"
-  }
+
   SensAnalysisMLP.default(finalModel,
                           trData = trData,
-                          modelType = modelType,
                           .returnSens = .returnSens,
                           .rawSens = .rawSens,
                           preProc = NULL,
@@ -1025,50 +1019,8 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
     )
 
   if (plot) {
-    plotlist <- list()
-
-    plotlist[[1]] <- ggplot2::ggplot(sens) +
-      ggplot2::geom_point(ggplot2::aes_string(x = "mean", y = "std")) +
-      ggplot2::geom_label(ggplot2::aes_string(x = "mean", y = "std", label = "varnames"),
-                          position = "nudge") +
-      ggplot2::geom_point(ggplot2::aes(x = 0, y = 0), size = 5, color = "blue") +
-      ggplot2::geom_hline(ggplot2::aes(yintercept = 0), color = "blue") +
-      ggplot2::geom_vline(ggplot2::aes(xintercept = 0), color = "blue") +
-      # coord_cartesian(xlim = c(min(sens$mean,0)-0.1*abs(min(sens$mean,0)), max(sens$mean)+0.1*abs(max(sens$mean))), ylim = c(0, max(sens$std)*1.1))+
-      ggplot2::labs(x = "mean(Sens)", y = "std(Sens)")
-
-
-    plotlist[[2]] <- ggplot2::ggplot() +
-      ggplot2::geom_col(ggplot2::aes(x = varnames, y = colMeans(sensitivities[, , 1] ^ 2, na.rm = TRUE),
-                                     fill = colMeans(sensitivities[, , 1] ^ 2, na.rm = TRUE))) +
-      ggplot2::labs(x = "Input variables", y = "mean(Sens^2)") + ggplot2::guides(fill = "none")
-
-    der2 <- as.data.frame(sensitivities[, , 1])
-    colnames(der2) <- varnames
-    dataplot <- reshape2::melt(der2, measure.vars = varnames)
-    # bwidth <- sd(dataplot$value)/(1.34*(dim(dataplot)[1]/length(varnames)))
-    # In case the data std is too narrow and erase the data
-    if (any(abs(dataplot$value) > 2*max(sens$std, na.rm = TRUE)) ||
-        max(abs(dataplot$value)) < max(sens$std, na.rm = TRUE)) {
-      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
-        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
-                              alpha = 0.4,
-                              bw = "bcv") +
-        ggplot2::labs(x = "Sens", y = "density(Sens)") +
-        ggplot2::xlim(-1 * max(abs(dataplot$value), na.rm = TRUE),
-                      1 * max(abs(dataplot$value), na.rm = TRUE))
-    } else {
-      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
-        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
-                              alpha = 0.4,
-                              bw = "bcv") +
-        ggplot2::labs(x = "Sens", y = "density(Sens)") +
-        ggplot2::xlim(-2 * max(sens$std, na.rm = TRUE), 2 * max(sens$std, na.rm = TRUE))
-    }
-    # Plot the list of plots created before
-    gridExtra::grid.arrange(grobs = plotlist,
-                            nrow  = length(plotlist),
-                            ncols = 1)
+    # show plots if required
+    NeuralSens::SensitivityPlots(sens,der = sensitivities[,,1])
   }
 
   if (.returnSens) {
@@ -1081,4 +1033,57 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
       return(sensitivities)
     }
   }
+}
+
+#' @rdname SensAnalysisMLP
+#'
+#' @export
+#'
+#' @method SensAnalysisMLP numeric
+SensAnalysisMLP.numeric <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
+                                    .rawSens = FALSE, trData, preProc = NULL,
+                                    terms = NULL, ...) {
+  # Generic method when the weights are passed in the argument MLP.fit
+  finalModel <- NULL
+  finalModel$wts <- MLP.fit
+  # The mlp structure and the name of the explanatory variables should be passed
+  # as mlpstr and coefnames argument respectively
+  args <- list(...)
+  if (!"mlpstr" %in% names(args)) {
+    stop("MLP structure must be passed in mlpstr argument")
+  }
+  finalModel$n <- args$mlpstr
+  # Define the names of the explanatory variables
+  if (!(".outcome" %in% names(trData))) {
+    if (!("coefnames" %in% names(args))) {
+      stop("Names of explanatory variables must be passed in coefnames argument")
+    }
+    finalModel$coefnames <- args$coefnames
+    if (!all(args$coefnames %in% names(trData))) {
+      stop("Explanatory variables defined in coefnames has not been found in trData")
+    }
+    trData[!(names(trData) %in% args$coefnames)] <- ".outcome"
+  } else {
+    if (!("coefnames" %in% names(args))) {
+      finalModel$coefnames <- names(trData)[names(trData) != ".outcome"]
+    } else {
+      finalModel$coefnames <- args$coefnames
+    }
+  }
+  # Define the activation functions used in the neural network
+  # The activation functions must be passed as actfun argument
+  if (!"actfun" %in% names(args)) {
+    stop("The activation functions used in the MLP must be passed as actfun argument")
+  } else if (length(args$actfun) != length(args$mlpstr)) {
+    stop("Number of activation functions does not match the structure of the MLP")
+  }
+
+  SensAnalysisMLP.default(finalModel,
+                          trData = trData,
+                          actfunc = args$actfun,
+                          .returnSens = .returnSens,
+                          .rawSens = .rawSens,
+                          preProc = preProc,
+                          terms = terms,
+                          plot = plot, ...)
 }
