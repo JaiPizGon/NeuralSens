@@ -62,11 +62,11 @@
 #'
 #' set.seed(150)
 #' nnetmod <- nnet::nnet(form,
-#'                            data = nntrData,
-#'                            linear.output = TRUE,
-#'                            size = hidden_neurons,
-#'                            decay = decay,
-#'                            maxit = iters)
+#'                       data = nntrData,
+#'                       linear.output = TRUE,
+#'                       size = hidden_neurons,
+#'                       decay = decay,
+#'                       maxit = iters)
 #' # Try SensAnalysisMLP
 #' NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData)
 #'
