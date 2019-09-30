@@ -24,7 +24,7 @@ for each input variable.}
 }
 \value{
 \code{geom_line} plots for the inputs variables representing the
-sensibility of each output respect to the inputs over time
+sensitivity of each output respect to the inputs over time
 }
 \description{
 Plot of sensitivity of the neural network output respect

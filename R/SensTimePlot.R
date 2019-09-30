@@ -13,7 +13,7 @@
 #' package \code{\link[ggplot2]{ggplot2-package}} to divide the plot
 #' for each input variable.
 #' @return \code{geom_line} plots for the inputs variables representing the
-#' sensibility of each output respect to the inputs over time
+#' sensitivity of each output respect to the inputs over time
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")

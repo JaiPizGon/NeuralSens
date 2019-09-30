@@ -4,7 +4,7 @@
 \name{NeuralSens}
 \alias{NeuralSens}
 \alias{NeuralSens-package}
-\title{NeuralSens: Sensibility analysis to NeuralNets}
+\title{NeuralSens: Sensitivity Analysis of Neural Networks}
 \description{
 Visualization and analysis tools to aid in the interpretation of
 neural network models.

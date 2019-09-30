@@ -27,30 +27,43 @@ NULL
 #'   \item{TEMP}{weather temperature}
 #' }
 NULL
-#' Data frame with 15 variables
+#' List of 4 dataframes to test the functions with different variables types
 #'
-#' @description Dataset composed of several inputs with its corresponding outputs to test the
-#' functionality of the package for regression
+#' @description List of 4 dataframes to test the functions with different
+#' variables types (numeric and character output and inputs)
 #' @name syntheticdata
 #' @doctype data
 #' @author Jose Portela Gonzalez
 #' @keywords data
-#' @format A data frame with 1000 rows and 15 variables:
+#' @format list of 4 data.frames with 4 columns for 3 inputs and one output:
 #' \describe{
-#'   \item{P1x1}{Input 1 of the subset 1 (numeric)}
-#'   \item{P1x2}{Input 2 of the subset 1 (numeric)}
-#'   \item{P1x3}{Input 3 of the subset 1 (numeric)}
-#'   \item{P1y}{Output of the subset 1 (numeric)}
-#'   \item{P2x1}{Input 1 of the subset 2 (numeric)}
-#'   \item{P2x2}{Input 2 of the subset 2 (numeric)}
-#'   \item{P2x3}{Input 3 of the subset 2 (numeric)}
-#'   \item{P2y}{Output of the subset 2 (character)}
-#'   \item{P3x1}{Input 1 of the subset 3 (numeric)}
-#'   \item{P3x2}{Input 2 of the subset 3 (numeric)}
-#'   \item{P3x3}{Input 3 of the subset 3 (numeric)}
-#'   \item{P3y}{Output of the subset 3 (numeric)}
-#'   \item{P4x1}{Input 1 of the subset 3 (numeric)}
-#'   \item{P4x2}{Input 2 of the subset 3 (character)}
-#'   \item{P4y}{Output of the subset 3 (numeric)}
+#'   \item{RegOutNumInp}{data.frame}
+#'   \itemize{
+#'       \item{X1} {Input 1 of the subset 1 (numeric)}
+#'       \item{X2} {Input 2 of the subset 1 (numeric)}
+#'       \item{X3} {Input 3 of the subset 1 (numeric)}
+#'       \item{Y} {Output of the subset 1 (numeric)}
+#'   }
+#'   \item{ClsOutNumInp}{data.frame}
+#'   \itemize{
+#'       \item{X1} {Input 1 of the subset 2 (numeric)}
+#'       \item{X2} {Input 2 of the subset 2 (numeric)}
+#'       \item{X3} {Input 3 of the subset 2 (numeric)}
+#'       \item{Y} {Output of the subset 2 (character)}
+#'   }
+#'   \item{ClsOutClsInp}{data.frame}
+#'   \itemize{
+#'       \item{X1} {Input 1 of the subset 3 (character)}
+#'       \item{X2} {Input 2 of the subset 3 (numeric)}
+#'       \item{X3} {Input 3 of the subset 3 (numeric)}
+#'       \item{Y} {Output of the subset 3 (character)}
+#'   }
+#'   \item{ClsOutClsInp}{data.frame}
+#'   \itemize{
+#'       \item{X1} {Input 1 of the subset 4 (numeric)}
+#'       \item{X2} {Input 2 of the subset 4 (character)}
+#'       \item{X3} {Input 3 of the subset 4 (numeric)}
+#'       \item{Y} {Output of the subset 4 (numeric)}
+#'   }
 #' }
 NULL

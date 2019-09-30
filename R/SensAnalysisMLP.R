@@ -6,7 +6,7 @@
 #' @param trData \code{data.frame} containing the data to evaluate the sensitivity of the model
 #' @param actfunc \code{character} vector indicating the activation function of each
 #'   neurons layer.
-#' @param .returnSens \code{logical} value. If \code{TRUE}, sensibility of the model is
+#' @param .returnSens \code{logical} value. If \code{TRUE}, sensitivity of the model is
 #'   returned.
 #' @param preProc preProcess structure applied to the training data. See also
 #'   \code{\link[caret]{preProcess}}

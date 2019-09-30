@@ -53,7 +53,7 @@ SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE,
 \arguments{
 \item{MLP.fit}{fitted neural network model}
 
-\item{.returnSens}{\code{logical} value. If \code{TRUE}, sensibility of the model is
+\item{.returnSens}{\code{logical} value. If \code{TRUE}, sensitivity of the model is
 returned.}
 
 \item{plot}{\code{logical} whether or not to plot the analysis. By default
