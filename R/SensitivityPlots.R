@@ -114,4 +114,6 @@ SensitivityPlots <- function(sens = NULL,der = NULL) {
   gridExtra::grid.arrange(grobs = plotlist,
                           nrow  = length(plotlist),
                           ncols = 1)
+  # Return the plots created if the user want to edit them by hand
+  return(invisible(plotlist))
 }
