@@ -113,41 +113,80 @@ DerActFunc <- function(type = "sigmoid", ...) {
   switch(type,
          sigmoid = {
            return(function(x){
-             diag((1 / (1 + exp(-x))) *
-                    (1 - 1 / (1 + exp(-x))))
+             if (length(x) == 1) {
+              y <-  (1 / (1 + exp(-x))) *
+                (1 - 1 / (1 + exp(-x)))
+             } else {
+               diag((1 / (1 + exp(-x))) *
+                      (1 - 1 / (1 + exp(-x))))
+             }
              })
          },
          tanh = {
-           return(function(x){diag(1 - tanh(x)^2)})
+           return(function(x){
+             if (length(x) == 1) {
+               1 - tanh(x)^2
+             } else {
+               diag(1 - tanh(x)^2)
+             }
+             })
          },
          linear = {
            return(function(x){diag(length(x))})
          },
          ReLU = {
            return(function(x){
-             diag(ifelse(x >= 0, 1, 0))
+             if (lenth(x) == 1) {
+               ifelse(x >= 0, 1, 0)
+             } else {
+               diag(ifelse(x >= 0, 1, 0))
+             }
            })
          },
          PReLU = {
            return(function(x,a){
-             diag(ifelse(x >= 0, 1, a))
+             if (lenth(x) == 1) {
+               ifelse(x >= 0, 1, a)
+             } else {
+               diag(ifelse(x >= 0, 1, a))
+             }
            })
          },
          ELU = {
            return(function(x,a){
-             diag(ifelse(x >= 0, 1, a*(exp(x)-1) + a))
+             if (lenth(x) == 1) {
+               ifelse(x >= 0, 1,  a*(exp(x)-1) + a)
+             } else {
+               diag(ifelse(x >= 0, 1,  a*(exp(x)-1) + a))
+             }
            })
          },
          step = {
            return(function(x){
-             diag(ifelse(x != 0, 0, NA))
+             if (length(x) == 1) {
+               ifelse(x != 0, 0, NA)
+             } else {
+               diag(ifelse(x != 0, 0, NA))
+             }
            })
          },
          arctan = {
-           return(function(x){diag(1/(x^2 + 1))})
+           return(function(x){
+             if (length(x) == 1) {
+               1/(x^2 + 1)
+             } else {
+               diag(1/(x^2 + 1))
+             }
+             })
          },
          softPlus = {
-           return(function(x){diag(1/(1 + exp(-x)))})
+           return(function(x){
+             if (length(x) == 1) {
+               1/(1 + exp(-x))
+             } else {
+               diag(1/(1 + exp(-x)))
+             }
+             })
          },
          softmax = {
            return(

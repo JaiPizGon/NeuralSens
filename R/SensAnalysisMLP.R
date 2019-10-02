@@ -93,14 +93,12 @@
 #' NeuralSens::SensAnalysisMLP(caretmod)
 #'
 #' ## Train h2o NNET --------------------------------------------------------------
-#' # Creaci?n de un cluster local con todos los cores disponibles
+#' # Create a cluster with 4 available cores
 #' h2o::h2o.init(ip = "localhost",
-#'               # -1 indica que se empleen todos los cores disponibles.
 #'               nthreads = 4,
-#'               # M?xima memoria disponible para el cluster.
 #'               max_mem_size = "2g")
 #'
-#' # Se eliminan los datos del cluster por si ya hab?a sido iniciado.
+#' # Reset the cluster
 #' h2o::h2o.removeAll()
 #' fdata_h2o <- h2o::as.h2o(x = fdata.Reg.tr, destination_frame = "fdata_h2o")
 #'
@@ -123,7 +121,7 @@
 #' # Try SensAnalysisMLP
 #' NeuralSens::SensAnalysisMLP(h2omod)
 #'
-#' # Apaga el cluster
+#' # Turn off the cluster
 #' h2o::h2o.shutdown(prompt = FALSE)
 #' rm(fdata_h2o)
 #'
@@ -225,14 +223,12 @@
 #' NeuralSens::SensAnalysisMLP(caretmod)
 #'
 #' ## Train h2o NNET --------------------------------------------------------------
-#' # Creaci?n de un cluster local con todos los cores disponibles
+#' # Create local cluster with 4 available cores
 #' h2o::h2o.init(ip = "localhost",
-#'               # -1 indica que se empleen todos los cores disponibles.
 #'               nthreads = 4,
-#'               # M?xima memoria disponible para el cluster.
 #'               max_mem_size = "2g")
 #'
-#' # Se eliminan los datos del cluster por si ya hab?a sido iniciado.
+#' # Reset the cluster
 #' h2o::h2o.removeAll()
 #' fdata_h2o <- h2o::as.h2o(x = fdata.Reg.cl, destination_frame = "fdata_h2o")
 #'
@@ -331,7 +327,7 @@ SensAnalysisMLP <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens =
 #'
 #' @method SensAnalysisMLP default
 SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, trData,
-                                    actfunc = NULL,preProc = NULL,
+                                    actfunc = NULL, preProc = NULL,
                                     terms = NULL, ...) {
   ### Things needed for calculating the sensibilities:
   #   - Structure of the model  -> MLP.fit$n
@@ -425,8 +421,7 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
       D[[l]][,,irow] <- D[[l-1]][,,irow] %*% m %*% z
     }
   }
-  # Output of the neural network is the output of the last layer
-  out <- O[[length(O)]]
+  # Prepare the derivatives for the following calculations
   der <- aperm(D[[l]],c(3,1,2))
   colnames(der) <- varnames
   # Obtain sensitivities of the first output and create plots if required
@@ -784,12 +779,13 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
 #' @export
 #'
 #' @method SensAnalysisMLP list
-SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, trData,...) {
+SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
+                                 .rawSens = FALSE, trData, actfunc, ...) {
   # For a neural nnet
   ## Detect that it's from the neural package
   neuralfields <- c("weight","dist", "neurons", "actfns", "diffact")
   if (!all(neuralfields %in% names(MLP.fit))){
-    stop("Object detected is not from neural library")
+    stop("Object detected is not an accepted list object")
   }
   finalModel <- NULL
   finalModel$n <- MLP.fit$neurons
@@ -805,10 +801,24 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawS
   finalModel$wts <- wts
   finalModel$coefnames <- names(trData)[names(trData) != ".outcome"]
 
+  # By default, the activation functions is linear, sigmoid, sigmoid
+  if (is.null(actfunc)) {
+    actfunc <- c("linear","sigmoid","sigmoid")
+  } else {
+    # See ?neural::mlptrain to see which number correspond to which activation function
+    actfunc <- c("linear",
+                 ifelse(actfunc == 1, "sigmoid",
+                   ifelse(actfunc == 2, "tanh",
+                     ifelse(actfunc == 3, "Gauss",
+                       ifelse(actfunc == 4, "linear"
+                         )))))
+  }
+
   SensAnalysisMLP.default(finalModel,
                           trData = trData,
                           .returnSens = .returnSens,
                           .rawSens = .rawSens,
+                          actfunc = actfunc,
                           preProc = NULL,
                           terms = NULL,
                           plot = plot, ...)

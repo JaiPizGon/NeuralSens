@@ -31,7 +31,7 @@ SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE,
   plot = TRUE, .rawSens = FALSE, ...)
 
 \method{SensAnalysisMLP}{list}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, .rawSens = FALSE, trData, ...)
+  plot = TRUE, .rawSens = FALSE, trData, actfunc, ...)
 
 \method{SensAnalysisMLP}{mlp}(MLP.fit, .returnSens = TRUE, plot = TRUE,
   .rawSens = FALSE, trData, preProc = NULL, terms = NULL, ...)
@@ -162,14 +162,12 @@ caretmod <- caret::train(form = DEM~.,
 NeuralSens::SensAnalysisMLP(caretmod)
 
 ## Train h2o NNET --------------------------------------------------------------
-# Creaci?n de un cluster local con todos los cores disponibles
+# Create a cluster with 4 available cores
 h2o::h2o.init(ip = "localhost",
-              # -1 indica que se empleen todos los cores disponibles.
               nthreads = 4,
-              # M?xima memoria disponible para el cluster.
               max_mem_size = "2g")
 
-# Se eliminan los datos del cluster por si ya hab?a sido iniciado.
+# Reset the cluster
 h2o::h2o.removeAll()
 fdata_h2o <- h2o::as.h2o(x = fdata.Reg.tr, destination_frame = "fdata_h2o")
 
@@ -192,7 +190,7 @@ h2omod <-h2o:: h2o.deeplearning(x = names(fdata.Reg.tr)[2:ncol(fdata.Reg.tr)],
 # Try SensAnalysisMLP
 NeuralSens::SensAnalysisMLP(h2omod)
 
-# Apaga el cluster
+# Turn off the cluster
 h2o::h2o.shutdown(prompt = FALSE)
 rm(fdata_h2o)
 
@@ -294,14 +292,12 @@ caretmod <- caret::train(form = DEM~.,
 NeuralSens::SensAnalysisMLP(caretmod)
 
 ## Train h2o NNET --------------------------------------------------------------
-# Creaci?n de un cluster local con todos los cores disponibles
+# Create local cluster with 4 available cores
 h2o::h2o.init(ip = "localhost",
-              # -1 indica que se empleen todos los cores disponibles.
               nthreads = 4,
-              # M?xima memoria disponible para el cluster.
               max_mem_size = "2g")
 
-# Se eliminan los datos del cluster por si ya hab?a sido iniciado.
+# Reset the cluster
 h2o::h2o.removeAll()
 fdata_h2o <- h2o::as.h2o(x = fdata.Reg.cl, destination_frame = "fdata_h2o")
 
