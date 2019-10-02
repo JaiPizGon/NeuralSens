@@ -19,7 +19,7 @@ SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE,
 
 \method{SensAnalysisMLP}{default}(MLP.fit, .returnSens = TRUE,
   plot = TRUE, .rawSens = FALSE, trData, actfunc = NULL,
-  preProc = NULL, terms = NULL, ...)
+  preProc = NULL, terms = NULL, output_name = NULL, ...)
 
 \method{SensAnalysisMLP}{train}(MLP.fit, .returnSens = TRUE,
   plot = TRUE, .rawSens = FALSE, ...)
@@ -75,6 +75,9 @@ neurons layer.}
 
 \item{terms}{function applied to the training data to create factors. See
 also \code{\link[caret]{train}}}
+
+\item{output_name}{\code{character} name of the output variable in order to avoid
+changing the name of the output variable in \code{trData} to '.outcome'}
 }
 \value{
 dataframe with the sensitivities obtained for each variable if
@@ -204,8 +207,7 @@ neuralmod <- neural::mlptrain(as.matrix(nntrData[,2:ncol(nntrData)]),
 
 # Try SensAnalysisMLP
 trData <- nntrData
-names(trData)[1] <- ".outcome"
-NeuralSens::SensAnalysisMLP(neuralmod, trData = trData)
+NeuralSens::SensAnalysisMLP(neuralmod, trData = trData, output_name = "DEM")
 
 ## Train RSNNS NNET ------------------------------------------------------------
 # Normalize data using RSNNS algorithms
@@ -218,10 +220,9 @@ RSNNSmod <-RSNNS::mlp(x = trData[,2:ncol(trData)],
                            linOut = TRUE,
                            learnFuncParams=c(decay),
                            maxit=iters)
-names(trData)[1] <- ".outcome"
 
 # Try SensAnalysisMLP
-NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData)
+NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData, output_name = "DEM")
 
 ## TRAIN neuralnet NNET --------------------------------------------------------
 # Create a formula to train NNET
@@ -249,7 +250,8 @@ NeuralSens::SensAnalysisMLP(RegNNET$caret$finalModel$wts,
                             trData = fdata.Reg.tv,
                             mlpstr = RegNNET$caret$finalModel$n,
                             coefnames = RegNNET$caret$coefnames,
-                            actfun = c("linear","sigmoid","linear"))
+                            actfun = c("linear","sigmoid","linear"),
+                            output_name = "DEM")
 
 ################################################################################
 #########################  CLASSIFICATION NNET #################################
@@ -346,10 +348,9 @@ rm(fdata_h2o)
 #                      linOut = FALSE,
 #                      learnFuncParams=c(decay),
 #                      maxit=iters)
-# names(trData)[1] <- ".outcome"
 #
 # # Try SensAnalysisMLP
-# NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData)
+# NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData, output_name = "DEM")
 
 ## TRAIN neuralnet NNET --------------------------------------------------------
 # Create a formula to train NNET

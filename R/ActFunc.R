@@ -136,7 +136,7 @@ DerActFunc <- function(type = "sigmoid", ...) {
          },
          ReLU = {
            return(function(x){
-             if (lenth(x) == 1) {
+             if (length(x) == 1) {
                ifelse(x >= 0, 1, 0)
              } else {
                diag(ifelse(x >= 0, 1, 0))
@@ -145,7 +145,7 @@ DerActFunc <- function(type = "sigmoid", ...) {
          },
          PReLU = {
            return(function(x,a){
-             if (lenth(x) == 1) {
+             if (length(x) == 1) {
                ifelse(x >= 0, 1, a)
              } else {
                diag(ifelse(x >= 0, 1, a))
@@ -154,7 +154,7 @@ DerActFunc <- function(type = "sigmoid", ...) {
          },
          ELU = {
            return(function(x,a){
-             if (lenth(x) == 1) {
+             if (length(x) == 1) {
                ifelse(x >= 0, 1,  a*(exp(x)-1) + a)
              } else {
                diag(ifelse(x >= 0, 1,  a*(exp(x)-1) + a))

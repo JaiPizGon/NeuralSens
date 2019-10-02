@@ -17,6 +17,8 @@
 #' @param .rawSens \code{logical} whether or not to return the sensitivity of each row
 #' of the data provided, or return the mean, sd and mean of the square of the
 #' sensitivities. By default is \code{FALSE}.
+#' @param output_name \code{character} name of the output variable in order to avoid
+#' changing the name of the output variable in \code{trData} to '.outcome'
 #' @param ...	additional arguments passed to or from other methods
 #' @return dataframe with the sensitivities obtained for each variable if
 #'   \code{.returnSens = TRUE}. If \code{.returnSens = FALSE}, the sensitivities without
@@ -135,8 +137,7 @@
 #'
 #' # Try SensAnalysisMLP
 #' trData <- nntrData
-#' names(trData)[1] <- ".outcome"
-#' NeuralSens::SensAnalysisMLP(neuralmod, trData = trData)
+#' NeuralSens::SensAnalysisMLP(neuralmod, trData = trData, output_name = "DEM")
 #'
 #' ## Train RSNNS NNET ------------------------------------------------------------
 #' # Normalize data using RSNNS algorithms
@@ -149,10 +150,9 @@
 #'                            linOut = TRUE,
 #'                            learnFuncParams=c(decay),
 #'                            maxit=iters)
-#' names(trData)[1] <- ".outcome"
 #'
 #' # Try SensAnalysisMLP
-#' NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData)
+#' NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData, output_name = "DEM")
 #'
 #' ## TRAIN neuralnet NNET --------------------------------------------------------
 #' # Create a formula to train NNET
@@ -180,7 +180,8 @@
 #'                             trData = fdata.Reg.tv,
 #'                             mlpstr = RegNNET$caret$finalModel$n,
 #'                             coefnames = RegNNET$caret$coefnames,
-#'                             actfun = c("linear","sigmoid","linear"))
+#'                             actfun = c("linear","sigmoid","linear"),
+#'                             output_name = "DEM")
 #'
 #' ################################################################################
 #' #########################  CLASSIFICATION NNET #################################
@@ -277,10 +278,9 @@
 #' #                      linOut = FALSE,
 #' #                      learnFuncParams=c(decay),
 #' #                      maxit=iters)
-#' # names(trData)[1] <- ".outcome"
 #' #
 #' # # Try SensAnalysisMLP
-#' # NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData)
+#' # NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData, output_name = "DEM")
 #'
 #' ## TRAIN neuralnet NNET --------------------------------------------------------
 #' # Create a formula to train NNET
@@ -327,8 +327,7 @@ SensAnalysisMLP <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens =
 #'
 #' @method SensAnalysisMLP default
 SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, trData,
-                                    actfunc = NULL, preProc = NULL,
-                                    terms = NULL, ...) {
+                                    actfunc = NULL, preProc = NULL, terms = NULL, output_name = NULL, ...) {
   ### Things needed for calculating the sensibilities:
   #   - Structure of the model  -> MLP.fit$n
   #   - Weights of the model    -> MLP.fit$wts
@@ -347,6 +346,14 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
   # Correct varnames
   varnames[which(substr(varnames,1,1) == "`")] <- substr(varnames[which(substr(varnames,1,1) == "`")],
                                                          2,nchar(varnames[which(substr(varnames,1,1) == "`")])-1)
+  # Check if the output_name has been specified
+  if (!".outcome" %in% names(trData)) {
+    if (!is.null(output_name)) {
+      names(trData)[names(trData) == output_name] <- ".outcome"
+    } else {
+      stop("Output variable has not been found in trData")
+    }
+  }
   # TestData
   dummies <-
     caret::dummyVars(
@@ -475,7 +482,8 @@ SensAnalysisMLP.train <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .raw
                   .rawSens = .rawSens,
                   preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
                   terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
-                  plot = plot, args[!names(args) %in% c("trData","preProc","terms")])
+                  plot = plot,
+                  args[!names(args) %in% c("trData","preProc","terms")])
 }
 
 #' @rdname SensAnalysisMLP
@@ -623,7 +631,9 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
                           .rawSens = .rawSens,
                           preProc = preProc,
                           terms = NULL,
-                          plot = plot, args[!names(args) %in% c("trData")])
+                          plot = plot,
+                          output_name = NULL,
+                          args[!names(args) %in% c("trData")])
   }
 
 #' @rdname SensAnalysisMLP
@@ -770,7 +780,9 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
                           .rawSens = .rawSens,
                           preProc = preProc,
                           terms = NULL,
-                          plot = plot, args[!names(args) %in% c("trData")])
+                          plot = plot,
+                          output_name = NULL,
+                          args[!names(args) %in% c("trData")])
   }
 
 
@@ -782,6 +794,7 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
 SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
                                  .rawSens = FALSE, trData, actfunc, ...) {
   # For a neural nnet
+  args <- list(...)
   ## Detect that it's from the neural package
   neuralfields <- c("weight","dist", "neurons", "actfns", "diffact")
   if (!all(neuralfields %in% names(MLP.fit))){
@@ -799,7 +812,11 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
     }
   }
   finalModel$wts <- wts
-  finalModel$coefnames <- names(trData)[names(trData) != ".outcome"]
+  if ("output_name" %in% names(args)) {
+    finalModel$coefnames <- names(trData)[names(trData) != args$output_name]
+  } else {
+    finalModel$coefnames <- names(trData)[names(trData) != ".outcome"]
+  }
 
   # By default, the activation functions is linear, sigmoid, sigmoid
   if (is.null(actfunc)) {
@@ -821,7 +838,9 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
                           actfunc = actfunc,
                           preProc = NULL,
                           terms = NULL,
-                          plot = plot, ...)
+                          plot = plot,
+                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                          args[!names(args) %in% c("output_name")])
 }
 
 #' @rdname SensAnalysisMLP
@@ -830,6 +849,7 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
 #'
 #' @method SensAnalysisMLP mlp
 SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, trData, preProc = NULL, terms = NULL, ...) {
+  args <- list(...)
   # For a RSNNS mlp
   netInfo <- RSNNS::extractNetInfo(MLP.fit)
   nwts <- NeuralNetTools::neuralweights(MLP.fit)
@@ -876,7 +896,9 @@ SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSe
                           .rawSens = .rawSens,
                           preProc = preProc,
                           terms = terms,
-                          plot = plot, ...)
+                          plot = plot,
+                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                          args[!names(args) %in% c("output_name")])
 }
 
 #' @rdname SensAnalysisMLP
@@ -886,6 +908,7 @@ SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSe
 #' @method SensAnalysisMLP nn
 SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, preProc = NULL, terms = NULL, ...) {
   # For a neuralnet nn
+  args <- list(...)
   finalModel <- NULL
   finalModel$n <- c(nrow(MLP.fit$weights[[1]][[1]])-1,ncol(MLP.fit$weights[[1]][[1]]),ncol(MLP.fit$weights[[1]][[2]]))
   wts <- c()
@@ -909,7 +932,9 @@ SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSen
                           .rawSens = .rawSens,
                           preProc = preProc,
                           terms = terms,
-                          plot = plot, ...)
+                          plot = plot,
+                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                          args[!names(args) %in% c("output_name")])
 }
 
 #' @rdname SensAnalysisMLP
@@ -917,14 +942,22 @@ SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSen
 #' @export
 #'
 #' @method SensAnalysisMLP nnet
-SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, trData, preProc = NULL, terms = NULL, ...) {
+SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
+                                 .rawSens = FALSE, trData, preProc = NULL, terms = NULL, ...) {
   # For a nnet nnet
+  args <- list(...)
+  # Check if some arguments has been changed in a parent function
+  if(length(args) == 1 &&  is.list(args[[1]])) {
+    args <- as.list(...)
+  }
   finalModel <- NULL
   finalModel$n <- MLP.fit$n
   finalModel$wts <- MLP.fit$wts
   finalModel$coefnames <- MLP.fit$coefnames
   if(!any(names(trData) == ".outcome")){
-    names(trData)[!names(trData) %in% attr(MLP.fit$terms,"term.labels")] <- ".outcome"
+    if (!"output_name" %in% names(args)) {
+      names(trData)[!names(trData) %in% attr(MLP.fit$terms,"term.labels")] <- ".outcome"
+    }
   }
 
   actfun <- c("linear","sigmoid",
@@ -936,7 +969,9 @@ SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawS
                           .rawSens = .rawSens,
                           preProc = preProc,
                           terms = terms,
-                          plot = plot, ...)
+                          plot = plot,
+                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                          args[!names(args) %in% c("output_name")])
 }
 
 #' @rdname SensAnalysisMLP
@@ -950,10 +985,14 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
   if (!is.null(MLP.fit$xreg)) {
     if ("trData" %in% names(args)) {
       xreg <- args$trData[,attr(MLP.fit$xreg,"dimnames")[[2]]]
-      if(!".outcome" %in% names(args$trData)) {
-        stop("Change the name of the output variable to '.outcome'")
+      if(".outcome" %in% names(args$trData)) {
+        outcome <- args$trData$.outcome
+      } else if (!"output_name" %in% names(args)) {
+        outcome <- args$trData[,args$output_name]
+      } else {
+        stop("Change the name of the output variable to '.outcome' or
+             provide the name of the output using the 'output_name' argument")
       }
-      outcome <- args$trData$.outcome
     } else {
       xreg <- as.data.frame(MLP.fit$xreg)[MLP.fit$subset,]
       outcome <- MLP.fit$x[MLP.fit$subset]
@@ -984,9 +1023,15 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
   } else {
     lags <- 1:p
   }
+  # Create name for the lags
+  if ("output_name" %in% names(args)) {
+    out_nameLag <- paste0(".",args$output_name,"_Lag")
+  } else {
+    out_nameLag <- ".outcome_Lag"
+  }
   for (i in lags) {
     ylagged[[i]] <- Hmisc::Lag(outcome, i)
-    names(ylagged)[i] <- paste0(".outcome_Lag",as.character(i))
+    names(ylagged)[i] <- paste0(out_nameLag, as.character(i))
   }
   ylagged <- as.data.frame(ylagged[lags])
 
@@ -998,7 +1043,12 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
     varnames <- names(trData)[1:MLP.fit$p]
   }
 
-  names(trData)[ncol(trData)] <- ".outcome"
+  if ("output_name" %in% names(args)) {
+    names(trData)[ncol(trData)] <- args$output_name
+  } else {
+    names(trData)[ncol(trData)] <- ".outcome"
+  }
+
   # Get rid of rows with NAs
   trData <- trData[stats::complete.cases(trData),]
 
@@ -1019,7 +1069,9 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
                                               .rawSens = TRUE,
                                               preProc = NULL,
                                               terms = NULL,
-                                              plot = FALSE)
+                                              plot = FALSE,
+                                              output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"}
+    )
   }
 
   sensitivities <- as.data.frame(do.call("rbind",lapply(sensitivities,
@@ -1079,7 +1131,6 @@ SensAnalysisMLP.numeric <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
     if (!all(args$coefnames %in% names(trData))) {
       stop("Explanatory variables defined in coefnames has not been found in trData")
     }
-    trData[!(names(trData) %in% args$coefnames)] <- ".outcome"
   } else {
     if (!("coefnames" %in% names(args))) {
       finalModel$coefnames <- names(trData)[names(trData) != ".outcome"]
@@ -1102,5 +1153,7 @@ SensAnalysisMLP.numeric <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
                           .rawSens = .rawSens,
                           preProc = preProc,
                           terms = terms,
-                          plot = plot, ...)
+                          plot = plot,
+                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                          ...)
 }
