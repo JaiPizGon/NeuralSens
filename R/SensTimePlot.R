@@ -90,7 +90,7 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE, .
     if (facet) p <- p + ggplot2::facet_grid(plotdata$variable~., scales = "free_y")
 
     plotlist[[out]] <- p
-    plot(p)
+    print(p)
   }
   return(invisible(plotlist))
 }

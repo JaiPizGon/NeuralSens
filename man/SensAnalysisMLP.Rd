@@ -388,3 +388,6 @@ nnetmod <- nnet::nnet(form,
 NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData)
 }
 }
+\references{
+\url{https://www.researchgate.net/publication/220577792_Use_of_some_sensitivity_criteria_for_choosing_networks_with_good_generalization_ability}
+}
