@@ -89,26 +89,18 @@ SensitivityPlots <- function(sens = NULL,der = NULL) {
     # If the raw values of the derivatives has been passed to the function
     # the density plots of each of these derivatives can be extracted and plotted
     der2 <- as.data.frame(der)
-    dataplot <- reshape2::melt(der2, measure.vars = sens$varNames)
-    # bwidth <- sd(dataplot$value)/(1.34*(dim(dataplot)[1]/length(varnames)))
-    # In case the data std is too narrow and erase the data
-    if (any(abs(dataplot$value) > 2*max(sens$std, na.rm = TRUE)) ||
-        max(abs(dataplot$value)) < max(sens$std, na.rm = TRUE)) {
-      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
-        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
-                              alpha = 0.4,
-                              bw = "bcv") +
-        ggplot2::labs(x = "Sens", y = "density(Sens)") +
-        ggplot2::xlim(-1 * max(abs(dataplot$value), na.rm = TRUE),
-                      1 * max(abs(dataplot$value), na.rm = TRUE))
-    } else {
-      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
-        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
-                              alpha = 0.4,
-                              bw = "bcv") +
-        ggplot2::labs(x = "Sens", y = "density(Sens)") +
-        ggplot2::xlim(-2 * max(sens$std, na.rm = TRUE), 2 * max(sens$std, na.rm = TRUE))
-    }
+    names(der2) <- sens$varNames
+    # Remove any variable which is all zero -> pruned variable
+    der2 <- der2[,!sapply(der2,function(x){all(x ==  0)})]
+    dataplot <- reshape2::melt(der2, measure.vars = names(der2))
+
+    plotlist[[3]] <- ggplot2::ggplot(dataplot) +
+      ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
+                            alpha = 0.4,
+                            bw = "bcv") +
+      ggplot2::labs(x = "Sens", y = "density(Sens)") +
+      ggplot2::xlim(c(-1.1, 1.1)*max(abs(dataplot$value), na.rm = TRUE))
+      # ggplot2::xlim(-2 * max(sens$std, na.rm = TRUE), 2 * max(sens$std, na.rm = TRUE))
   }
   # Plot the list of plots created before
   gridExtra::grid.arrange(grobs = plotlist,

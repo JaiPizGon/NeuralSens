@@ -439,6 +439,7 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
       std = apply(der[, , 1], 2, stats::sd, na.rm = TRUE),
       meanSensSQ = colMeans(der[, , 1] ^ 2, na.rm = TRUE)
     )
+  rownames(sens) <- NULL
 
   if (plot) {
     # show plots if required
@@ -855,11 +856,31 @@ SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSe
   nwts <- NeuralNetTools::neuralweights(MLP.fit)
   finalModel <- NULL
   finalModel$n <- nwts$struct
+  # Fill NAs with the corresponding bias
+  for (i in netInfo$unitDefinitions$unitNo[netInfo$unitDefinitions$type %in%
+                                           c("UNIT_HIDDEN")]) {
+    hidname <- paste("hidden",
+                     as.character(netInfo$unitDefinitions$posY[i]/2),
+                     as.character(netInfo$unitDefinitions$posX[i]),
+                     sep = " ")
+    nwts$wts[[which(hidname == names(nwts$wts))]][1] <- netInfo$unitDefinitions$unitBias[i]
+  }
+  for (i in netInfo$unitDefinitions$unitNo[netInfo$unitDefinitions$type %in%
+                                           c("UNIT_OUTPUT")]) {
+    outname <- paste("out",
+                     as.character(substr(netInfo$unitDefinitions$unitName[i],
+                                         nchar(netInfo$unitDefinitions$unitName[i]),
+                                         nchar(netInfo$unitDefinitions$unitName[i]))),
+                     sep = " ")
+    nwts$wts[[which(outname == names(nwts$wts))]][1] <- netInfo$unitDefinitions$unitBias[i]
+  }
+
   wts <- c()
   for (i in 1:length(nwts$wts)){
     wts <- c(wts, nwts$wts[[i]])
   }
-  wts[is.na(wts)] <- netInfo$unitDefinitions$unitBias[(nrow(netInfo$unitDefinitions)-sum(finalModel$n[2:length(finalModel$n)])+1):nrow(netInfo$unitDefinitions)]
+
+  wts[is.na(wts)] <- 0
   finalModel$wts <- wts
   finalModel$coefnames <- substr(netInfo$unitDefinitions$unitName[1:finalModel$n[1]],
                                  nchar("Input_")+1, 100000)
