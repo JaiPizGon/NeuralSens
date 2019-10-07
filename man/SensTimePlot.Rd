@@ -4,7 +4,8 @@
 \alias{SensTimePlot}
 \title{Sensitivity analysis plot over time of the data}
 \usage{
-SensTimePlot(object, fdata = NULL, date.var = NULL, facet = FALSE)
+SensTimePlot(object, fdata = NULL, date.var = NULL, facet = FALSE,
+  ...)
 }
 \arguments{
 \item{object}{fitted neural network model or \code{array} containing the raw
@@ -18,9 +19,7 @@ If \code{NULL}, the first variable with Posixct format of \code{fdata} is used a
 
 \item{facet}{\code{logical} if \code{TRUE}, function \code{facet_grid} from}
 
-\item{...}{arguments passed to the function to use S3 method
-package \code{\link[ggplot2]{ggplot2-package}} to divide the plot
-for each input variable.}
+\item{...}{further arguments that should be passed to \code{SensAnalysisMLP} function}
 }
 \value{
 \code{geom_line} plots for the inputs variables representing the

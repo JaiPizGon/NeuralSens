@@ -9,9 +9,7 @@
 #' @param date.var \code{Posixct vector} with the date of each sample of \code{fdata}
 #' If \code{NULL}, the first variable with Posixct format of \code{fdata} is used as dates
 #' @param facet \code{logical} if \code{TRUE}, function \code{facet_grid} from
-#' @param ... arguments passed to the function to use S3 method
-#' package \code{\link[ggplot2]{ggplot2-package}} to divide the plot
-#' for each input variable.
+#' @param ... further arguments that should be passed to \code{SensAnalysisMLP} function
 #' @return \code{geom_line} plots for the inputs variables representing the
 #' sensitivity of each output respect to the inputs over time
 #' @examples
@@ -51,9 +49,8 @@
 #'                            maxit = iters)
 #' # Try SensAnalysisMLP
 #' NeuralSens::SensTimePlot(nnetmod, fdata = nntrData, date.var = fdata[,1])
-#' @export
-#' @rdname SensTimePlot
-SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE) {
+#' @export SensTimePlot
+SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE, ...) {
   # Check if the variable name of the date has been specified
   if (is.null(date.var)) {
     date.var <- fdata[,sapply(fdata, function(x){
@@ -68,7 +65,8 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE) {
     # Obtain raw sensitivities
     rawSens <- NeuralSens::SensAnalysisMLP(object,
                                            trData = fdata,
-                                           .rawSens = TRUE, plot = FALSE)
+                                           .rawSens = TRUE,
+                                           plot = FALSE, ...)
   } else if(is.array(object)){
     # The raw sensitivities has been passed instead of the model
     rawSens <- object
@@ -84,7 +82,7 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE) {
                                       group = plotdata$variable, color = plotdata$variable))
 
     # See if the user want it faceted
-    if (facet) p <- p + ggplot2::facet_grid(plotdata$variable~.)
+    if (facet) p <- p + ggplot2::facet_grid(plotdata$variable~., scales = "free_y")
 
     return(p)
   }
