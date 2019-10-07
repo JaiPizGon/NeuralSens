@@ -22,7 +22,7 @@ If \code{NULL}, the first variable with Posixct format of \code{fdata} is used a
 \item{...}{further arguments that should be passed to \code{SensAnalysisMLP} function}
 }
 \value{
-\code{geom_line} plots for the inputs variables representing the
+list of \code{geom_line} plots for the inputs variables representing the
 sensitivity of each output respect to the inputs over time
 }
 \description{

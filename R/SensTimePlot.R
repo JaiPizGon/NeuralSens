@@ -10,7 +10,7 @@
 #' If \code{NULL}, the first variable with Posixct format of \code{fdata} is used as dates
 #' @param facet \code{logical} if \code{TRUE}, function \code{facet_grid} from
 #' @param ... further arguments that should be passed to \code{SensAnalysisMLP} function
-#' @return \code{geom_line} plots for the inputs variables representing the
+#' @return list of \code{geom_line} plots for the inputs variables representing the
 #' sensitivity of each output respect to the inputs over time
 #' @examples
 #' ## Load data -------------------------------------------------------------------
@@ -51,11 +51,6 @@
 #' NeuralSens::SensTimePlot(nnetmod, fdata = nntrData, date.var = fdata[,1])
 #' @export SensTimePlot
 SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE, ...) {
-  # Check if the variable name of the date has been specified
-  if (is.null(date.var)) {
-    date.var <- fdata[,sapply(fdata, function(x){
-      inherits(x,"POSIXct") || inherits(x,"POSIXlt")})]
-  }
   # Check if the object passed is a model (list) or the raw sensitivities
   if (is.list(object)) {
     # Check if fdata has been passed to the function to calculate sensitivities
@@ -67,13 +62,23 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE, .
                                            trData = fdata,
                                            .rawSens = TRUE,
                                            plot = FALSE, ...)
+
   } else if(is.array(object)){
     # The raw sensitivities has been passed instead of the model
     rawSens <- object
   } else {
     stop(paste0("Class ", class(object)," is not accepted as object"))
   }
-
+  # Check if the variable name of the date has been specified
+  if (is.null(date.var)) {
+    if (any(apply(fdata, 2, function(x){inherits(x,"POSIXct") || inherits(x,"POSIXlt")}))) {
+      date.var <- fdata[,sapply(fdata, function(x){
+        inherits(x,"POSIXct") || inherits(x,"POSIXlt")})]
+    } else {
+      date.var <- seq_len(dim(rawSens)[1])
+    }
+  }
+  plotlist <- list()
   for (out in 1:dim(rawSens)[3]) {
     plotdata <- cbind(date.var,as.data.frame(rawSens[,,out]))
     plotdata <- reshape2::melt(plotdata,id.vars = names(plotdata)[1])
@@ -84,6 +89,8 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE, .
     # See if the user want it faceted
     if (facet) p <- p + ggplot2::facet_grid(plotdata$variable~., scales = "free_y")
 
-    return(p)
+    plotlist[[out]] <- p
+    plot(p)
   }
+  return(invisible(plotlist))
 }

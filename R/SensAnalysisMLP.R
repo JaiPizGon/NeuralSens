@@ -1005,10 +1005,10 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
   args = list(...)
   if (!is.null(MLP.fit$xreg)) {
     if ("trData" %in% names(args)) {
-      xreg <- args$trData[,attr(MLP.fit$xreg,"dimnames")[[2]]]
+      xreg <- as.data.frame(args$trData[,attr(MLP.fit$xreg,"dimnames")[[2]]])
       if(".outcome" %in% names(args$trData)) {
         outcome <- args$trData$.outcome
-      } else if (!"output_name" %in% names(args)) {
+      } else if ("output_name" %in% names(args)) {
         outcome <- args$trData[,args$output_name]
       } else {
         stop("Change the name of the output variable to '.outcome' or
@@ -1058,10 +1058,10 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
 
   if (!is.null(MLP.fit$xreg)) {
     trData <- cbind(ylagged, xreg, as.data.frame(outcome))
-    varnames <- c(names(trData)[1:MLP.fit$p],names(as.data.frame(MLP.fit$xreg)))
+    varnames <- c(names(trData)[1:length(lags)],names(as.data.frame(MLP.fit$xreg)))
   } else {
     trData <- cbind(ylagged, as.data.frame(outcome))
-    varnames <- names(trData)[1:MLP.fit$p]
+    varnames <- names(trData)[1:length(lags)]
   }
 
   if ("output_name" %in% names(args)) {
@@ -1081,6 +1081,9 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
               ifelse(is.factor(trData$.outcome),"sigmoid","linear"))
   finalModel$coefnames <- varnames
   # Apply default function to all the models in the nnetar object
+  sensit <- array(NA, dim = c(length(MLP.fit$model)*nrow(trData),
+                              MLP.fit$model[[1]]$n[1],
+                              MLP.fit$model[[1]]$n[length(MLP.fit$model[[1]]$n)]))
   for (i in 1:length(MLP.fit$model)) {
     finalModel$wts <- MLP.fit$model[[1]]$wts
     sensitivities[[i]] <-  SensAnalysisMLP.default(finalModel,
@@ -1091,26 +1094,23 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
                                               preProc = NULL,
                                               terms = NULL,
                                               plot = FALSE,
-                                              output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"}
-    )
+                                              output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"})
+    sensit[((i-1)*nrow(trData)+1):(i*nrow(trData)),,] <- sensitivities[[i]]
   }
 
-  sensitivities <- as.data.frame(do.call("rbind",lapply(sensitivities,
-                                               function(x) {
-                                                 as.data.frame(x[1:dim(x)[1],1:dim(x)[2],1])
-                                               })))
+  colnames(sensit) <- finalModel$coefnames
 
   sens <-
     data.frame(
       varNames = varnames,
-      mean = base::colMeans(sensitivities, na.rm = TRUE),
-      std = sapply(sensitivities,stats::sd, na.rm = TRUE),
-      meanSensSQ = base::colMeans(sensitivities ^ 2, na.rm = TRUE)
+      mean = colMeans(sensit[, , 1], na.rm = TRUE),
+      std = apply(sensit[, , 1], 2, stats::sd, na.rm = TRUE),
+      meanSensSQ = colMeans(sensit[, , 1] ^ 2, na.rm = TRUE)
     )
 
   if (plot) {
     # show plots if required
-    NeuralSens::SensitivityPlots(sens,der = sensitivities[,,1])
+    NeuralSens::SensitivityPlots(sens,der = sensit[,,1])
   }
 
   if (.returnSens) {
@@ -1119,8 +1119,7 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
       return(sens)
     } else {
       # Return sensitivities without processing
-      colnames(sensitivities) <- finalModel$coefnames
-      return(sensitivities)
+      return(sensit)
     }
   }
 }
