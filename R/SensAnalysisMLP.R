@@ -39,7 +39,7 @@
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")
 #' fdata <- DAILY_DEMAND_TR
-#'
+#' fdata[,3] <- ifelse(as.data.frame(fdata)[,3] %in% c("SUN","SAT"), 0, 1)
 #' ## Parameters of the NNET ------------------------------------------------------
 #' hidden_neurons <- 5
 #' iters <- 250
@@ -51,7 +51,7 @@
 #' ## Regression dataframe --------------------------------------------------------
 #' # Scale the data
 #' fdata.Reg.tr <- fdata[,2:ncol(fdata)]
-#' fdata.Reg.tr[,2:3] <- fdata.Reg.tr[,2:3]/10
+#' fdata.Reg.tr[,3] <- fdata.Reg.tr[,3]/10
 #' fdata.Reg.tr[,1] <- fdata.Reg.tr[,1]/1000
 #'
 #' # Normalize the data for some models

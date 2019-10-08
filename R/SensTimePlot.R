@@ -15,8 +15,8 @@
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")
-#' fdata <- as.data.frame(DAILY_DEMAND_TR)
-#'
+#' fdata <- DAILY_DEMAND_TR
+#' fdata[,3] <- ifelse(as.data.frame(fdata)[,3] %in% c("SUN","SAT"), 0, 1)
 #' ## Parameters of the NNET ------------------------------------------------------
 #' hidden_neurons <- 5
 #' iters <- 250
@@ -28,7 +28,7 @@
 #' ## Regression dataframe --------------------------------------------------------
 #' # Scale the data
 #' fdata.Reg.tr <- fdata[,2:ncol(fdata)]
-#' fdata.Reg.tr[,2:3] <- fdata.Reg.tr[,2:3]/10
+#' fdata.Reg.tr[,3] <- fdata.Reg.tr[,3]/10
 #' fdata.Reg.tr[,1] <- fdata.Reg.tr[,1]/1000
 #'
 #' # Normalize the data for some models
@@ -42,12 +42,12 @@
 #'
 #' set.seed(150)
 #' nnetmod <- nnet::nnet(form,
-#'                            data = nntrData,
-#'                            linear.output = TRUE,
-#'                            size = hidden_neurons,
-#'                            decay = decay,
-#'                            maxit = iters)
-#' # Try SensAnalysisMLP
+#'                       data = nntrData,
+#'                       linear.output = TRUE,
+#'                       size = hidden_neurons,
+#'                       decay = decay,
+#'                       maxit = iters)
+#' # Try SensTimePlot
 #' NeuralSens::SensTimePlot(nnetmod, fdata = nntrData, date.var = fdata[,1])
 #' @export SensTimePlot
 SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE, ...) {
@@ -84,7 +84,10 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE, .
     plotdata <- reshape2::melt(plotdata,id.vars = names(plotdata)[1])
     p <- ggplot2::ggplot(plotdata) +
       ggplot2::geom_line(ggplot2::aes(x=plotdata$date.var, y = plotdata$value,
-                                      group = plotdata$variable, color = plotdata$variable))
+                                      group = plotdata$variable, color = plotdata$variable)) +
+      ggplot2::labs(color = "Inputs") +
+      ggplot2::xlab("Time") +
+      ggplot2::ylab(NULL)
 
     # See if the user want it faceted
     if (facet) p <- p + ggplot2::facet_grid(plotdata$variable~., scales = "free_y")

@@ -32,8 +32,8 @@ to the inputs over the time variable from the data provided
 \examples{
 ## Load data -------------------------------------------------------------------
 data("DAILY_DEMAND_TR")
-fdata <- as.data.frame(DAILY_DEMAND_TR)
-
+fdata <- DAILY_DEMAND_TR
+fdata[,3] <- ifelse(as.data.frame(fdata)[,3] \%in\% c("SUN","SAT"), 0, 1)
 ## Parameters of the NNET ------------------------------------------------------
 hidden_neurons <- 5
 iters <- 250
@@ -45,7 +45,7 @@ decay <- 0.1
 ## Regression dataframe --------------------------------------------------------
 # Scale the data
 fdata.Reg.tr <- fdata[,2:ncol(fdata)]
-fdata.Reg.tr[,2:3] <- fdata.Reg.tr[,2:3]/10
+fdata.Reg.tr[,3] <- fdata.Reg.tr[,3]/10
 fdata.Reg.tr[,1] <- fdata.Reg.tr[,1]/1000
 
 # Normalize the data for some models
@@ -59,11 +59,11 @@ form <- formula(paste(names(fdata.Reg.tr)[1], form, sep = " ~ "))
 
 set.seed(150)
 nnetmod <- nnet::nnet(form,
-                           data = nntrData,
-                           linear.output = TRUE,
-                           size = hidden_neurons,
-                           decay = decay,
-                           maxit = iters)
-# Try SensAnalysisMLP
+                      data = nntrData,
+                      linear.output = TRUE,
+                      size = hidden_neurons,
+                      decay = decay,
+                      maxit = iters)
+# Try SensTimePlot
 NeuralSens::SensTimePlot(nnetmod, fdata = nntrData, date.var = fdata[,1])
 }

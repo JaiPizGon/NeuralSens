@@ -7,7 +7,7 @@
 \describe{
   \item{fecha}{date of the measure}
   \item{DEM}{electrical demand}
-  \item{WD}{working day coefficient}
+  \item{WD}{day of the week}
   \item{TEMP}{weather temperature}
 }}
 \description{
