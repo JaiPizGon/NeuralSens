@@ -1,4 +1,8 @@
 # cran-comments.md
+                    
+## References
+Added reference to SensAnalysisMLP function where the formulation to calculate the partial derivatives is explained.
+I am currently writing a paper for the Journal of Statistic Software about the package.
 
 ## donttest{} examples
 
