@@ -1,6 +1,7 @@
+
 # NeuralSens <img src="man/logo/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
 
-#### *Jaime Pizarroso Gonzalo, jpizarroso@alu.comillas.edu*
+#### *Jaime Pizarroso Gonzalo, jpizarroso@comillas.edu*
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.org/JaiPizGon/NeuralSens.svg?branch=master)](https://travis-ci.org/JaiPizGon/NeuralSens)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/JaiPizGon/NeuralSens?branch=master&svg=true)](https://ci.appveyor.com/project/JaiPizGon/NeuralSens)
