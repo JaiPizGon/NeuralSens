@@ -8,17 +8,16 @@ output:
     toc: yes
 ---
 
-## NeuralSens
+# NeuralSens <img src="man/logo/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@alu.comillas.edu*
-Linux build:<!-- badges: start -->
+<!-- badges: start -->
 [![Travis build status](https://travis-ci.org/JaiPizGon/NeuralSens.svg?branch=master)](https://travis-ci.org/JaiPizGon/NeuralSens)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/JaiPizGon/NeuralSens?branch=master&svg=true)](https://ci.appveyor.com/project/JaiPizGon/NeuralSens)
+[![CRAN_Download_Badge](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)
 <!-- badges: end -->
 
-Windows build:<!-- badges: start -->
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/JaiPizGon/NeuralSens?branch=master&svg=true)](https://ci.appveyor.com/project/JaiPizGon/NeuralSens)
-<!-- badges: end -->
-  
+
 This is the development repository for the NeuralSens package.  Functions within this package can be used for the analysis of neural network models created in R. 
 
 The current version of this package can be installed from Github:
@@ -70,7 +69,8 @@ The third plot is a density plot of the partial derivatives of the output to the
 
 ```{r, results = 'hide', message=FALSE, fig.height = 6, fig.width = 9}
 # Scale the data
-DAILY_DEMAND_TR[,3:4] <- DAILY_DEMAND_TR[,3:4]/10
+DAILY_DEMAND_TR[,4] <- DAILY_DEMAND_TR[,4]/10
+DAILY_DEMAND_TR[,3] <- ifelse(as.data.frame(DAILY_DEMAND_TR)[,3] %in% c("SUN","SAT"), 0, 1)
 DAILY_DEMAND_TR[,2] <- DAILY_DEMAND_TR[,2]/100
 # Parameters of the neural network
 hidden_neurons <- 5
@@ -96,6 +96,25 @@ mod <- caret::train(form = DEM~TEMP + WD,
 
 # Analysis of the neural network
 SensAnalysisMLP(mod)
+```
+Apart from the plot created with the `SensAnalysisMLP` function by an internal call
+to `SensitivityPlot`, other plots can be obtained to analyze the neural network model.
+If it is a forecast problem, the `SensTimePlot` function returns a plot which shows
+how the sensitivity of the output changes over the time of the data. 
+
+
+```{r, results = 'hide', message=FALSE, fig.height = 6, fig.width = 9}
+SensTimePlot(mod, fdata = DAILY_DEMAND_TR, facet = TRUE)
+```
+
+Also, a more detailed plot about the distribution of the variables can be obtained with
+the `SensFeaturePlot` function. This function returns a scatter plot over a violin plot 
+for each input variable, where each point represent a sensitivity value of a sample of the
+dataset. The color of each point depends on the value of the input for its corresponding sample.
+
+```{r, results = 'hide', message=FALSE, fig.height = 6, fig.width = 9}
+sensraw <- SensAnalysisMLP(mod, plot = FALSE, .rawSens = TRUE)
+SensFeaturePlot(sensraw, fdata = DAILY_DEMAND_TR)
 ```
 
 ### License
