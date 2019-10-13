@@ -26,7 +26,7 @@
 #' ## Regression dataframe --------------------------------------------------------
 #' # Scale the data
 #' fdata.Reg.tr <- fdata[,2:ncol(fdata)]
-#' fdata.Reg.tr[,2:3] <- fdata.Reg.tr[,2:3]/10
+#' fdata.Reg.tr[,3] <- fdata.Reg.tr[,3]/10
 #' fdata.Reg.tr[,1] <- fdata.Reg.tr[,1]/1000
 #'
 #' # Normalize the data for some models
