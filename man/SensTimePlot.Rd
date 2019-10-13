@@ -5,11 +5,11 @@
 \title{Sensitivity analysis plot over time of the data}
 \usage{
 SensTimePlot(object, fdata = NULL, date.var = NULL, facet = FALSE,
-  ...)
+  smooth = FALSE, nspline = NULL, ...)
 }
 \arguments{
 \item{object}{fitted neural network model or \code{array} containing the raw
-sensitivities from the function \code{SensAnalysisMLP}}
+sensitivities from the function \code{\link[NeuralSens]{SensAnalysisMLP}}}
 
 \item{fdata}{\code{data.frame} containing the data to evaluate the sensitivity of the model.
 Not needed if the raw sensitivities has been passed as \code{object}}
@@ -17,9 +17,15 @@ Not needed if the raw sensitivities has been passed as \code{object}}
 \item{date.var}{\code{Posixct vector} with the date of each sample of \code{fdata}
 If \code{NULL}, the first variable with Posixct format of \code{fdata} is used as dates}
 
-\item{facet}{\code{logical} if \code{TRUE}, function \code{facet_grid} from}
+\item{facet}{\code{logical} if \code{TRUE}, function \code{facet_grid} from \code{ggplot2} is used}
 
-\item{...}{further arguments that should be passed to \code{SensAnalysisMLP} function}
+\item{smooth}{\code{logical} if \code{TRUE}, \code{geom_smooth} plots are added to each variable plot}
+
+\item{nspline}{\code{integer} if \code{smooth} is TRUE, this determine the degree of the spline used
+to perform \code{geom_smooth}. If \code{nspline} is NULL, the square root of the length of the timeseries
+is used as degrees of the spline.}
+
+\item{...}{further arguments that should be passed to  \code{\link[NeuralSens]{SensAnalysisMLP}} function}
 }
 \value{
 list of \code{geom_line} plots for the inputs variables representing the
@@ -65,5 +71,5 @@ nnetmod <- nnet::nnet(form,
                       decay = decay,
                       maxit = iters)
 # Try SensTimePlot
-NeuralSens::SensTimePlot(nnetmod, fdata = nntrData, date.var = fdata[,1])
+NeuralSens::SensTimePlot(nnetmod, fdata = nntrData, date.var = NULL)
 }
