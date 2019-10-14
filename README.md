@@ -2,6 +2,8 @@
 # NeuralSens <img src="man/logo/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@comillas.edu*
+#### *Antonio Muñoz San Roque, Antonio.Munoz@iit.comillas.edu*
+#### *José Portela González, jose.portela@iit.comillas.edu*
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.org/JaiPizGon/NeuralSens.svg?branch=master)](https://travis-ci.org/JaiPizGon/NeuralSens)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/JaiPizGon/NeuralSens?branch=master&svg=true)](https://ci.appveyor.com/project/JaiPizGon/NeuralSens)
@@ -120,3 +122,6 @@ SensFeaturePlot(sensraw, fdata = DAILY_DEMAND_TR)
 ### License
 
 This package is released in the public domain under the General Public License [GPL](https://www.gnu.org/licenses/gpl-3.0.en.html). 
+
+### Association
+Package created in the Institute for Research in Technology (IIT), [link to homepage](https://www.iit.comillas.edu/index.php.en) 

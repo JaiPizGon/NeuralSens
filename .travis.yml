@@ -10,3 +10,4 @@ warnings_are_errors: true
 os:
   - linux
   - osx
+before_install: source("https://install-github.me/r-lib/remotes")
