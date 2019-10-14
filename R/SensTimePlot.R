@@ -93,7 +93,7 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
       out <- out
       plotdata <- cbind(date.var,as.data.frame(rawSens[,,out]))
       plotdata <- reshape2::melt(plotdata,id.vars = names(plotdata)[1])
-      p <- ggplot2::ggplot(plotdata, ggplot2::aes(x = plotdata$date.var, y = plotdata$value,
+      p <- ggplot2::ggplot(plotdata, ggplot2::aes(x = plotdata[,1], y = plotdata$value,
                                                   group = plotdata$variable, color = plotdata$variable)) +
         ggplot2::geom_line() +
         ggplot2::labs(color = "Inputs") +
