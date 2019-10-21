@@ -111,7 +111,7 @@ fdata <- DAILY_DEMAND_TR
 fdata[,3] <- ifelse(as.data.frame(fdata)[,3] \%in\% c("SUN","SAT"), 0, 1)
 ## Parameters of the NNET ------------------------------------------------------
 hidden_neurons <- 5
-iters <- 250
+iters <- 100
 decay <- 0.1
 
 ################################################################################

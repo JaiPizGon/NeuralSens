@@ -42,7 +42,7 @@
 #' fdata[,3] <- ifelse(as.data.frame(fdata)[,3] %in% c("SUN","SAT"), 0, 1)
 #' ## Parameters of the NNET ------------------------------------------------------
 #' hidden_neurons <- 5
-#' iters <- 250
+#' iters <- 100
 #' decay <- 0.1
 #'
 #' ################################################################################
@@ -460,12 +460,20 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
             std = apply(der[, , i], 2, stats::sd, na.rm = TRUE),
             meanSensSQ = colMeans(der[, , i] ^ 2, na.rm = TRUE)
           )
+          rownames(sens[[i]]) <- NULL
         }
-        names(sens) <- make.names(levels(trData$.outcome), unique = TRUE)
+        names(sens) <- make.names(unique(trData$.outcome), unique = TRUE)
       }
       return(sens)
     } else {
       # Return sensitivities without processing
+      if (mlpstr[length(mlpstr)] > 1) {
+        dimnames(der)[[3]] <- make.names(unique(trData$.outcome), unique = TRUE)
+      } else {
+        if (!is.null(output_name)) {
+          dimnames(der)[[3]] <- output_name
+        }
+      }
       return(der)
     }
   }
