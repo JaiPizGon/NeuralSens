@@ -66,6 +66,8 @@ SensitivityPlots <- function(sens = NULL,der = NULL) {
         std = apply(der, 2, stats::sd, na.rm = TRUE),
         meanSensSQ = colMeans(der ^ 2, na.rm = TRUE)
       )
+    # Don't know why the names are overwritten so must be written again
+    names(sens) <- c("varNames", "mean", "std", "meanSensSQ")
   } else if(is.null(sens)) {
     stop("Sensitivities must be passed to the function, use NeuralSens::SensAnalysisMLP to calculate them")
   }
