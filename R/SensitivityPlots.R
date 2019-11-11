@@ -96,12 +96,20 @@ SensitivityPlots <- function(sens = NULL,der = NULL) {
     der2 <- der2[,!sapply(der2,function(x){all(x ==  0)})]
     dataplot <- reshape2::melt(der2, measure.vars = names(der2))
 
+    # Check the right x limits for the density plots
+    quant <- quantile(abs(dataplot$value), c(0.8, 1))
+    if (10*quant[1] < quant[2]) { # Distribution has too much dispersion
+      xlim <- c(1,-1)*max(abs(quantile(dataplot$value, c(0.2,0.8))))
+    } else {
+      xlim <- c(-1.1, 1.1)*max(abs(dataplot$value), na.rm = TRUE)
+    }
+
     plotlist[[3]] <- ggplot2::ggplot(dataplot) +
       ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
                             alpha = 0.4,
                             bw = "bcv") +
       ggplot2::labs(x = "Sens", y = "density(Sens)") +
-      ggplot2::xlim(c(-1.1, 1.1)*max(abs(dataplot$value), na.rm = TRUE))
+      ggplot2::xlim(xlim)
       # ggplot2::xlim(-2 * max(sens$std, na.rm = TRUE), 2 * max(sens$std, na.rm = TRUE))
   }
   # Plot the list of plots created before

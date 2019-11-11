@@ -4,7 +4,7 @@
 \alias{SensFeaturePlot}
 \title{Feature sensitivity plot}
 \usage{
-SensFeaturePlot(object, fdata, facet = FALSE, ...)
+SensFeaturePlot(object, fdata, ...)
 }
 \arguments{
 \item{object}{fitted neural network model or \code{array} containing the raw
@@ -12,8 +12,6 @@ sensitivities from the function \code{\link[NeuralSens]{SensAnalysisMLP}}}
 
 \item{fdata}{\code{data.frame} containing the data to evaluate the sensitivity of the model.
 Not needed if the raw sensitivities has been passed as \code{object}}
-
-\item{facet}{\code{logical} if \code{TRUE}, function \code{facet_grid} from \code{ggplot2} is used}
 
 \item{...}{further arguments that should be passed to  \code{\link[NeuralSens]{SensAnalysisMLP}} function}
 }
