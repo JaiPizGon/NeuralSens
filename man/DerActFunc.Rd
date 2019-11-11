@@ -2,7 +2,7 @@
 % Please edit documentation in R/ActFunc.R
 \name{DerActFunc}
 \alias{DerActFunc}
-\title{Derivate activation function of neuron}
+\title{Derivative of activation function of neuron}
 \usage{
 DerActFunc(type = "sigmoid", ...)
 }
@@ -15,7 +15,7 @@ DerActFunc(type = "sigmoid", ...)
 \code{numeric} output of the neuron
 }
 \description{
-Evaluate derivate of activation function of a neuron
+Evaluate derivative of activation function of a neuron
 }
 \examples{
 # Return derivative of the sigmoid activation function of a neuron

@@ -93,9 +93,9 @@ ActFunc <- function(type = "sigmoid", ...) {
          )
 }
 
-#' Derivate activation function of neuron
+#' Derivative of activation function of neuron
 #'
-#' @description Evaluate derivate of activation function of a neuron
+#' @description Evaluate derivative of activation function of a neuron
 #' @param type \code{character} name of the activation function
 #' @param ... extra arguments needed to calculate the functions
 #' @return \code{numeric} output of the neuron

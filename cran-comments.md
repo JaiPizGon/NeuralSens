@@ -1,5 +1,8 @@
 # cran-comments.md
-                    
+
+## Change of maintainer
+Due to changes in the maintainers job, the email have changed. The maintainter is the same person.
+                
 ## References
 Added reference to SensAnalysisMLP function where the formulation to calculate the partial derivatives is explained.
 I am currently writing a paper for the Journal of Statistic Software about the package.

@@ -97,9 +97,9 @@ SensitivityPlots <- function(sens = NULL,der = NULL) {
     dataplot <- reshape2::melt(der2, measure.vars = names(der2))
 
     # Check the right x limits for the density plots
-    quant <- quantile(abs(dataplot$value), c(0.8, 1))
+    quant <- stats::quantile(abs(dataplot$value), c(0.8, 1))
     if (10*quant[1] < quant[2]) { # Distribution has too much dispersion
-      xlim <- c(1,-1)*max(abs(quantile(dataplot$value, c(0.2,0.8))))
+      xlim <- c(1,-1)*max(abs(stats::quantile(dataplot$value, c(0.2,0.8))))
     } else {
       xlim <- c(-1.1, 1.1)*max(abs(dataplot$value), na.rm = TRUE)
     }
