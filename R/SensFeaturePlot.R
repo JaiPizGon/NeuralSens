@@ -6,7 +6,6 @@
 #' sensitivities from the function \code{\link[NeuralSens]{SensAnalysisMLP}}
 #' @param fdata \code{data.frame} containing the data to evaluate the sensitivity of the model.
 #' Not needed if the raw sensitivities has been passed as \code{object}
-#' @param facet \code{logical} if \code{TRUE}, function \code{facet_grid} from \code{ggplot2} is used
 #' @param ... further arguments that should be passed to  \code{\link[NeuralSens]{SensAnalysisMLP}} function
 #' @return list of Feature sensitivity plot as described in
 #' \url{https://www.r-bloggers.com/a-gentle-introduction-to-shap-values-in-r/}
@@ -49,7 +48,7 @@
 #' sensraw <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE, .rawSens = TRUE)
 #' NeuralSens::SensFeaturePlot(sensraw, fdata = nntrData)
 #' @export SensFeaturePlot
-SensFeaturePlot <- function(object, fdata, facet = FALSE, ...) {
+SensFeaturePlot <- function(object, fdata, ...) {
   # Check if the object passed is a model (list) or the raw sensitivities
   if (is.list(object)) {
     # Check if fdata has been passed to the function to calculate sensitivities
@@ -121,7 +120,6 @@ SensFeaturePlot <- function(object, fdata, facet = FALSE, ...) {
                                       breaks=c(0,1), labels=c("Low","High")) +
         ggplot2::labs(color = "Feature value") +
         ggplot2::theme(legend.position = "bottom")
-      if (facet) p <- p + ggplot2::facet_grid(plotdata$variable~., scales = "free_y")
       print(p)
       plotlist[[out]] <<- p
     })

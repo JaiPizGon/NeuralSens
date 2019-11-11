@@ -8,7 +8,7 @@ Description: Analysis functions to quantify inputs importance in neural network 
   input is defined as the distribution of the derivatives of the output with respect to that 
   input in each training data point.
 Author: José Portela González [aut], Antonio Muñoz San Roque [aut], Jaime Pizarroso Gonzalo [ctb, cre]
-Maintainer: Jaime Pizarroso Gonzalo <jpizarroso@alu.comillas.edu>
+Maintainer: Jaime Pizarroso Gonzalo <jpizarroso@comillas.edu>
 Imports:
     ggplot2,
     gridExtra,
@@ -38,5 +38,5 @@ Authors@R: c(
 	person(given = "Antonio", family = "Muñoz San Roque", 
       email = "antonio.munoz@iit.comillas.edu", role = "aut"),
     person(given = "Jaime", family = "Pizarroso Gonzalo", 
-      email = "jpizarroso@alu.comillas.edu", role = c("ctb", "cre"))
+      email = "jpizarroso@comillas.edu", role = c("ctb", "cre"))
     )

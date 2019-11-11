@@ -67,3 +67,36 @@ NULL
 #'   }
 #' }
 NULL
+#' Simulated data to test the package functionalities
+#'
+#' @description \code{data.frame} with 2000 rows of 4 columns with 3
+#' input variables \code{X1, X2, X3} and one output variable \code{Y}.
+#' The data is already scaled, and has been generated using the following code:
+#'
+#' \code{set.seed(150)}
+#'
+#'
+#' \code{simdata <- data.frame(}
+#' \code{   "X1" = rnorm(2000, 0.5,0.3),}
+#' \code{   "X2" = rnorm(2000, -1, 0.05),}
+#' \code{   "X3" = rnorm(2000, 0, 0.8)}
+#' \code{ )}
+#'
+#'
+#' \code{ simdata$Y <- (simdata$X1^2) - 2.5*simdata$X2}
+#'
+#'
+#' \code{ simdata <- as.data.frame(scale(simdata))}
+#'
+#' @name simdata
+#' @doctype data
+#' @author Jaime Pizarroso Gonzalo
+#' @keywords data
+#' @format A data frame with 2000 rows and 4 variables:
+#' \describe{
+#'   \item{X1}{Random input 1}
+#'   \item{X2}{Random input 2}
+#'   \item{X3}{Random input 3}
+#'   \item{Y}{Output}
+#' }
+NULL
