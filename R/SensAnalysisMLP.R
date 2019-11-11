@@ -462,24 +462,24 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
           )
           rownames(sens[[i]]) <- NULL
         }
-        if (!is.null(output_name)) {
+        if (is.factor(trData$.outcome)) {
+          names(sens) <- make.names(unique(trData$.outcome), unique = TRUE)
+        } else if (!is.null(output_name)) {
           if (length(output_name) > 2) {
             names(sens <- output_name)
           }
-        } else {
-          names(sens) <- make.names(unique(trData$.outcome), unique = TRUE)
         }
       }
       return(sens)
     } else {
       # Return sensitivities without processing
       if (mlpstr[length(mlpstr)] > 1) {
-        if (!is.null(output_name)) {
+        if (is.factor(trData$.outcome)) {
+          names(sens) <- make.names(unique(trData$.outcome), unique = TRUE)
+        } else if (!is.null(output_name)) {
           if (length(output_name) > 2) {
             names(sens <- output_name)
           }
-        } else {
-          dimnames(der)[[3]] <- make.names(unique(trData$.outcome), unique = TRUE)
         }
       } else {
         if (!is.null(output_name)) {
@@ -1042,7 +1042,7 @@ SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
                           preProc = preProc,
                           terms = terms,
                           plot = plot,
-                          output_name = names(trData)[names(trData) == MLP.fit$model.list$response],
+                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
                           args[!names(args) %in% c("output_name")])
 }
 
