@@ -9,7 +9,7 @@
 #' \describe{
 #'   \item{fecha}{date of the measure}
 #'   \item{DEM}{electrical demand}
-#'   \item{WD}{day of the week}
+#'   \item{WD}{Working Day: index which express how much work is made that day}
 #'   \item{TEMP}{weather temperature}
 #' }
 NULL
@@ -23,7 +23,7 @@ NULL
 #' @format A data frame with 7 rows and 3 variables:
 #' \describe{
 #'   \item{fecha}{date of the measure}
-#'   \item{WD}{day of the week}
+#'   \item{WD}{Working Day: index which express how much work is made that day}
 #'   \item{TEMP}{weather temperature}
 #' }
 NULL
@@ -77,16 +77,14 @@ NULL
 #'
 #'
 #' \code{simdata <- data.frame(}
-#' \code{   "X1" = rnorm(2000, 0.5,0.3),}
-#' \code{   "X2" = rnorm(2000, -1, 0.05),}
-#' \code{   "X3" = rnorm(2000, 0, 0.8)}
+#' \code{   "X1" = rnorm(2000, 0, 1),}
+#' \code{   "X2" = rnorm(2000, 0, 1),}
+#' \code{   "X3" = rnorm(2000, 0, 1)}
 #' \code{ )}
 #'
 #'
-#' \code{ simdata$Y <- (simdata$X1^2) - 2.5*simdata$X2}
+#' \code{ simdata$Y <- simdata$X1^2 + 0.5*simdata$X2 + 0.1*rnorm(2000, 0, 1)}
 #'
-#'
-#' \code{ simdata <- as.data.frame(scale(simdata))}
 #'
 #' @name simdata
 #' @doctype data

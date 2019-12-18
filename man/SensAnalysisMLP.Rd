@@ -14,41 +14,111 @@
 \alias{SensAnalysisMLP.numeric}
 \title{Sensitivity of NNET models}
 \usage{
-SensAnalysisMLP(MLP.fit, .returnSens = TRUE, plot = TRUE,
-  .rawSens = FALSE, ...)
+SensAnalysisMLP(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  ...
+)
 
-\method{SensAnalysisMLP}{default}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, .rawSens = FALSE, trData, actfunc = NULL,
-  preProc = NULL, terms = NULL, output_name = NULL, ...)
+\method{SensAnalysisMLP}{default}(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  trData,
+  actfunc = NULL,
+  preProc = NULL,
+  terms = NULL,
+  output_name = NULL,
+  ...
+)
 
-\method{SensAnalysisMLP}{train}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, .rawSens = FALSE, ...)
+\method{SensAnalysisMLP}{train}(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  ...
+)
 
-\method{SensAnalysisMLP}{H2OMultinomialModel}(MLP.fit,
-  .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, ...)
+\method{SensAnalysisMLP}{H2OMultinomialModel}(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  ...
+)
 
-\method{SensAnalysisMLP}{H2ORegressionModel}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, .rawSens = FALSE, ...)
+\method{SensAnalysisMLP}{H2ORegressionModel}(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  ...
+)
 
-\method{SensAnalysisMLP}{list}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, .rawSens = FALSE, trData, actfunc, ...)
+\method{SensAnalysisMLP}{list}(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  trData,
+  actfunc,
+  ...
+)
 
-\method{SensAnalysisMLP}{mlp}(MLP.fit, .returnSens = TRUE, plot = TRUE,
-  .rawSens = FALSE, trData, preProc = NULL, terms = NULL, ...)
+\method{SensAnalysisMLP}{mlp}(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  trData,
+  preProc = NULL,
+  terms = NULL,
+  ...
+)
 
-\method{SensAnalysisMLP}{nn}(MLP.fit, .returnSens = TRUE, plot = TRUE,
-  .rawSens = FALSE, preProc = NULL, terms = NULL, ...)
+\method{SensAnalysisMLP}{nn}(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  preProc = NULL,
+  terms = NULL,
+  ...
+)
 
-\method{SensAnalysisMLP}{nnet}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, .rawSens = FALSE, trData, preProc = NULL,
-  terms = NULL, ...)
+\method{SensAnalysisMLP}{nnet}(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  trData,
+  preProc = NULL,
+  terms = NULL,
+  ...
+)
 
-\method{SensAnalysisMLP}{nnetar}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, .rawSens = FALSE, ...)
+\method{SensAnalysisMLP}{nnetar}(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  ...
+)
 
-\method{SensAnalysisMLP}{numeric}(MLP.fit, .returnSens = TRUE,
-  plot = TRUE, .rawSens = FALSE, trData, preProc = NULL,
-  terms = NULL, ...)
+\method{SensAnalysisMLP}{numeric}(
+  MLP.fit,
+  .returnSens = TRUE,
+  plot = TRUE,
+  .rawSens = FALSE,
+  trData,
+  preProc = NULL,
+  terms = NULL,
+  ...
+)
 }
 \arguments{
 \item{MLP.fit}{fitted neural network model}

@@ -19,16 +19,13 @@ The data is already scaled, and has been generated using the following code:
 
 
 \code{simdata <- data.frame(}
-\code{   "X1" = rnorm(2000, 0.5,0.3),}
-\code{   "X2" = rnorm(2000, -1, 0.05),}
-\code{   "X3" = rnorm(2000, 0, 0.8)}
+\code{   "X1" = rnorm(2000, 0, 1),}
+\code{   "X2" = rnorm(2000, 0, 1),}
+\code{   "X3" = rnorm(2000, 0, 1)}
 \code{ )}
 
 
-\code{ simdata$Y <- (simdata$X1^2) - 2.5*simdata$X2}
-
-
-\code{ simdata <- as.data.frame(scale(simdata))}
+\code{ simdata$Y <- simdata$X1^2 + 0.5*simdata$X2 + 0.1*rnorm(2000, 0, 1)}
 }
 \author{
 Jaime Pizarroso Gonzalo

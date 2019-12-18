@@ -4,8 +4,15 @@
 \alias{SensTimePlot}
 \title{Sensitivity analysis plot over time of the data}
 \usage{
-SensTimePlot(object, fdata = NULL, date.var = NULL, facet = FALSE,
-  smooth = FALSE, nspline = NULL, ...)
+SensTimePlot(
+  object,
+  fdata = NULL,
+  date.var = NULL,
+  facet = FALSE,
+  smooth = FALSE,
+  nspline = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{fitted neural network model or \code{array} containing the raw
