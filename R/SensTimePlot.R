@@ -119,8 +119,8 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
                                      scales = "free_y",
                                      nrow = length(levels(plotdata$variable)),
                                      strip.position = "left",
-                                     labeller = label_parsed) +
-          theme(strip.background = element_blank(),
+                                     labeller = ggplot2::label_parsed) +
+          ggplot2::theme(strip.background = ggplot2::element_blank(),
                 strip.placement = "outside",
                 legend.position = "none")#,
                 # strip.text.y = element_text(angle = 180))
