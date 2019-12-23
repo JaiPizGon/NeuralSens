@@ -5,9 +5,9 @@
 \title{Data frame with 4 variables}
 \format{A data frame with 1980 rows and 4 variables:
 \describe{
-  \item{fecha}{date of the measure}
+  \item{DATE}{date of the measure}
   \item{DEM}{electrical demand}
-  \item{WD}{day of the week}
+  \item{WD}{Working Day: index which express how much work is made that day}
   \item{TEMP}{weather temperature}
 }}
 \description{

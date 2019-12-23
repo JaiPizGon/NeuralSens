@@ -94,7 +94,7 @@ SensitivityPlots <- function(sens = NULL,der = NULL) {
     # If the raw values of the derivatives has been passed to the function
     # the density plots of each of these derivatives can be extracted and plotted
     der2 <- as.data.frame(der)
-    names(der2) <- sens$varNames
+    names(der2) <- dimnames(der)[[2]]
     # Remove any variable which is all zero -> pruned variable
     der2 <- der2[,!sapply(der2,function(x){all(x ==  0)})]
     dataplot <- reshape2::melt(der2, measure.vars = names(der2))

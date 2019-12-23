@@ -55,7 +55,7 @@
 #' NeuralSens::SensTimePlot(nnetmod, fdata = nntrData, date.var = NULL)
 #' @export SensTimePlot
 SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
-                         smooth = FALSE, nspline = NULL, ...) {
+                         smooth = FALSE, nspline = NULL,  ...) {
   # Check if the object passed is a model (list) or the raw sensitivities
   if (is.list(object)) {
     # Check if fdata has been passed to the function to calculate sensitivities
@@ -102,7 +102,29 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
       # See if the user want a smooth plot
       if (smooth) p <- p + ggplot2::geom_smooth(method = "lm", color = "blue", formula = y ~ splines::bs(x, nspline), se = FALSE)
       # See if the user want it faceted
-      if (facet) p <- p + ggplot2::facet_grid(plotdata$variable~., scales = "free_y")
+      if (facet) {
+        args <- list(...)
+        # Check if output name is defined
+        if ("output_name" %in% names(args)) {
+          outname <- args$output_name
+        } else {
+          outname <- "Output"
+        }
+        labsvect <- c()
+        for(ii in levels(plotdata$variable)) {
+          labsvect<- c(labsvect, paste0("frac(delta~",outname,",delta~",ii,")"))
+        }
+        levels(plotdata$variable) <- labsvect
+        p <- p + ggplot2::facet_wrap(plotdata$variable~.,
+                                     scales = "free_y",
+                                     nrow = length(levels(plotdata$variable)),
+                                     strip.position = "left",
+                                     labeller = label_parsed) +
+          theme(strip.background = element_blank(),
+                strip.placement = "outside",
+                legend.position = "none")#,
+                # strip.text.y = element_text(angle = 180))
+        }
       print(p)
       plotlist[[out]] <<- p
     })

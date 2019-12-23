@@ -7,7 +7,7 @@
 #' @keywords data
 #' @format A data frame with 1980 rows and 4 variables:
 #' \describe{
-#'   \item{fecha}{date of the measure}
+#'   \item{DATE}{date of the measure}
 #'   \item{DEM}{electrical demand}
 #'   \item{WD}{Working Day: index which express how much work is made that day}
 #'   \item{TEMP}{weather temperature}
@@ -22,7 +22,7 @@ NULL
 #' @keywords data
 #' @format A data frame with 7 rows and 3 variables:
 #' \describe{
-#'   \item{fecha}{date of the measure}
+#'   \item{DATE}{date of the measure}
 #'   \item{WD}{Working Day: index which express how much work is made that day}
 #'   \item{TEMP}{weather temperature}
 #' }
