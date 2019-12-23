@@ -1,3 +1,13 @@
+---
+output:
+  html_document:
+    keep_md: yes
+    toc: no
+    self_contained: yes
+  pdf_document:
+    toc: yes
+---
+
 # NeuralSens <img src="man/logo/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@comillas.edu*
@@ -63,7 +73,6 @@ The third plot is a density plot of the partial derivatives of the output to the
 ```r
 # Scale the data
 DAILY_DEMAND_TR[,4] <- DAILY_DEMAND_TR[,4]/10
-DAILY_DEMAND_TR[,3] <- ifelse(as.data.frame(DAILY_DEMAND_TR)[,3] %in% c("SUN","SAT"), 0, 1)
 DAILY_DEMAND_TR[,2] <- DAILY_DEMAND_TR[,2]/100
 # Parameters of the neural network
 hidden_neurons <- 5
@@ -86,139 +95,7 @@ mod <- caret::train(form = DEM~TEMP + WD,
                     preProcess = c("center","scale"),
                     trControl = ctrl_tune,
                     metric = "RMSE")
-```
 
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```
-## Warning in preProcess.default(thresh = 0.95, k = 5, freqCut = 19, uniqueCut = 10, : These variables have zero
-## variances: WD
-```
-
-```r
 # Analysis of the neural network
 SensAnalysisMLP(mod)
 ```
