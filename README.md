@@ -1,12 +1,3 @@
----
-output:
-  html_document:
-    keep_md: yes
-    toc: no
-    self_contained: yes
-  pdf_document:
-    toc: yes
----
 
 # NeuralSens <img src="man/logo/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
 
