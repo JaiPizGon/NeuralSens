@@ -4,12 +4,15 @@
 \alias{SensitivityPlots}
 \title{Plot sensitivities of a neural network model}
 \usage{
-SensitivityPlots(sens = NULL, der = NULL)
+SensitivityPlots(sens = NULL, der = NULL, zoom = TRUE)
 }
 \arguments{
 \item{sens}{\code{data.frame} with the sensitivities calculated by \code{\link[NeuralSens]{SensAnalysisMLP}} using \code{.rawSens = FALSE}.}
 
-\item{der}{\code{matrix} with the sensitivities calculated by \code{\link[NeuralSens]{SensAnalysisMLP}} using \code{.rawSens = TRUE}.}
+\item{der}{\code{matrix} or \code{array} with the sensitivities calculated by \code{\link[NeuralSens]{SensAnalysisMLP}} using \code{.rawSens = TRUE}.}
+
+\item{zoom}{\code{logical} indicating if the distributions should be zoomed when there is any of them which is too tiny to be appreciated in the third plot.
+\code{\link[ggforce]{facet_zoom}} function from \code{ggforce} package is required.}
 }
 \value{
 Plots: \itemize{ \item Plot 1: colorful plot with the

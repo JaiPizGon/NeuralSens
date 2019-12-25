@@ -112,7 +112,7 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
         }
         labsvect <- c()
         for(ii in levels(plotdata$variable)) {
-          labsvect<- c(labsvect, paste0("frac(delta~",outname,",delta~",ii,")"))
+          labsvect<- c(labsvect, paste0("frac(partialdiff~",outname,",partialdiff~",ii,")"))
         }
         levels(plotdata$variable) <- labsvect
         p <- p + ggplot2::facet_wrap(plotdata$variable~.,

@@ -2,7 +2,9 @@
 #'
 #' @description Function to plot the sensitivities created by \code{\link[NeuralSens]{SensAnalysisMLP}}.
 #' @param sens \code{data.frame} with the sensitivities calculated by \code{\link[NeuralSens]{SensAnalysisMLP}} using \code{.rawSens = FALSE}.
-#' @param der \code{matrix} with the sensitivities calculated by \code{\link[NeuralSens]{SensAnalysisMLP}} using \code{.rawSens = TRUE}.
+#' @param der \code{matrix} or \code{array} with the sensitivities calculated by \code{\link[NeuralSens]{SensAnalysisMLP}} using \code{.rawSens = TRUE}.
+#' @param zoom \code{logical} indicating if the distributions should be zoomed when there is any of them which is too tiny to be appreciated in the third plot.
+#' \code{\link[ggforce]{facet_zoom}} function from \code{ggforce} package is required.
 #' @return Plots: \itemize{ \item Plot 1: colorful plot with the
 #'   classification of the classes in a 2D map \item Plot 2: b/w plot with
 #'   probability of the chosen class in a 2D map \item Plot 3: plot with the
@@ -51,7 +53,7 @@
 #' sensraw <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE, .rawSens = TRUE)
 #' NeuralSens::SensitivityPlots(der = sensraw[,,1])
 #' @export SensitivityPlots
-SensitivityPlots <- function(sens = NULL,der = NULL) {
+SensitivityPlots <- function(sens = NULL,der = NULL, zoom = TRUE) {
   plotlist <- list()
 
   # Check that at least the one argument has been passed
@@ -114,6 +116,20 @@ SensitivityPlots <- function(sens = NULL,der = NULL) {
       ggplot2::labs(x = "Sens", y = "density(Sens)") +
       ggplot2::xlim(xlim)
       # ggplot2::xlim(-2 * max(sens$std, na.rm = TRUE), 2 * max(sens$std, na.rm = TRUE))
+    # Check if ggforce package is installed in the device
+    # if it's installed and there are any density distribution that is
+    # too small compared with others, make a facet_zoom to show better all distributions
+    if (zoom) {
+      if ("ggforce" %in% rownames(utils::installed.packages())) {
+        maxd <- c()
+        for (i in 1:ncol(der2)) {
+          maxd <- c(maxd, max(stats::density(der2[,i])$y))
+        }
+        if (max(maxd) > 10*min(maxd)){
+          plotlist[[3]] <- plotlist[[3]] + ggforce::facet_zoom(zoom.size = 1, ylim = c(0,1.25*min(maxd)))
+        }
+      }
+    }
   }
   # Plot the list of plots created before
   gridExtra::grid.arrange(grobs = plotlist,
