@@ -3,43 +3,59 @@
 #' @description Function for evaluating the sensitivities of the inputs
 #'   variables in a mlp model
 #' @param MLP.fit fitted neural network model
-#' @param trData \code{data.frame} containing the data to evaluate the sensitivity of the model
-#' @param actfunc \code{character} vector indicating the activation function of each
-#'   neurons layer.
-#' @param .returnSens \code{logical} value. If \code{TRUE}, sensitivity of the model is
-#'   returned.
+#' @param trData \code{data.frame} containing the data to evaluate the
+#'   sensitivity of the model
+#' @param actfunc \code{character} vector indicating the activation function of
+#'   each neurons layer.
+#' @param .returnSens \code{logical} value. If \code{TRUE}, sensitivity of the
+#'   model is returned.
 #' @param preProc preProcess structure applied to the training data. See also
 #'   \code{\link[caret]{preProcess}}
 #' @param terms function applied to the training data to create factors. See
 #'   also \code{\link[caret]{train}}
-#' @param plot \code{logical} whether or not to plot the analysis. By default
-#'   is \code{TRUE}.
-#' @param .rawSens \code{logical} whether or not to return the sensitivity of each row
-#' of the data provided, or return the mean, sd and mean of the square of the
-#' sensitivities. By default is \code{FALSE}.
-#' @param output_name \code{character} name of the output variable in order to avoid
-#' changing the name of the output variable in \code{trData} to '.outcome'
+#' @param plot \code{logical} whether or not to plot the analysis. By default is
+#'   \code{TRUE}.
+#' @param .rawSens \code{logical} whether or not to return the sensitivity of
+#'   each row of the data provided, or return the mean, sd and mean of the
+#'   square of the sensitivities. By default is \code{FALSE}.
+#' @param output_name \code{character} name of the output variable in order to
+#'   avoid changing the name of the output variable in \code{trData} to
+#'   '.outcome'
+#' @param sens_origin_layer \code{numeric} specifies the layer of neurons with
+#'   respect to which the derivative must be calculated. The input layer is
+#'   specified by 1 (default).
+#' @param sens_end_layer \code{numeric} specifies the layer of neurons of which
+#'   the derivative is calculated. It may also be 'last' to specify the output
+#'   layer (default).
+#' @param sens_origin_input \code{logical} specifies if the derivative must be
+#'   calculated with respect to the inputs (\code{TRUE}) or output
+#'   (\code{FALSE}) of the \code{sens_origin_layer} layer of the model. By
+#'   default is \code{TRUE}.
+#' @param sens_end_input \code{logical} specifies if the derivative calculated
+#'   is of the output (\code{FALSE}) or from the input (\code{TRUE}) of the
+#'   \code{sens_end_layer} layer of the model. By default is \code{FALSE}.
 #' @param ...	additional arguments passed to or from other methods
 #' @return dataframe with the sensitivities obtained for each variable if
-#'   \code{.returnSens = TRUE}. If \code{.returnSens = FALSE}, the sensitivities without
-#'   processing are returned in a 3D array. If there is more than one output, the
-#'   sensitivities of each output are given in a list.
-#' @section Plots: \itemize{ \item Plot 1: colorful plot with the
-#'   classification of the classes in a 2D map \item Plot 2: b/w plot with
-#'   probability of the chosen class in a 2D map \item Plot 3: plot with the
-#'   stats::predictions of the data provided }
+#'   \code{.returnSens = TRUE}. If \code{.returnSens = FALSE}, the sensitivities
+#'   without processing are returned in a 3D array. If there is more than one
+#'   output, the sensitivities of each output are given in a list.
+#' @section Plots: \itemize{ \item Plot 1: colorful plot with the classification
+#'   of the classes in a 2D map \item Plot 2: b/w plot with probability of the
+#'   chosen class in a 2D map \item Plot 3: plot with the stats::predictions of
+#'   the data provided }
 #' @details In case of using an input of class \code{factor} and a package which
 #'   need to enter the input data as matrix, the dummies must be created before
 #'   training the neural network.
 #'
 #'   After that, the training data must be given to the function using the
 #'   \code{trData} argument.
-#' @references \url{https://www.researchgate.net/publication/220577792_Use_of_some_sensitivity_criteria_for_choosing_networks_with_good_generalization_ability}
+#' @references
+#'   \url{https://www.researchgate.net/publication/220577792_Use_of_some_sensitivity_criteria_for_choosing_networks_with_good_generalization_ability}
+#'
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")
 #' fdata <- DAILY_DEMAND_TR
-#' fdata[,3] <- ifelse(as.data.frame(fdata)[,3] %in% c("SUN","SAT"), 0, 1)
 #' ## Parameters of the NNET ------------------------------------------------------
 #' hidden_neurons <- 5
 #' iters <- 100
@@ -72,9 +88,13 @@
 #'                       maxit = iters)
 #' # Try SensAnalysisMLP
 #' NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData)
-#'
 #' \donttest{
-#'
+#' # Try SensAnalysisMLP to calculate sensitivities with respect to output of hidden neurones
+#' NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData,
+#'                              sens_origin_layer = 2,
+#'                              sens_end_layer = "last",
+#'                              sens_origin_input = FALSE,
+#'                              sens_end_input = FALSE)
 #' ## Train caret NNET ------------------------------------------------------------
 #' # Create trainControl
 #' ctrl_tune <- caret::trainControl(method = "boot",
@@ -320,15 +340,34 @@
 #' }
 #' @export
 #' @rdname SensAnalysisMLP
-SensAnalysisMLP <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, ...) UseMethod('SensAnalysisMLP', MLP.fit)
+SensAnalysisMLP <- function(MLP.fit,
+                            .returnSens = TRUE,
+                            plot = TRUE,
+                            .rawSens = FALSE,
+                            sens_origin_layer = 1,
+                            sens_end_layer = "last",
+                            sens_origin_input = TRUE,
+                            sens_end_input = FALSE,
+                            ...) UseMethod('SensAnalysisMLP', MLP.fit)
 
 #' @rdname SensAnalysisMLP
 #'
 #' @export
 #'
 #' @method SensAnalysisMLP default
-SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, trData,
-                                    actfunc = NULL, preProc = NULL, terms = NULL, output_name = NULL, ...) {
+SensAnalysisMLP.default <- function(MLP.fit,
+                                    .returnSens = TRUE,
+                                    plot = TRUE,
+                                    .rawSens = FALSE,
+                                    sens_origin_layer = 1,
+                                    sens_end_layer = "last",
+                                    sens_origin_input = TRUE,
+                                    sens_end_input = FALSE,
+                                    trData,
+                                    actfunc = NULL,
+                                    preProc = NULL,
+                                    terms = NULL,
+                                    output_name = NULL,  ...) {
   ### Things needed for calculating the sensibilities:
   #   - Structure of the model  -> MLP.fit$n
   #   - Weights of the model    -> MLP.fit$wts
@@ -337,6 +376,33 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
 
   # Obtain structure of fitted model
   mlpstr <- MLP.fit$n
+
+  # Check all sensitivity arguments makes sense
+  # Check which is the output we want the derivative of
+  if (sens_end_layer == "last") {
+    # User wants the derivative of the last layer of the neural network
+    sens_end_layer = length(mlpstr)
+  }
+
+  # Detect that origin and end layer are defined by a number
+  if (!is.numeric(c(sens_end_layer,sens_origin_layer))) {
+    stop("End layer and origin layer must be specified by a strictly positive number")
+  }
+  # Detect that layers are specified by strictly positive numbers
+  if (any(c(sens_end_layer,sens_origin_layer) <= 0)) {
+    stop("End layer and origin layer must be specified by a strictly positive number")
+  }
+  # Detect that at least there is one layer between origin and end of derivatives
+  if ((sens_end_layer < sens_origin_layer) ||
+      ((sens_end_layer == sens_origin_layer) &&
+       !(sens_origin_input && !sens_end_input))) {
+    stop("There must be at least one layer between end and origin")
+  }
+
+  # Detect that exists the layers specified
+  if (sens_end_layer > length(mlpstr)) {
+    stop("The layers specified could not be found in the neural network model")
+  }
 
   # Obtain weights
   nwts <- NeuralNetTools::neuralweights(MLP.fit$wts, struct = mlpstr)
@@ -398,39 +464,62 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
   #    - W stores the weights of the inputs of each layer of neurons
   Z <- list()
   O <- list()
-  D <- list()
   W <- list()
+  D <- list()
   # Initialize the activation and the derivative of the activation function for each layer
   ActivationFunction <- lapply(actfunc, NeuralSens::ActFunc)
   DerActivationFunction <- lapply(actfunc, NeuralSens::DerActFunc)
 
-  W[[1]] <- array(c(0,rep(1,ncol(TestData))),c(ncol(TestData)+1,1,nrow(TestData)))
+  W[[1]] <- diag(ncol(TestData)+1)
   # For each row in the TestData
   Z[[1]] <- as.matrix(TestData)
   O[[1]] <- ActivationFunction[[1]](Z[[1]])
-  # Build the jacobian of the first layer
-  D[[1]] <- array(NA, dim=c(mlpstr[1], mlpstr[1], nrow(TestData)))
-  for(irow in 1:nrow(TestData)){
-    D[[1]][,,irow] <- DerActivationFunction[[1]](Z[[1]][irow,])
-  }
+
   # For each layer, calculate the input to the activation functions of each layer
   # This inputs are gonna be used to calculate the derivatives and the output of each layer
   for (l in 2:length(mlpstr)){
     W[[l]] <- data.matrix(as.data.frame(wts[(sum(mlpstr[1:(l-1)])-mlpstr[1]+1):(sum(mlpstr[1:l])-mlpstr[1])]))
     Z[[l]] <- cbind(1, O[[l-1]]) %*% W[[l]]
     O[[l]] <- ActivationFunction[[l]](Z[[l]])
+  }
 
-    # Detect if it's a vector because we need it in row vectors and in r a vector is a column
-    m <- W[[l]][2:nrow(W[[l]]),]
-    D[[l]]<- array(NA, dim=c(mlpstr[1], mlpstr[l], nrow(TestData)))
-    # Chain rule for calculate the derivatives between layers
-    for(irow in 1:nrow(TestData)){
-      z <- DerActivationFunction[[l]](Z[[l]][irow,])
-      D[[l]][,,irow] <- D[[l-1]][,,irow] %*% m %*% z
+  # Calculate derivatives
+  D[[1]] <- array(diag(mlpstr[sens_origin_layer]),
+                  dim=c(mlpstr[sens_origin_layer],
+                        mlpstr[sens_origin_layer],
+                        nrow(TestData)))
+  if (sens_origin_input) {
+    for (irow in 1:nrow(TestData)) {
+      D[[1]][,,irow] <- DerActivationFunction[[sens_origin_layer]](Z[[sens_origin_layer]][irow,])
     }
   }
+  l <- 1
+  # Only perform further operations if origin is not equal to end layer
+  if (sens_origin_layer != sens_end_layer) {
+    counter <- 1
+    for (l in (sens_origin_layer+1):sens_end_layer) {
+      counter <- counter + 1
+      D[[counter]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], nrow(TestData)))
+      # Check if it must be multiplied by the jacobian of the nest layer
+      if ((l == sens_end_layer) && sens_end_input) {
+        for (irow in 1:nrow(TestData)){
+          D[[counter]][,,irow] <- D[[counter - 1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),]
+        }
+      } else {
+        for (irow in 1:nrow(TestData)){
+          D[[counter]][,,irow] <- D[[counter - 1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),] %*% DerActivationFunction[[l]](Z[[l]][irow,])
+        }
+      }
+    }
+    l <- counter
+  }
+
+
   # Prepare the derivatives for the following calculations
   der <- aperm(D[[l]],c(3,1,2))
+  if (sens_origin_layer != 1) {
+    varnames = paste0("Neuron ",sens_origin_layer,1:mlpstr[sens_origin_layer])
+  }
   colnames(der) <- varnames
   # Obtain sensitivities of the first output and create plots if required
   sens <-
@@ -496,12 +585,24 @@ SensAnalysisMLP.default <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .r
 #' @export
 #'
 #' @method SensAnalysisMLP train
-SensAnalysisMLP.train <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE,...) {
+SensAnalysisMLP.train <- function(MLP.fit,
+                                  .returnSens = TRUE,
+                                  plot = TRUE,
+                                  .rawSens = FALSE,
+                                  sens_origin_layer = 1,
+                                  sens_end_layer = "last",
+                                  sens_origin_input = TRUE,
+                                  sens_end_input = FALSE,
+                                  ...) {
   args <- list(...)
   SensAnalysisMLP(MLP.fit$finalModel,
                   trData = if ("trData" %in% names(args)) {args$trData} else {MLP.fit$trainingData},
                   .returnSens = .returnSens,
                   .rawSens = .rawSens,
+                  sens_origin_layer = sens_origin_layer,
+                  sens_end_layer = sens_end_layer,
+                  sens_origin_input = sens_origin_input,
+                  sens_end_input = sens_end_input,
                   preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
                   terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
                   plot = plot,
@@ -513,7 +614,15 @@ SensAnalysisMLP.train <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .raw
 #' @export
 #'
 #' @method SensAnalysisMLP H2OMultinomialModel
-SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE,...) {
+SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit,
+                                                .returnSens = TRUE,
+                                                plot = TRUE,
+                                                .rawSens = FALSE,
+                                                sens_origin_layer = 1,
+                                                sens_end_layer = "last",
+                                                sens_origin_input = TRUE,
+                                                sens_end_input = FALSE,
+                                                ...) {
   args <- list(...)
   createDummiesH2O <- function(trData) {
     # H2O dummies create all levels of factor variables and an extra level for missing (NA).
@@ -651,6 +760,10 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
                           actfunc = actfun,
                           .returnSens = .returnSens,
                           .rawSens = .rawSens,
+                          sens_origin_layer = sens_origin_layer,
+                          sens_end_layer = sens_end_layer,
+                          sens_origin_input = sens_origin_input,
+                          sens_end_input = sens_end_input,
                           preProc = preProc,
                           terms = NULL,
                           plot = plot,
@@ -663,7 +776,15 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit, .returnSens = TRUE, plo
 #' @export
 #'
 #' @method SensAnalysisMLP H2ORegressionModel
-SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE,...) {
+SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit,
+                                               .returnSens = TRUE,
+                                               plot = TRUE,
+                                               .rawSens = FALSE,
+                                               sens_origin_layer = 1,
+                                               sens_end_layer = "last",
+                                               sens_origin_input = TRUE,
+                                               sens_end_input = FALSE,
+                                               ...) {
   args <- list(...)
   createDummiesH2O <- function(trData) {
     # H2O dummies create all levels of factor variables and an extra level for missing (NA).
@@ -800,6 +921,10 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
                           actfunc = actfun,
                           .returnSens = .returnSens,
                           .rawSens = .rawSens,
+                          sens_origin_layer = sens_origin_layer,
+                          sens_end_layer = sens_end_layer,
+                          sens_origin_input = sens_origin_input,
+                          sens_end_input = sens_end_input,
                           preProc = preProc,
                           terms = NULL,
                           plot = plot,
@@ -813,8 +938,17 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit, .returnSens = TRUE, plot
 #' @export
 #'
 #' @method SensAnalysisMLP list
-SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
-                                 .rawSens = FALSE, trData, actfunc, ...) {
+SensAnalysisMLP.list <- function(MLP.fit,
+                                 .returnSens = TRUE,
+                                 plot = TRUE,
+                                 .rawSens = FALSE,
+                                 sens_origin_layer = 1,
+                                 sens_end_layer = "last",
+                                 sens_origin_input = TRUE,
+                                 sens_end_input = FALSE,
+                                 trData,
+                                 actfunc,
+                                 ...) {
   # For a neural nnet
   args <- list(...)
   ## Detect that it's from the neural package
@@ -857,6 +991,10 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
                           trData = trData,
                           .returnSens = .returnSens,
                           .rawSens = .rawSens,
+                          sens_origin_layer = sens_origin_layer,
+                          sens_end_layer = sens_end_layer,
+                          sens_origin_input = sens_origin_input,
+                          sens_end_input = sens_end_input,
                           actfunc = actfunc,
                           preProc = NULL,
                           terms = NULL,
@@ -870,7 +1008,18 @@ SensAnalysisMLP.list <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
 #' @export
 #'
 #' @method SensAnalysisMLP mlp
-SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, trData, preProc = NULL, terms = NULL, ...) {
+SensAnalysisMLP.mlp <- function(MLP.fit,
+                                .returnSens = TRUE,
+                                plot = TRUE,
+                                .rawSens = FALSE,
+                                sens_origin_layer = 1,
+                                sens_end_layer = "last",
+                                sens_origin_input = TRUE,
+                                sens_end_input = FALSE,
+                                trData,
+                                preProc = NULL,
+                                terms = NULL,
+                                ...) {
   args <- list(...)
   # For a RSNNS mlp
   netInfo <- RSNNS::extractNetInfo(MLP.fit)
@@ -936,6 +1085,10 @@ SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSe
                           actfunc = actfun,
                           .returnSens = .returnSens,
                           .rawSens = .rawSens,
+                          sens_origin_layer = sens_origin_layer,
+                          sens_end_layer = sens_end_layer,
+                          sens_origin_input = sens_origin_input,
+                          sens_end_input = sens_end_input,
                           preProc = preProc,
                           terms = terms,
                           plot = plot,
@@ -948,7 +1101,17 @@ SensAnalysisMLP.mlp <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSe
 #' @export
 #'
 #' @method SensAnalysisMLP nn
-SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE, preProc = NULL, terms = NULL, ...) {
+SensAnalysisMLP.nn <- function(MLP.fit,
+                               .returnSens = TRUE,
+                               plot = TRUE,
+                               .rawSens = FALSE,
+                               sens_origin_layer = 1,
+                               sens_end_layer = "last",
+                               sens_origin_input = TRUE,
+                               sens_end_input = FALSE,
+                               preProc = NULL,
+                               terms = NULL,
+                               ...) {
 
   # For a neuralnet nn
   args <- list(...)
@@ -976,6 +1139,10 @@ SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSen
                             actfunc = actfun,
                             .returnSens = TRUE,
                             .rawSens = TRUE,
+                            sens_origin_layer = sens_origin_layer,
+                            sens_end_layer = sens_end_layer,
+                            sens_origin_input = sens_origin_input,
+                            sens_end_input = sens_end_input,
                             preProc = preProc,
                             terms = terms,
                             plot = FALSE,
@@ -1014,8 +1181,18 @@ SensAnalysisMLP.nn <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSen
 #' @export
 #'
 #' @method SensAnalysisMLP nnet
-SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
-                                 .rawSens = FALSE, trData, preProc = NULL, terms = NULL, ...) {
+SensAnalysisMLP.nnet <- function(MLP.fit,
+                                 .returnSens = TRUE,
+                                 plot = TRUE,
+                                 .rawSens = FALSE,
+                                 sens_origin_layer = 1,
+                                 sens_end_layer = "last",
+                                 sens_origin_input = TRUE,
+                                 sens_end_input = FALSE,
+                                 trData,
+                                 preProc = NULL,
+                                 terms = NULL,
+                                 ...) {
   # For a nnet nnet
   args <- list(...)
   # Check if some arguments has been changed in a parent function
@@ -1038,6 +1215,10 @@ SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
                           trData = trData,
                           actfunc = actfun,
                           .returnSens = .returnSens,
+                          sens_origin_layer = sens_origin_layer,
+                          sens_end_layer = sens_end_layer,
+                          sens_origin_input = sens_origin_input,
+                          sens_end_input = sens_end_input,
                           .rawSens = .rawSens,
                           preProc = preProc,
                           terms = terms,
@@ -1051,7 +1232,15 @@ SensAnalysisMLP.nnet <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
 #' @export
 #'
 #' @method SensAnalysisMLP nnetar
-SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .rawSens = FALSE,...) {
+SensAnalysisMLP.nnetar <- function(MLP.fit,
+                                   .returnSens = TRUE,
+                                   plot = TRUE,
+                                   .rawSens = FALSE,
+                                   sens_origin_layer = 1,
+                                   sens_end_layer = "last",
+                                   sens_origin_input = TRUE,
+                                   sens_end_input = FALSE,
+                                   ...) {
   # Create the lags in the trData
   args = list(...)
   if (!is.null(MLP.fit$xreg)) {
@@ -1142,6 +1331,10 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
                                               actfunc = actfun,
                                               .returnSens = TRUE,
                                               .rawSens = TRUE,
+                                              sens_origin_layer = sens_origin_layer,
+                                              sens_end_layer = sens_end_layer,
+                                              sens_origin_input = sens_origin_input,
+                                              sens_end_input = sens_end_input,
                                               preProc = NULL,
                                               terms = NULL,
                                               plot = FALSE,
@@ -1180,9 +1373,18 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
 #' @export
 #'
 #' @method SensAnalysisMLP numeric
-SensAnalysisMLP.numeric <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
-                                    .rawSens = FALSE, trData, preProc = NULL,
-                                    terms = NULL, ...) {
+SensAnalysisMLP.numeric <- function(MLP.fit,
+                                    .returnSens = TRUE,
+                                    plot = TRUE,
+                                    .rawSens = FALSE,
+                                    sens_origin_layer = 1,
+                                    sens_end_layer = "last",
+                                    sens_origin_input = TRUE,
+                                    sens_end_input = FALSE,
+                                    trData,
+                                    preProc = NULL,
+                                    terms = NULL,
+                                    ...) {
   # Generic method when the weights are passed in the argument MLP.fit
   finalModel <- NULL
   finalModel$wts <- MLP.fit
@@ -1222,6 +1424,10 @@ SensAnalysisMLP.numeric <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
                           actfunc = args$actfun,
                           .returnSens = .returnSens,
                           .rawSens = .rawSens,
+                          sens_origin_layer = sens_origin_layer,
+                          sens_end_layer = sens_end_layer,
+                          sens_origin_input = sens_origin_input,
+                          sens_end_input = sens_end_input,
                           preProc = preProc,
                           terms = terms,
                           plot = plot,

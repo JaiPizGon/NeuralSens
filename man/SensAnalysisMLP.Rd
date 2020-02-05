@@ -19,6 +19,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   ...
 )
 
@@ -27,6 +31,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   trData,
   actfunc = NULL,
   preProc = NULL,
@@ -40,6 +48,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   ...
 )
 
@@ -48,6 +60,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   ...
 )
 
@@ -56,6 +72,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   ...
 )
 
@@ -64,6 +84,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   trData,
   actfunc,
   ...
@@ -74,6 +98,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   trData,
   preProc = NULL,
   terms = NULL,
@@ -85,6 +113,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   preProc = NULL,
   terms = NULL,
   ...
@@ -95,6 +127,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   trData,
   preProc = NULL,
   terms = NULL,
@@ -106,6 +142,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   ...
 )
 
@@ -114,6 +154,10 @@ SensAnalysisMLP(
   .returnSens = TRUE,
   plot = TRUE,
   .rawSens = FALSE,
+  sens_origin_layer = 1,
+  sens_end_layer = "last",
+  sens_origin_input = TRUE,
+  sens_end_input = FALSE,
   trData,
   preProc = NULL,
   terms = NULL,
@@ -123,22 +167,40 @@ SensAnalysisMLP(
 \arguments{
 \item{MLP.fit}{fitted neural network model}
 
-\item{.returnSens}{\code{logical} value. If \code{TRUE}, sensitivity of the model is
-returned.}
+\item{.returnSens}{\code{logical} value. If \code{TRUE}, sensitivity of the
+model is returned.}
 
-\item{plot}{\code{logical} whether or not to plot the analysis. By default
-is \code{TRUE}.}
+\item{plot}{\code{logical} whether or not to plot the analysis. By default is
+\code{TRUE}.}
 
-\item{.rawSens}{\code{logical} whether or not to return the sensitivity of each row
-of the data provided, or return the mean, sd and mean of the square of the
-sensitivities. By default is \code{FALSE}.}
+\item{.rawSens}{\code{logical} whether or not to return the sensitivity of
+each row of the data provided, or return the mean, sd and mean of the
+square of the sensitivities. By default is \code{FALSE}.}
+
+\item{sens_origin_layer}{\code{numeric} specifies the layer of neurons with
+respect to which the derivative must be calculated. The input layer is
+specified by 1 (default).}
+
+\item{sens_end_layer}{\code{numeric} specifies the layer of neurons of which
+the derivative is calculated. It may also be 'last' to specify the output
+layer (default).}
+
+\item{sens_origin_input}{\code{logical} specifies if the derivative must be
+calculated with respect to the inputs (\code{TRUE}) or output
+(\code{FALSE}) of the \code{sens_origin_layer} layer of the model. By
+default is \code{TRUE}.}
+
+\item{sens_end_input}{\code{logical} specifies if the derivative calculated
+is of the output (\code{FALSE}) or from the input (\code{TRUE}) of the
+\code{sens_end_layer} layer of the model. By default is \code{FALSE}.}
 
 \item{...}{additional arguments passed to or from other methods}
 
-\item{trData}{\code{data.frame} containing the data to evaluate the sensitivity of the model}
+\item{trData}{\code{data.frame} containing the data to evaluate the
+sensitivity of the model}
 
-\item{actfunc}{\code{character} vector indicating the activation function of each
-neurons layer.}
+\item{actfunc}{\code{character} vector indicating the activation function of
+each neurons layer.}
 
 \item{preProc}{preProcess structure applied to the training data. See also
 \code{\link[caret]{preProcess}}}
@@ -146,14 +208,15 @@ neurons layer.}
 \item{terms}{function applied to the training data to create factors. See
 also \code{\link[caret]{train}}}
 
-\item{output_name}{\code{character} name of the output variable in order to avoid
-changing the name of the output variable in \code{trData} to '.outcome'}
+\item{output_name}{\code{character} name of the output variable in order to
+avoid changing the name of the output variable in \code{trData} to
+'.outcome'}
 }
 \value{
 dataframe with the sensitivities obtained for each variable if
-  \code{.returnSens = TRUE}. If \code{.returnSens = FALSE}, the sensitivities without
-  processing are returned in a 3D array. If there is more than one output, the
-  sensitivities of each output are given in a list.
+  \code{.returnSens = TRUE}. If \code{.returnSens = FALSE}, the sensitivities
+  without processing are returned in a 3D array. If there is more than one
+  output, the sensitivities of each output are given in a list.
 }
 \description{
 Function for evaluating the sensitivities of the inputs
@@ -168,17 +231,16 @@ In case of using an input of class \code{factor} and a package which
   \code{trData} argument.
 }
 \section{Plots}{
- \itemize{ \item Plot 1: colorful plot with the
-  classification of the classes in a 2D map \item Plot 2: b/w plot with
-  probability of the chosen class in a 2D map \item Plot 3: plot with the
-  stats::predictions of the data provided }
+ \itemize{ \item Plot 1: colorful plot with the classification
+  of the classes in a 2D map \item Plot 2: b/w plot with probability of the
+  chosen class in a 2D map \item Plot 3: plot with the stats::predictions of
+  the data provided }
 }
 
 \examples{
 ## Load data -------------------------------------------------------------------
 data("DAILY_DEMAND_TR")
 fdata <- DAILY_DEMAND_TR
-fdata[,3] <- ifelse(as.data.frame(fdata)[,3] \%in\% c("SUN","SAT"), 0, 1)
 ## Parameters of the NNET ------------------------------------------------------
 hidden_neurons <- 5
 iters <- 100
@@ -211,9 +273,13 @@ nnetmod <- nnet::nnet(form,
                       maxit = iters)
 # Try SensAnalysisMLP
 NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData)
-
 \donttest{
-
+# Try SensAnalysisMLP to calculate sensitivities with respect to output of hidden neurones
+NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData,
+                             sens_origin_layer = 2,
+                             sens_end_layer = "last",
+                             sens_origin_input = FALSE,
+                             sens_end_input = FALSE)
 ## Train caret NNET ------------------------------------------------------------
 # Create trainControl
 ctrl_tune <- caret::trainControl(method = "boot",
