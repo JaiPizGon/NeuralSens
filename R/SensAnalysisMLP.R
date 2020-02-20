@@ -367,7 +367,8 @@ SensAnalysisMLP.default <- function(MLP.fit,
                                     actfunc = NULL,
                                     preProc = NULL,
                                     terms = NULL,
-                                    output_name = NULL,  ...) {
+                                    output_name = NULL,
+                                    ...) {
   ### Things needed for calculating the sensibilities:
   #   - Structure of the model  -> MLP.fit$n
   #   - Weights of the model    -> MLP.fit$wts
@@ -538,7 +539,16 @@ SensAnalysisMLP.default <- function(MLP.fit,
 
     if (plot) {
       # show plots if required
-      NeuralSens::SensitivityPlots(sens,der = der[,,1])
+      args <- list(...)
+      zoom <- TRUE
+      quit.legend <- FALSE
+      if ("zoom" %in% names(args[[1]])) {
+        zoom <- args[[1]]$zoom
+      }
+      if ("quit.legend" %in% names(args[[1]])) {
+        quit.legend <- args[[1]]$quit.legend
+      }
+      NeuralSens::SensitivityPlots(sens, der[,,1], zoom, quit.legend)
     }
 
     if (.returnSens) {

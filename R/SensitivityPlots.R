@@ -5,6 +5,8 @@
 #' @param der \code{matrix} or \code{array} with the sensitivities calculated by \code{\link[NeuralSens]{SensAnalysisMLP}} using \code{.rawSens = TRUE}.
 #' @param zoom \code{logical} indicating if the distributions should be zoomed when there is any of them which is too tiny to be appreciated in the third plot.
 #' \code{\link[ggforce]{facet_zoom}} function from \code{ggforce} package is required.
+#' @param quit.legend \code{logical} indicating if legend of the third plot should be removed. By default is \code{FALSE}
+#'
 #' @return Plots: \itemize{ \item Plot 1: colorful plot with the
 #'   classification of the classes in a 2D map \item Plot 2: b/w plot with
 #'   probability of the chosen class in a 2D map \item Plot 3: plot with the
@@ -53,7 +55,7 @@
 #' sensraw <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE, .rawSens = TRUE)
 #' NeuralSens::SensitivityPlots(der = sensraw[,,1])
 #' @export SensitivityPlots
-SensitivityPlots <- function(sens = NULL,der = NULL, zoom = TRUE) {
+SensitivityPlots <- function(sens = NULL, der = NULL, zoom = TRUE, quit.legend = FALSE) {
   plotlist <- list()
 
   # Check that at least the one argument has been passed
@@ -129,6 +131,10 @@ SensitivityPlots <- function(sens = NULL,der = NULL, zoom = TRUE) {
           plotlist[[3]] <- plotlist[[3]] + ggforce::facet_zoom(zoom.size = 1, ylim = c(0,1.25*min(maxd)))
         }
       }
+    }
+    if (quit.legend) {
+      plotlist[[3]] <- plotlist[[3]] +
+        theme(legend.position = "none")
     }
   }
   # Plot the list of plots created before
