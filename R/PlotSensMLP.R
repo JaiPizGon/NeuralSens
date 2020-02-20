@@ -82,10 +82,10 @@ PlotSensMLP <- function(MLP.fit, metric = "mean",
   sens <- do.call("c",sens)
 
   # Rescale the sensitivities in order to obtain the colors
-  sens_scaled <- sign(sens) * round(scales::rescale(abs(sens),c(1,50))) + 50
+  sens_scaled <- sign(sens) * round(scales::rescale(abs(sens),c(1,50))) + 51
 
   colPal <- grDevices::colorRampPalette(c(sens_neg_col, "white", sens_pos_col))
-  senscolors <- colPal(100)[round(sens_scaled)]
+  senscolors <- colPal(101)[round(sens_scaled)]
   senscolors_list <- list()
   color_lengths <- c(0,color_lengths)
   for (i in 2:length(color_lengths)) {
