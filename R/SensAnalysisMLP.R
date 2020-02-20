@@ -466,6 +466,7 @@ SensAnalysisMLP.default <- function(MLP.fit,
   O <- list()
   W <- list()
   D <- list()
+
   # Initialize the activation and the derivative of the activation function for each layer
   ActivationFunction <- lapply(actfunc, NeuralSens::ActFunc)
   DerActivationFunction <- lapply(actfunc, NeuralSens::DerActFunc)
@@ -483,100 +484,137 @@ SensAnalysisMLP.default <- function(MLP.fit,
     O[[l]] <- ActivationFunction[[l]](Z[[l]])
   }
 
-  # Calculate derivatives
-  D[[1]] <- array(diag(mlpstr[sens_origin_layer]),
-                  dim=c(mlpstr[sens_origin_layer],
-                        mlpstr[sens_origin_layer],
-                        nrow(TestData)))
-  if (sens_origin_input) {
-    for (irow in 1:nrow(TestData)) {
-      D[[1]][,,irow] <- DerActivationFunction[[sens_origin_layer]](Z[[sens_origin_layer]][irow,])
-    }
-  }
-  l <- 1
-  # Only perform further operations if origin is not equal to end layer
-  if (sens_origin_layer != sens_end_layer) {
-    counter <- 1
-    for (l in (sens_origin_layer+1):sens_end_layer) {
-      counter <- counter + 1
-      D[[counter]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], nrow(TestData)))
-      # Check if it must be multiplied by the jacobian of the nest layer
-      if ((l == sens_end_layer) && sens_end_input) {
-        for (irow in 1:nrow(TestData)){
-          D[[counter]][,,irow] <- D[[counter - 1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),]
-        }
-      } else {
-        for (irow in 1:nrow(TestData)){
-          D[[counter]][,,irow] <- D[[counter - 1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),] %*% DerActivationFunction[[l]](Z[[l]][irow,])
-        }
+  # Check if we want all the derivatives to be returned
+  args <- list(...)
+
+  if (!"return_all_sens" %in% names(args[[1]])) {
+    # Calculate derivatives
+    D[[1]] <- array(diag(mlpstr[sens_origin_layer]),
+                    dim=c(mlpstr[sens_origin_layer],
+                          mlpstr[sens_origin_layer],
+                          nrow(TestData)))
+    if (sens_origin_input) {
+      for (irow in 1:nrow(TestData)) {
+        D[[1]][,,irow] <- DerActivationFunction[[sens_origin_layer]](Z[[sens_origin_layer]][irow,])
       }
     }
-    l <- counter
-  }
-
-
-  # Prepare the derivatives for the following calculations
-  der <- aperm(D[[l]],c(3,1,2))
-  if (sens_origin_layer != 1) {
-    varnames = paste0("Neuron ",sens_origin_layer,1:mlpstr[sens_origin_layer])
-  }
-  colnames(der) <- varnames
-  # Obtain sensitivities of the first output and create plots if required
-  sens <-
-    data.frame(
-      varNames = varnames,
-      mean = colMeans(der[, , 1], na.rm = TRUE),
-      std = apply(der[, , 1], 2, stats::sd, na.rm = TRUE),
-      meanSensSQ = colMeans(der[, , 1] ^ 2, na.rm = TRUE)
-    )
-  rownames(sens) <- NULL
-
-  if (plot) {
-    # show plots if required
-    NeuralSens::SensitivityPlots(sens,der = der[,,1])
-  }
-
-  if (.returnSens) {
-    if(!.rawSens) {
-      # Check if there are more than one output and return a list
-      # with the sensitivities of each output. If not, return a data.frame
-      if (dim(der)[3] > 1) {
-        sens <- list(sens)
-        for (i in 2:dim(der)[3]) {
-          sens[[i]] <- data.frame(
-            varNames = varnames,
-            mean = colMeans(der[, , i], na.rm = TRUE),
-            std = apply(der[, , i], 2, stats::sd, na.rm = TRUE),
-            meanSensSQ = colMeans(der[, , i] ^ 2, na.rm = TRUE)
-          )
-          rownames(sens[[i]]) <- NULL
-        }
-        if (is.factor(trData$.outcome)) {
-          names(sens) <- make.names(unique(trData$.outcome), unique = TRUE)
-        } else if (!is.null(output_name)) {
-          if (length(output_name) > 2) {
-            names(sens <- output_name)
+    l <- 1
+    # Only perform further operations if origin is not equal to end layer
+    if (sens_origin_layer != sens_end_layer) {
+      counter <- 1
+      for (l in (sens_origin_layer+1):sens_end_layer) {
+        counter <- counter + 1
+        D[[counter]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], nrow(TestData)))
+        # Check if it must be multiplied by the jacobian of the nest layer
+        if ((l == sens_end_layer) && sens_end_input) {
+          for (irow in 1:nrow(TestData)){
+            D[[counter]][,,irow] <- D[[counter - 1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),]
+          }
+        } else {
+          for (irow in 1:nrow(TestData)){
+            D[[counter]][,,irow] <- D[[counter - 1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),] %*% DerActivationFunction[[l]](Z[[l]][irow,])
           }
         }
       }
-      return(sens)
-    } else {
-      # Return sensitivities without processing
-      if (mlpstr[length(mlpstr)] > 1) {
-        if (is.factor(trData$.outcome)) {
-          names(sens) <- make.names(unique(trData$.outcome), unique = TRUE)
-        } else if (!is.null(output_name)) {
-          if (length(output_name) > 2) {
-            names(sens <- output_name)
+      l <- counter
+    }
+
+
+    # Prepare the derivatives for the following calculations
+    der <- aperm(D[[l]],c(3,1,2))
+    if (sens_origin_layer != 1) {
+      varnames = paste0("Neuron ",sens_origin_layer,1:mlpstr[sens_origin_layer])
+    }
+    colnames(der) <- varnames
+    # Obtain sensitivities of the first output and create plots if required
+    sens <-
+      data.frame(
+        varNames = varnames,
+        mean = colMeans(der[, , 1], na.rm = TRUE),
+        std = apply(der[, , 1], 2, stats::sd, na.rm = TRUE),
+        meanSensSQ = colMeans(der[, , 1] ^ 2, na.rm = TRUE)
+      )
+    rownames(sens) <- NULL
+
+    if (plot) {
+      # show plots if required
+      NeuralSens::SensitivityPlots(sens,der = der[,,1])
+    }
+
+    if (.returnSens) {
+      if(!.rawSens) {
+        # Check if there are more than one output and return a list
+        # with the sensitivities of each output. If not, return a data.frame
+        if (dim(der)[3] > 1) {
+          sens <- list(sens)
+          for (i in 2:dim(der)[3]) {
+            sens[[i]] <- data.frame(
+              varNames = varnames,
+              mean = colMeans(der[, , i], na.rm = TRUE),
+              std = apply(der[, , i], 2, stats::sd, na.rm = TRUE),
+              meanSensSQ = colMeans(der[, , i] ^ 2, na.rm = TRUE)
+            )
+            rownames(sens[[i]]) <- NULL
+          }
+          if (is.factor(trData$.outcome)) {
+            names(sens) <- make.names(unique(trData$.outcome), unique = TRUE)
+          } else if (!is.null(output_name)) {
+            if (length(output_name) > 2) {
+              names(sens <- output_name)
+            }
           }
         }
+        return(sens)
       } else {
-        if (!is.null(output_name)) {
-          dimnames(der)[[3]] <- output_name
+        # Return sensitivities without processing
+        if (mlpstr[length(mlpstr)] > 1) {
+          if (is.factor(trData$.outcome)) {
+            names(sens) <- make.names(unique(trData$.outcome), unique = TRUE)
+          } else if (!is.null(output_name)) {
+            if (length(output_name) > 2) {
+              names(sens <- output_name)
+            }
+          }
+        } else {
+          if (!is.null(output_name)) {
+            dimnames(der)[[3]] <- output_name
+          }
+        }
+        return(der)
+      }
+    }
+  } else {
+    # For each layer, calculate the input to the activation functions of each layer
+    # This inputs are gonna be used to calculate the derivatives and the output of each layer
+    for (l in 1:length(mlpstr)){
+      D[[l]]<- array(NA, dim=c(mlpstr[l], mlpstr[l], nrow(TestData)))
+      for(irow in 1:nrow(TestData)){
+        D[[l]][,,irow] <- DerActivationFunction[[l]](Z[[l]][irow,])
+      }
+    }
+
+    # Calculate derivatives with respect with the last layer's output
+    d <- list()
+    k <- 2 * length(D) - 1
+    d[[2 * length(D)]] <- array(diag(dim(D[[length(D)]])[1]),
+                                dim = dim(D[[length(D)]]))
+    for (l in length(D):1) {
+      d[[k]] <- array(NA, dim=c(dim(D[[(k+1)/2]])[2], dim(D[[length(D)]])[2], dim(D[[1]])[3]))
+      if (k > 1) {
+        d[[k - 1]] <- array(NA, dim=c(dim(W[[(k+1)/2]])[1]-1, dim(D[[length(D)]])[2], dim(D[[1]])[3]))
+      }
+      for (irow in 1:dim(D[[1]])[3]) {
+        d[[k]][,,irow] <- D[[l]][,,irow] %*% d[[k + 1]][,,irow]
+        if (k > 1) {
+          d[[k - 1]][,,irow] <- W[[l]][2:nrow(W[[l]]),, drop = FALSE] %*% d[[k]][,,irow]
         }
       }
-      return(der)
+      k <- k - 2
     }
+    d <- d[as.logical(1:length(d) %% 2)]
+
+    # Return all the derivatives and the weights of the net
+    return(list(d, MLP.fit$n, MLP.fit$wts, varnames, output_name))
   }
 }
 
@@ -767,7 +805,7 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit,
                           preProc = preProc,
                           terms = NULL,
                           plot = plot,
-                          output_name = NULL,
+                          output_name = MLP.fit@parameters$y,
                           args[!names(args) %in% c("trData")])
   }
 
@@ -928,7 +966,7 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit,
                           preProc = preProc,
                           terms = NULL,
                           plot = plot,
-                          output_name = NULL,
+                          output_name = MLP.fit@parameters$y,
                           args[!names(args) %in% c("trData")])
   }
 

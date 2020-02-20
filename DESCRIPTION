@@ -1,5 +1,5 @@
 Package: NeuralSens
-Version: 0.1.4
+Version: 0.1.5
 Title: Sensitivity Analysis of Neural Networks
 Date: 2020-05-02
 Description: Analysis functions to quantify inputs importance in neural network models. 
@@ -18,7 +18,8 @@ Imports:
     fastDummies,
     stringr,
     Hmisc,
-    ggforce
+    ggforce,
+    scales
 Suggests:
   h2o,
   neural,
