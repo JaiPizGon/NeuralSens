@@ -107,8 +107,8 @@ PlotSensMLP <- function(MLP.fit, metric = "mean",
   # Substitute the output points to avoid changing its colors
   args <- list(...)
   out_pos <- 0.4
-  if ("pad_x" %in% names(args[[1]])) {
-    out_pos <- args[[1]]$pad_x * 0.4
+  if ("pad_x" %in% names(args)) {
+    out_pos <- args$pad_x * 0.4
   }
   # Default values for arguments
   cex_val <- 1
@@ -122,8 +122,8 @@ PlotSensMLP <- function(MLP.fit, metric = "mean",
   layer_points_args <- c("cex_val", "circle_cex", "bord_col","node_labs","line_stag",
                          "var_labs","max_sp")
   # Check if any argument must be changed
-  for (i in which(layer_points_args %in% names(args[[1]]))) {
-    eval(paste0(layer_points_args[i]," <- args[[1]]$",layer_points_args[i]))
+  for (i in which(layer_points_args %in% names(args))) {
+    eval(paste0(layer_points_args[i]," <- args$",layer_points_args[i]))
   }
   x_range <- c(-1,1)
   y_range <- c(0,1)
