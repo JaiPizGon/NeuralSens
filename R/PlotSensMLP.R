@@ -82,7 +82,9 @@ PlotSensMLP <- function(MLP.fit, metric = "mean",
   sens <- do.call("c",sens)
 
   # Rescale the sensitivities in order to obtain the colors
-  sens_scaled <- sign(sens) * round(scales::rescale(abs(sens),c(1,ceiling(1/min(sens))))) + ceiling(1/min(sens)) + 1
+  sens_scaled <- sign(sens) *
+    round(scales::rescale(abs(sens),c(1,max(ceiling(1/min(abs(sens))),50)))) +
+    max(ceiling(1/min(abs(sens))),50) + 1
 
   colPal <- grDevices::colorRampPalette(c(sens_neg_col, "white", sens_pos_col))
   senscolors <- colPal(max(sens_scaled) + 1)[round(sens_scaled)]
@@ -162,10 +164,14 @@ PlotSensMLP <- function(MLP.fit, metric = "mean",
   )
   graphics::text(x = 1.25, y = rowMeans(cbind(utils::head(seq(yb,yt,(yt-yb)/needed_colors),-1),
                                               utils::tail(seq(yb,yt,(yt-yb)/needed_colors),-1))),
-       label = c(paste0("I",1:mlpstr[1]),paste0("H",1:sum(mlpstr[2:(length(mlpstr)-1)])))[order(sens[1:needed_colors])])
-  graphics::mtext(round(sens[1:needed_colors], digits = ifelse(any(abs(sens[1:needed_colors]) < 1),-floor(log10(min(sens[1:needed_colors]))),2))[order(sens[1:needed_colors])],
-                  side=2, at=utils::tail(seq(yb,yt,(yt-yb)/sum(mlpstr[1:(length(mlpstr)-1)])),-1)-0.05,
-                  las=2,cex=0.7)
+       label = c(paste0("I",1:mlpstr[1]),
+                 paste0("H",1:sum(mlpstr[2:(length(mlpstr)-1)])))[order(sens[1:needed_colors])])
+  graphics::mtext(round(sens[1:needed_colors],
+                        digits = ifelse(any(abs(sens[1:needed_colors]) < 1),
+                                        -floor(log10(min(abs(sens[1:needed_colors]))))+1,
+                                        2))[order(sens[1:needed_colors])],
+                  at=utils::tail(seq(yb,yt,(yt-yb)/sum(mlpstr[1:(length(mlpstr)-1)])),-1)-0.05,
+                  side=2, las=2, cex=0.7)
   reset.graphics <- function(oldpar) {
     graphics::par(oldpar)
     graphics::layout(matrix(1,nrow =1), widths = 1)
