@@ -4,7 +4,7 @@
 \alias{SensitivityPlots}
 \title{Plot sensitivities of a neural network model}
 \usage{
-SensitivityPlots(sens = NULL, der = NULL, zoom = TRUE)
+SensitivityPlots(sens = NULL, der = NULL, zoom = TRUE, quit.legend = FALSE)
 }
 \arguments{
 \item{sens}{\code{data.frame} with the sensitivities calculated by \code{\link[NeuralSens]{SensAnalysisMLP}} using \code{.rawSens = FALSE}.}
@@ -13,6 +13,8 @@ SensitivityPlots(sens = NULL, der = NULL, zoom = TRUE)
 
 \item{zoom}{\code{logical} indicating if the distributions should be zoomed when there is any of them which is too tiny to be appreciated in the third plot.
 \code{\link[ggforce]{facet_zoom}} function from \code{ggforce} package is required.}
+
+\item{quit.legend}{\code{logical} indicating if legend of the third plot should be removed. By default is \code{FALSE}}
 }
 \value{
 Plots: \itemize{ \item Plot 1: colorful plot with the
