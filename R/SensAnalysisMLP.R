@@ -1181,8 +1181,8 @@ SensAnalysisMLP.nnetar <- function(MLP.fit, .returnSens = TRUE, plot = TRUE, .ra
 #'
 #' @method SensAnalysisMLP numeric
 SensAnalysisMLP.numeric <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
-                                    .rawSens = FALSE, trData, preProc = NULL,
-                                    terms = NULL, ...) {
+                                    .rawSens = FALSE, trData, actfunc = NULL,
+                                    preProc = NULL, terms = NULL, ...) {
   # Generic method when the weights are passed in the argument MLP.fit
   finalModel <- NULL
   finalModel$wts <- MLP.fit
@@ -1211,15 +1211,13 @@ SensAnalysisMLP.numeric <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
   }
   # Define the activation functions used in the neural network
   # The activation functions must be passed as actfun argument
-  if (!"actfun" %in% names(args)) {
-    stop("The activation functions used in the MLP must be passed as actfun argument")
-  } else if (length(args$actfun) != length(args$mlpstr)) {
+  if (length(actfunc) != length(args$mlpstr)) {
     stop("Number of activation functions does not match the structure of the MLP")
   }
 
   SensAnalysisMLP.default(finalModel,
                           trData = trData,
-                          actfunc = args$actfun,
+                          actfunc = actfunc,
                           .returnSens = .returnSens,
                           .rawSens = .rawSens,
                           preProc = preProc,
