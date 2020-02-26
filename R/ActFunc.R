@@ -20,7 +20,7 @@ ActFunc <- function(type = "sigmoid", ...) {
            return(
              function(x){
                apply(x,c(1,2),
-                     function(y) {1 / (1 + exp(-y))})
+                     plogis)
                })
          },
          tanh = {
@@ -89,7 +89,12 @@ ActFunc <- function(type = "sigmoid", ...) {
                return(x)
              }
            )
-         }
+         },
+         return(
+           function(x){
+             apply(x,c(1,2),type)
+           }
+         )
          )
 }
 
