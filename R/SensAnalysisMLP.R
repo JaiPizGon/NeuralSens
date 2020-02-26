@@ -1194,19 +1194,23 @@ SensAnalysisMLP.numeric <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
   }
   finalModel$n <- args$mlpstr
   # Define the names of the explanatory variables
-  if (!(".outcome" %in% names(trData))) {
+  if ((".outcome" %in% names(trData)) || "output_name" %in% names(args)) {
+    if (!("coefnames" %in% names(args))) {
+      if ("output_name" %in% names(args)) {
+        finalModel$coefnames <- names(trData)[names(trData) != args$output_name]
+      } else {
+        finalModel$coefnames <- names(trData)[names(trData) != ".outcome"]
+      }
+    } else {
+      finalModel$coefnames <- args$coefnames
+    }
+  } else {
     if (!("coefnames" %in% names(args))) {
       stop("Names of explanatory variables must be passed in coefnames argument")
     }
     finalModel$coefnames <- args$coefnames
     if (!all(args$coefnames %in% names(trData))) {
       stop("Explanatory variables defined in coefnames has not been found in trData")
-    }
-  } else {
-    if (!("coefnames" %in% names(args))) {
-      finalModel$coefnames <- names(trData)[names(trData) != ".outcome"]
-    } else {
-      finalModel$coefnames <- args$coefnames
     }
   }
   # Define the activation functions used in the neural network
@@ -1224,5 +1228,5 @@ SensAnalysisMLP.numeric <- function(MLP.fit, .returnSens = TRUE, plot = TRUE,
                           terms = terms,
                           plot = plot,
                           output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                          ...)
+                          args[!names(args) %in% c("output_name")])
 }
