@@ -14,88 +14,100 @@
 #' ActivationFunctions <- sapply(actfuncs, ActFunc)
 #' @export ActFunc
 ActFunc <- function(type = "sigmoid", ...) {
-  # Switch case to define which function it returns
-  switch(type,
-         sigmoid = {
-           return(
-             function(x){
-               apply(x,c(1,2),
-                     plogis)
+  if (is.function(type)) {
+    # Custom function
+    return(
+      function(x) {
+        apply(x, c(1,2),
+              FUN = eval(parse(text = paste0(deparse(type), collapse = ""),
+                               keep.source = FALSE), envir = environment(type)))
+      }
+    )
+  } else {
+    # Switch case to define which function it returns
+    switch(type,
+           sigmoid = {
+             return(
+               function(x){
+                 apply(x,c(1,2),
+                       stats::plogis)
                })
-         },
-         tanh = {
-           return(
-             function(x){
-               apply(x,c(1,2),
-                     function(y) {tanh(y)})
+           },
+           tanh = {
+             return(
+               function(x){
+                 apply(x,c(1,2),
+                       function(y) {tanh(y)})
                })
-         },
-         linear = {
-           return(
-             function(x){
-               apply(x,c(1,2),
-                     function(y) {y})
+           },
+           linear = {
+             return(
+               function(x){
+                 apply(x,c(1,2),
+                       function(y) {y})
                })
-         },
-         ReLU = {
-           return(
-             function(x){
-               apply(x,c(1,2),
-                     function(y) {max(0,y)})
+           },
+           ReLU = {
+             return(
+               function(x){
+                 apply(x,c(1,2),
+                       function(y) {max(0,y)})
                })
-         },
-         PReLU = {
-           return(
-             function(x,a){
-               apply(x,c(1,2),
-                     function(y) {ifelse(y >= 0, y, a*y)})
-           })
-         },
-         ELU = {
-           return(
-             function(x,a){
-               apply(x,c(1,2),
-                     function(y) {ifelse(y >= 0, y, a*(exp(y)-1))})
-           })
-         },
-         step = {
-           return(
-             function(x){
-               apply(x,c(1,2),
-                     function(y) {ifelse(y >= 0, 1, 0)})
-           })
-         },
-         arctan = {
-           return(
-             function(x){
-               apply(x,c(1,2),
-                     function(y) {atan(y)})
+           },
+           PReLU = {
+             return(
+               function(x,a){
+                 apply(x,c(1,2),
+                       function(y) {ifelse(y >= 0, y, a*y)})
                })
-         },
-         softPlus = {
-           return(
-             function(x){
-               apply(x,c(1,2),
-                     function(y) {log(1 + exp(y))})
+           },
+           ELU = {
+             return(
+               function(x,a){
+                 apply(x,c(1,2),
+                       function(y) {ifelse(y >= 0, y, a*(exp(y)-1))})
                })
-         },
-         softmax = {
-           return(
-             function(x) {
-               for(i in 1:nrow(x)) {
-                 x[i,] <- exp(x[i,] - max(x[i,])) /  #Numerical stability
-                   sum(exp(x[i,] - max(x[i,])))
+           },
+           step = {
+             return(
+               function(x){
+                 apply(x,c(1,2),
+                       function(y) {ifelse(y >= 0, 1, 0)})
+               })
+           },
+           arctan = {
+             return(
+               function(x){
+                 apply(x,c(1,2),
+                       function(y) {atan(y)})
+               })
+           },
+           softPlus = {
+             return(
+               function(x){
+                 apply(x,c(1,2),
+                       function(y) {log(1 + exp(y))})
+               })
+           },
+           softmax = {
+             return(
+               function(x) {
+                 for(i in 1:nrow(x)) {
+                   x[i,] <- exp(x[i,] - max(x[i,])) /  #Numerical stability
+                     sum(exp(x[i,] - max(x[i,])))
+                 }
+                 return(x)
                }
-               return(x)
+             )
+           },
+           return(
+             function(x){
+               apply(x,c(1,2),type)
              }
            )
-         },
-         return(
-           function(x){
-             apply(x,c(1,2),type)
-           }
-         )
-         )
+    )
+  }
+
 }
 
 #' Derivative of activation function of neuron
@@ -114,96 +126,106 @@ ActFunc <- function(type = "sigmoid", ...) {
 #' ActivationFunctions <- sapply(actfuncs, DerActFunc)
 #' @export DerActFunc
 DerActFunc <- function(type = "sigmoid", ...) {
-  # Switch case to define which value it returns
-  switch(type,
-         sigmoid = {
-           return(function(x){
-             if (length(x) == 1) {
-              y <-  (1 / (1 + exp(-x))) *
-                (1 - 1 / (1 + exp(-x)))
-             } else {
-               diag((1 / (1 + exp(-x))) *
-                      (1 - 1 / (1 + exp(-x))))
-             }
+  if (is.function(type)) {
+      # Custom function
+      return(
+        function(x) {
+                eval(parse(text = paste0(deparse(type), collapse = ""),
+                           keep.source = FALSE), envir = environment(type))(x)
+        }
+      )
+  } else {
+    # Switch case to define which value it returns
+    switch(type,
+           sigmoid = {
+             return(function(x){
+               if (length(x) == 1) {
+                 y <-  (1 / (1 + exp(-x))) *
+                   (1 - 1 / (1 + exp(-x)))
+               } else {
+                 diag((1 / (1 + exp(-x))) *
+                        (1 - 1 / (1 + exp(-x))))
+               }
              })
-         },
-         tanh = {
-           return(function(x){
-             if (length(x) == 1) {
-               1 - tanh(x)^2
-             } else {
-               diag(1 - tanh(x)^2)
-             }
+           },
+           tanh = {
+             return(function(x){
+               if (length(x) == 1) {
+                 1 - tanh(x)^2
+               } else {
+                 diag(1 - tanh(x)^2)
+               }
              })
-         },
-         linear = {
-           return(function(x){diag(length(x))})
-         },
-         ReLU = {
-           return(function(x){
-             if (length(x) == 1) {
-               ifelse(x >= 0, 1, 0)
-             } else {
-               diag(ifelse(x >= 0, 1, 0))
-             }
-           })
-         },
-         PReLU = {
-           return(function(x,a){
-             if (length(x) == 1) {
-               ifelse(x >= 0, 1, a)
-             } else {
-               diag(ifelse(x >= 0, 1, a))
-             }
-           })
-         },
-         ELU = {
-           return(function(x,a){
-             if (length(x) == 1) {
-               ifelse(x >= 0, 1,  a*(exp(x)-1) + a)
-             } else {
-               diag(ifelse(x >= 0, 1,  a*(exp(x)-1) + a))
-             }
-           })
-         },
-         step = {
-           return(function(x){
-             if (length(x) == 1) {
-               ifelse(x != 0, 0, NA)
-             } else {
-               diag(ifelse(x != 0, 0, NA))
-             }
-           })
-         },
-         arctan = {
-           return(function(x){
-             if (length(x) == 1) {
-               1/(x^2 + 1)
-             } else {
-               diag(1/(x^2 + 1))
-             }
+           },
+           linear = {
+             return(function(x){diag(length(x))})
+           },
+           ReLU = {
+             return(function(x){
+               if (length(x) == 1) {
+                 ifelse(x >= 0, 1, 0)
+               } else {
+                 diag(ifelse(x >= 0, 1, 0))
+               }
              })
-         },
-         softPlus = {
-           return(function(x){
-             if (length(x) == 1) {
-               1/(1 + exp(-x))
-             } else {
-               diag(1/(1 + exp(-x)))
-             }
+           },
+           PReLU = {
+             return(function(x,a){
+               if (length(x) == 1) {
+                 ifelse(x >= 0, 1, a)
+               } else {
+                 diag(ifelse(x >= 0, 1, a))
+               }
              })
-         },
-         softmax = {
-           return(
-             function(x) {
-               x <- exp(x - max(x)) /  #Numerical stability
-                 sum(exp(x - max(x)))
-               # Derivative as in http://saitcelebi.com/tut/output/part2.html
-               x <- x %*% t(rep(1,length(x))) * (diag(length(x)) - rep(1,length(x)) %*% t(x))
+           },
+           ELU = {
+             return(function(x,a){
+               if (length(x) == 1) {
+                 ifelse(x >= 0, 1,  a*(exp(x)-1) + a)
+               } else {
+                 diag(ifelse(x >= 0, 1,  a*(exp(x)-1) + a))
+               }
+             })
+           },
+           step = {
+             return(function(x){
+               if (length(x) == 1) {
+                 ifelse(x != 0, 0, NA)
+               } else {
+                 diag(ifelse(x != 0, 0, NA))
+               }
+             })
+           },
+           arctan = {
+             return(function(x){
+               if (length(x) == 1) {
+                 1/(x^2 + 1)
+               } else {
+                 diag(1/(x^2 + 1))
+               }
+             })
+           },
+           softPlus = {
+             return(function(x){
+               if (length(x) == 1) {
+                 1/(1 + exp(-x))
+               } else {
+                 diag(1/(1 + exp(-x)))
+               }
+             })
+           },
+           softmax = {
+             return(
+               function(x) {
+                 x <- exp(x - max(x)) /  #Numerical stability
+                   sum(exp(x - max(x)))
+                 # Derivative as in http://saitcelebi.com/tut/output/part2.html
+                 x <- x %*% t(rep(1,length(x))) * (diag(length(x)) - rep(1,length(x)) %*% t(x))
 
-               return(x)
-             }
-           )
-         }
-  )
+                 return(x)
+               }
+             )
+           }
+    )
+  }
 }
