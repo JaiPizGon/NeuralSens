@@ -18,9 +18,8 @@ ActFunc <- function(type = "sigmoid", ...) {
     # Custom function
     return(
       function(x) {
-        apply(x, c(1,2),
-              FUN = eval(parse(text = paste0(deparse(type), collapse = ""),
-                               keep.source = FALSE), envir = environment(type)))
+        eval(parse(text = paste0(deparse(type), collapse = ""),
+                   keep.source = FALSE), envir = environment(type))(x)
       }
     )
   } else {
