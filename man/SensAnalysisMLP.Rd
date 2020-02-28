@@ -37,6 +37,7 @@ SensAnalysisMLP(
   sens_end_input = FALSE,
   trData,
   actfunc = NULL,
+  deractfunc = NULL,
   preProc = NULL,
   terms = NULL,
   output_name = NULL,
@@ -159,6 +160,7 @@ SensAnalysisMLP(
   sens_origin_input = TRUE,
   sens_end_input = FALSE,
   trData,
+  actfunc = NULL,
   preProc = NULL,
   terms = NULL,
   ...
@@ -201,6 +203,9 @@ sensitivity of the model}
 
 \item{actfunc}{\code{character} vector indicating the activation function of
 each neurons layer.}
+
+\item{deractfunc}{\code{character} vector indicating the derivative of the activation
+function of each neurons layer.}
 
 \item{preProc}{preProcess structure applied to the training data. See also
 \code{\link[caret]{preProcess}}}

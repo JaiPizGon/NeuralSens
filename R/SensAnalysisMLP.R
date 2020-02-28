@@ -3,12 +3,22 @@
 #' @description Function for evaluating the sensitivities of the inputs
 #'   variables in a mlp model
 #' @param MLP.fit fitted neural network model
+<<<<<<< HEAD
 #' @param trData \code{data.frame} containing the data to evaluate the
 #'   sensitivity of the model
 #' @param actfunc \code{character} vector indicating the activation function of
 #'   each neurons layer.
 #' @param .returnSens \code{logical} value. If \code{TRUE}, sensitivity of the
 #'   model is returned.
+=======
+#' @param trData \code{data.frame} containing the data to evaluate the sensitivity of the model
+#' @param actfunc \code{character} vector indicating the activation function of each
+#'   neurons layer.
+#' @param deractfunc \code{character} vector indicating the derivative of the activation
+#' function of each neurons layer.
+#' @param .returnSens \code{logical} value. If \code{TRUE}, sensitivity of the model is
+#'   returned.
+>>>>>>> JSS_paper
 #' @param preProc preProcess structure applied to the training data. See also
 #'   \code{\link[caret]{preProcess}}
 #' @param terms function applied to the training data to create factors. See
@@ -365,6 +375,7 @@ SensAnalysisMLP.default <- function(MLP.fit,
                                     sens_end_input = FALSE,
                                     trData,
                                     actfunc = NULL,
+                                    deractfunc = NULL,
                                     preProc = NULL,
                                     terms = NULL,
                                     output_name = NULL,
@@ -469,8 +480,9 @@ SensAnalysisMLP.default <- function(MLP.fit,
   D <- list()
 
   # Initialize the activation and the derivative of the activation function for each layer
+  if (is.null(deractfunc)) deractfunc <- actfunc
   ActivationFunction <- lapply(actfunc, NeuralSens::ActFunc)
-  DerActivationFunction <- lapply(actfunc, NeuralSens::DerActFunc)
+  DerActivationFunction <- lapply(deractfunc, NeuralSens::DerActFunc)
 
   W[[1]] <- diag(ncol(TestData)+1)
   # For each row in the TestData
@@ -815,8 +827,9 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit,
                           preProc = preProc,
                           terms = NULL,
                           plot = plot,
-                          output_name = MLP.fit@parameters$y,
-                          args[!names(args) %in% c("trData")])
+                          output_name = if("output_name" %in% names(args)){args$output_name}else{MLP.fit@parameters$y},
+                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                          args[!names(args) %in% c("trData","output_name","deractfunc")])
   }
 
 #' @rdname SensAnalysisMLP
@@ -976,8 +989,9 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit,
                           preProc = preProc,
                           terms = NULL,
                           plot = plot,
-                          output_name = MLP.fit@parameters$y,
-                          args[!names(args) %in% c("trData")])
+                          output_name = if("output_name" %in% names(args)){args$output_name}else{MLP.fit@parameters$y},
+                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                          args[!names(args) %in% c("trData","output_name","deractfunc")])
   }
 
 
@@ -1048,7 +1062,8 @@ SensAnalysisMLP.list <- function(MLP.fit,
                           terms = NULL,
                           plot = plot,
                           output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                          args[!names(args) %in% c("output_name")])
+                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                          args[!names(args) %in% c("output_name","deractfunc")])
 }
 
 #' @rdname SensAnalysisMLP
@@ -1141,7 +1156,8 @@ SensAnalysisMLP.mlp <- function(MLP.fit,
                           terms = terms,
                           plot = plot,
                           output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                          args[!names(args) %in% c("output_name")])
+                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                          args[!names(args) %in% c("output_name","deractfunc")])
 }
 
 #' @rdname SensAnalysisMLP
@@ -1195,7 +1211,8 @@ SensAnalysisMLP.nn <- function(MLP.fit,
                             terms = terms,
                             plot = FALSE,
                             output_name = names(trData)[names(trData) == MLP.fit$model.list$response],
-                            args[!names(args) %in% c("output_name")])
+                            deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                            args[!names(args) %in% c("deractfunc")])
     sensit[((j-1)*nrow(trData)+1):(j*nrow(trData)),,] <- sensitivities
   }
   colnames(sensit) <- finalModel$coefnames
@@ -1272,7 +1289,8 @@ SensAnalysisMLP.nnet <- function(MLP.fit,
                           terms = terms,
                           plot = plot,
                           output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                          args[!names(args) %in% c("output_name")])
+                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                          args[!names(args) %in% c("output_name","deractfunc")])
 }
 
 #' @rdname SensAnalysisMLP
@@ -1377,6 +1395,7 @@ SensAnalysisMLP.nnetar <- function(MLP.fit,
     sensitivities[[i]] <-  SensAnalysisMLP.default(finalModel,
                                               trData = trData,
                                               actfunc = actfun,
+                                              deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
                                               .returnSens = TRUE,
                                               .rawSens = TRUE,
                                               sens_origin_layer = sens_origin_layer,
@@ -1430,6 +1449,7 @@ SensAnalysisMLP.numeric <- function(MLP.fit,
                                     sens_origin_input = TRUE,
                                     sens_end_input = FALSE,
                                     trData,
+                                    actfunc = NULL,
                                     preProc = NULL,
                                     terms = NULL,
                                     ...) {
@@ -1444,7 +1464,17 @@ SensAnalysisMLP.numeric <- function(MLP.fit,
   }
   finalModel$n <- args$mlpstr
   # Define the names of the explanatory variables
-  if (!(".outcome" %in% names(trData))) {
+  if ((".outcome" %in% names(trData)) || "output_name" %in% names(args)) {
+    if (!("coefnames" %in% names(args))) {
+      if ("output_name" %in% names(args)) {
+        finalModel$coefnames <- names(trData)[names(trData) != args$output_name]
+      } else {
+        finalModel$coefnames <- names(trData)[names(trData) != ".outcome"]
+      }
+    } else {
+      finalModel$coefnames <- args$coefnames
+    }
+  } else {
     if (!("coefnames" %in% names(args))) {
       stop("Names of explanatory variables must be passed in coefnames argument")
     }
@@ -1452,24 +1482,16 @@ SensAnalysisMLP.numeric <- function(MLP.fit,
     if (!all(args$coefnames %in% names(trData))) {
       stop("Explanatory variables defined in coefnames has not been found in trData")
     }
-  } else {
-    if (!("coefnames" %in% names(args))) {
-      finalModel$coefnames <- names(trData)[names(trData) != ".outcome"]
-    } else {
-      finalModel$coefnames <- args$coefnames
-    }
   }
   # Define the activation functions used in the neural network
   # The activation functions must be passed as actfun argument
-  if (!"actfun" %in% names(args)) {
-    stop("The activation functions used in the MLP must be passed as actfun argument")
-  } else if (length(args$actfun) != length(args$mlpstr)) {
+  if (length(actfunc) != length(args$mlpstr)) {
     stop("Number of activation functions does not match the structure of the MLP")
   }
 
   SensAnalysisMLP.default(finalModel,
                           trData = trData,
-                          actfunc = args$actfun,
+                          actfunc = actfunc,
                           .returnSens = .returnSens,
                           .rawSens = .rawSens,
                           sens_origin_layer = sens_origin_layer,
@@ -1480,5 +1502,6 @@ SensAnalysisMLP.numeric <- function(MLP.fit,
                           terms = terms,
                           plot = plot,
                           output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                          ...)
+                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                          args[!names(args) %in% c("output_name","deractfunc")])
 }
