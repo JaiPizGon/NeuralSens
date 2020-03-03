@@ -33,10 +33,8 @@
 #'   is of the output (\code{FALSE}) or from the input (\code{TRUE}) of the
 #'   \code{sens_end_layer} layer of the model. By default is \code{FALSE}.
 #' @param ...	additional arguments passed to or from other methods
-#' @return dataframe with the sensitivities obtained for each variable if
-#'   \code{.returnSens = TRUE}. If \code{.returnSens = FALSE}, the sensitivities
-#'   without processing are returned in a 3D array. If there is more than one
-#'   output, the sensitivities of each output are given in a list.
+#' @return \code{SensMLP} object with the sensitivity metrics and sensitivities of
+#' the MLP model passed to the function.
 #' @section Plots: \itemize{ \item Plot 1: colorful plot with the classification
 #'   of the classes in a 2D map \item Plot 2: b/w plot with probability of the
 #'   chosen class in a 2D map \item Plot 3: plot with the stats::predictions of

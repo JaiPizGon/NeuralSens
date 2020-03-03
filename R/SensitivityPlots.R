@@ -54,6 +54,7 @@
 #' NeuralSens::SensitivityPlots(sens)
 #' @export SensitivityPlots
 SensitivityPlots <- function(sens = NULL, der = TRUE, zoom = TRUE, quit.legend = FALSE) {
+  if (is.array(der)) stop("der argument is no more the raw sensitivities due to creation of SensMLP class. Check ?SensitivityPlots for more information")
   plotlist <- list()
   sens_orig <- sens
   pl <- list()
