@@ -40,7 +40,6 @@
 #'                            maxit = iters)
 #' # Try SensAnalysisMLP
 #' sens <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE)
-#' @export ComputeSensMeasures
 ComputeSensMeasures <- function(sens) {
   mlpstr <- sens$mlp_struct
   TestData <- sens$trData

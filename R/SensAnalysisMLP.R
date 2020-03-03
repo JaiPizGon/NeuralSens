@@ -488,7 +488,7 @@ SensAnalysisMLP.default <- function(MLP.fit,
     ),
     class = "SensMLP")
 
-    out <- ComputeSensMeasures(out)
+    out <- NeuralSens:::ComputeSensMeasures(out)
 
     if (plot) {
       # show plots if required

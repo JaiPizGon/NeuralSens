@@ -1,7 +1,6 @@
 # cran-comments.md
 
-## Change of maintainer
-Due to changes in the maintainers job, the email have changed. The maintainter is the same person.
+
                 
 ## References
 Added reference to SensAnalysisMLP function where the formulation to calculate the partial derivatives is explained.
@@ -47,3 +46,16 @@ Duration: 27.5s
 - oldrelease pass
 - release pass
 - devel pass
+
+## CRAN check
+-- Details of the CRAN check results for NeuralSens ----------------------------
+* NeuralSens - note: package dependencies
+   > r-devel-linux-x86_64-debian-gcc 
+   > r-release-linux-x86_64 
+
+     Package suggested but not available for checking: ‘h2o’
+
+--------------------------------------------------------------------------------
+
+It seems that h2o package for debian and linux release is not available. 
+It is not mandatory for the package except for the own h2o models, so it would not crash when using the package.

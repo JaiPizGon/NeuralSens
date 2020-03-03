@@ -214,10 +214,8 @@ avoid changing the name of the output variable in \code{trData} to
 '.outcome'}
 }
 \value{
-dataframe with the sensitivities obtained for each variable if
-  \code{.returnSens = TRUE}. If \code{.returnSens = FALSE}, the sensitivities
-  without processing are returned in a 3D array. If there is more than one
-  output, the sensitivities of each output are given in a list.
+\code{SensMLP} object with the sensitivity metrics and sensitivities of
+the MLP model passed to the function.
 }
 \description{
 Function for evaluating the sensitivities of the inputs
