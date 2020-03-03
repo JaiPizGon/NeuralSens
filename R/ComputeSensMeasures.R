@@ -2,19 +2,6 @@
 #'
 #' @description Function to plot the sensitivities created by \code{\link[NeuralSens]{SensAnalysisMLP}}.
 #' @param sens \code{SensAnalysisMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}.
-#' @param sens_origin_layer \code{numeric} specifies the layer of neurons with
-#'   respect to which the derivative must be calculated. The input layer is
-#'   specified by 1 (default).
-#' @param sens_end_layer \code{numeric} specifies the layer of neurons of which
-#'   the derivative is calculated. It may also be 'last' to specify the output
-#'   layer (default).
-#' @param sens_origin_input \code{logical} specifies if the derivative must be
-#'   calculated with respect to the inputs (\code{TRUE}) or output
-#'   (\code{FALSE}) of the \code{sens_origin_layer} layer of the model. By
-#'   default is \code{TRUE}.
-#' @param sens_end_input \code{logical} specifies if the derivative calculated
-#'   is of the output (\code{FALSE}) or from the input (\code{TRUE}) of the
-#'   \code{sens_end_layer} layer of the model. By default is \code{FALSE}.
 #' @return \code{SensAnalysisMLP} object with the sensitivities calculated
 #' @examples
 #' ## Load data -------------------------------------------------------------------
@@ -53,16 +40,14 @@
 #'                            maxit = iters)
 #' # Try SensAnalysisMLP
 #' sens <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE)
-#' # Calculate partial derivatives of output with respect to inputs of hidden layer
-#' NeuralSens::ComputeSensMeasures(sens, 2, 3, TRUE, FALSE)
 #' @export ComputeSensMeasures
-ComputeSensMeasures <- function(sens,
-                                sens_origin_layer = 1,
-                                sens_end_layer = "last",
-                                sens_origin_input = TRUE,
-                                sens_end_input = FALSE) {
+ComputeSensMeasures <- function(sens) {
   mlpstr <- sens$mlp_struct
   TestData <- sens$trData
+  sens_origin_layer<- sens$layer_origin
+  sens_end_layer <- sens$layer_end
+  sens_origin_input <- sens$layer_end_input
+  sens_end_input <- sens$layer_end_input
 
   # Check all sensitivity arguments makes sense
   # Check which is the output we want the derivWative of

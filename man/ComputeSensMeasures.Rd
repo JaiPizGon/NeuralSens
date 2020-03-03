@@ -4,33 +4,10 @@
 \alias{ComputeSensMeasures}
 \title{Plot sensitivities of a neural network model}
 \usage{
-ComputeSensMeasures(
-  sens,
-  sens_origin_layer = 1,
-  sens_end_layer = "last",
-  sens_origin_input = TRUE,
-  sens_end_input = FALSE
-)
+ComputeSensMeasures(sens)
 }
 \arguments{
 \item{sens}{\code{SensAnalysisMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}.}
-
-\item{sens_origin_layer}{\code{numeric} specifies the layer of neurons with
-respect to which the derivative must be calculated. The input layer is
-specified by 1 (default).}
-
-\item{sens_end_layer}{\code{numeric} specifies the layer of neurons of which
-the derivative is calculated. It may also be 'last' to specify the output
-layer (default).}
-
-\item{sens_origin_input}{\code{logical} specifies if the derivative must be
-calculated with respect to the inputs (\code{TRUE}) or output
-(\code{FALSE}) of the \code{sens_origin_layer} layer of the model. By
-default is \code{TRUE}.}
-
-\item{sens_end_input}{\code{logical} specifies if the derivative calculated
-is of the output (\code{FALSE}) or from the input (\code{TRUE}) of the
-\code{sens_end_layer} layer of the model. By default is \code{FALSE}.}
 }
 \value{
 \code{SensAnalysisMLP} object with the sensitivities calculated
@@ -75,6 +52,4 @@ nnetmod <- nnet::nnet(form,
                            maxit = iters)
 # Try SensAnalysisMLP
 sens <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE)
-# Calculate partial derivatives of output with respect to inputs of hidden layer
-NeuralSens::ComputeSensMeasures(sens, 2, 3, TRUE, FALSE)
 }

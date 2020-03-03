@@ -490,11 +490,7 @@ SensAnalysisMLP.default <- function(MLP.fit,
     ),
     class = "SensMLP")
 
-    out <- ComputeSensMeasures(out,
-                               sens_origin_layer,
-                               sens_end_layer,
-                               sens_origin_input,
-                               sens_end_input)
+    out <- ComputeSensMeasures(out)
 
     if (plot) {
       # show plots if required
