@@ -4,12 +4,12 @@
 \alias{SensitivityPlots}
 \title{Plot sensitivities of a neural network model}
 \usage{
-SensitivityPlots(sens = NULL, der = NULL, zoom = TRUE, quit.legend = FALSE)
+SensitivityPlots(sens = NULL, der = TRUE, zoom = TRUE, quit.legend = FALSE)
 }
 \arguments{
-\item{sens}{\code{data.frame} with the sensitivities calculated by \code{\link[NeuralSens]{SensAnalysisMLP}} using \code{.rawSens = FALSE}.}
+\item{sens}{\code{SensAnalysisMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}.}
 
-\item{der}{\code{matrix} or \code{array} with the sensitivities calculated by \code{\link[NeuralSens]{SensAnalysisMLP}} using \code{.rawSens = TRUE}.}
+\item{der}{\code{logical} indicating if density plots should be created. By default is \code{TRUE}}
 
 \item{zoom}{\code{logical} indicating if the distributions should be zoomed when there is any of them which is too tiny to be appreciated in the third plot.
 \code{\link[ggforce]{facet_zoom}} function from \code{ggforce} package is required.}
@@ -17,10 +17,10 @@ SensitivityPlots(sens = NULL, der = NULL, zoom = TRUE, quit.legend = FALSE)
 \item{quit.legend}{\code{logical} indicating if legend of the third plot should be removed. By default is \code{FALSE}}
 }
 \value{
-Plots: \itemize{ \item Plot 1: colorful plot with the
+List with the following plot for each output: \itemize{ \item Plot 1: colorful plot with the
   classification of the classes in a 2D map \item Plot 2: b/w plot with
   probability of the chosen class in a 2D map \item Plot 3: plot with the
-  stats::predictions of the data provided if param \code{dens} is not \code{NULL}}
+  stats::predictions of the data provided if param \code{der} is \code{FALSE}}
 }
 \description{
 Function to plot the sensitivities created by \code{\link[NeuralSens]{SensAnalysisMLP}}.
@@ -68,6 +68,4 @@ nnetmod <- nnet::nnet(form,
 # Try SensAnalysisMLP
 sens <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE)
 NeuralSens::SensitivityPlots(sens)
-sensraw <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE, .rawSens = TRUE)
-NeuralSens::SensitivityPlots(der = sensraw[,,1])
 }

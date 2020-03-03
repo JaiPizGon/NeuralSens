@@ -56,42 +56,46 @@
 #' @export SensTimePlot
 SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
                          smooth = FALSE, nspline = NULL,  ...) {
-  # Check if the object passed is a model (list) or the raw sensitivities
-  if (is.list(object)) {
+  # Check if the object passed is a model or the sensitivities
+  if (class(object)[[1]] != "SensMLP") {
     # Check if fdata has been passed to the function to calculate sensitivities
     if (is.null(fdata)) {
       stop("Must be passed fdata to calculate sensitivities of the model")
     }
     # Obtain raw sensitivities
-    rawSens <- NeuralSens::SensAnalysisMLP(object,
+    SensMLP <- NeuralSens::SensAnalysisMLP(object,
                                            trData = fdata,
-                                           .rawSens = TRUE,
-                                           plot = FALSE, ...)
+                                           plot = FALSE,
+                                           ...)
+    rawSens <- SensMLP$raw_sens
 
-  } else if(is.array(object)){
+  } else if(class(object) == "SensMLP"){
     # The raw sensitivities has been passed instead of the model
-    rawSens <- object
+    SensMLP <- object
+    rawSens <- SensMLP$raw_sens
+    fdata <- SensMLP$trData
   } else {
     stop(paste0("Class ", class(object)," is not accepted as object"))
   }
+
   # Check if the variable name of the date has been specified
   if (is.null(date.var)) {
     if (any(apply(fdata, 2, function(x){inherits(x,"POSIXct") || inherits(x,"POSIXlt")}))) {
       date.var <- fdata[,sapply(fdata, function(x){
         inherits(x,"POSIXct") || inherits(x,"POSIXlt")})]
     } else {
-      date.var <- seq_len(dim(rawSens)[1])
+      date.var <- seq_len(dim(rawSens[[1]])[1])
     }
   }
   # Check degree of spline
   if (is.null(nspline)) {
-    nspline <- floor(sqrt(dim(rawSens)[1]))
+    nspline <- floor(sqrt(dim(rawSens[[1]])[1]))
   }
   plotlist <- list()
-  for (out in 1:dim(rawSens)[3]) {
+  for (out in 1:length(rawSens)) {
     local({
       out <- out
-      plotdata <- cbind(date.var,as.data.frame(rawSens[,,out]))
+      plotdata <- cbind(date.var,as.data.frame(rawSens[[out]]))
       plotdata <- reshape2::melt(plotdata,id.vars = names(plotdata)[1])
       p <- ggplot2::ggplot(plotdata, ggplot2::aes(x = plotdata[,1], y = plotdata$value,
                                                   group = plotdata$variable, color = plotdata$variable)) +

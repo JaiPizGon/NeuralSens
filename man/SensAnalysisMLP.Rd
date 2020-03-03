@@ -12,7 +12,7 @@
 \alias{SensAnalysisMLP.nnet}
 \alias{SensAnalysisMLP.nnetar}
 \alias{SensAnalysisMLP.numeric}
-\title{Sensitivity of NNET models}
+\title{Sensitivity of MLP models}
 \usage{
 SensAnalysisMLP(
   MLP.fit,
@@ -169,15 +169,12 @@ SensAnalysisMLP(
 \arguments{
 \item{MLP.fit}{fitted neural network model}
 
-\item{.returnSens}{\code{logical} value. If \code{TRUE}, sensitivity of the
-model is returned.}
+\item{.returnSens}{DEPRECATED}
 
 \item{plot}{\code{logical} whether or not to plot the analysis. By default is
 \code{TRUE}.}
 
-\item{.rawSens}{\code{logical} whether or not to return the sensitivity of
-each row of the data provided, or return the mean, sd and mean of the
-square of the sensitivities. By default is \code{FALSE}.}
+\item{.rawSens}{DEPRECATED}
 
 \item{sens_origin_layer}{\code{numeric} specifies the layer of neurons with
 respect to which the derivative must be calculated. The input layer is
@@ -198,11 +195,10 @@ is of the output (\code{FALSE}) or from the input (\code{TRUE}) of the
 
 \item{...}{additional arguments passed to or from other methods}
 
-\item{trData}{\code{data.frame} containing the data to evaluate the
-sensitivity of the model}
+\item{trData}{\code{data.frame} containing the data to evaluate the sensitivity of the model}
 
-\item{actfunc}{\code{character} vector indicating the activation function of
-each neurons layer.}
+\item{actfunc}{\code{character} vector indicating the activation function of each
+neurons layer.}
 
 \item{deractfunc}{\code{character} vector indicating the derivative of the activation
 function of each neurons layer.}

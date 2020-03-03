@@ -45,25 +45,28 @@
 #'                            decay = decay,
 #'                            maxit = iters)
 #' # Try SensAnalysisMLP
-#' sensraw <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE, .rawSens = TRUE)
-#' NeuralSens::SensFeaturePlot(sensraw, fdata = nntrData)
+#' sens <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE)
+#' NeuralSens::SensFeaturePlot(sens)
 #' @export SensFeaturePlot
-SensFeaturePlot <- function(object, fdata, ...) {
-  # Check if the object passed is a model (list) or the raw sensitivities
-  if (is.list(object)) {
+SensFeaturePlot <- function(object, fdata = NULL, ...) {
+  # Check if the object passed is a model or the sensitivities
+  if (class(object)[[1]] != "SensMLP") {
     # Check if fdata has been passed to the function to calculate sensitivities
     if (is.null(fdata)) {
       stop("Must be passed fdata to calculate sensitivities of the model")
     }
     # Obtain raw sensitivities
-    rawSens <- NeuralSens::SensAnalysisMLP(object,
+    SensMLP <- NeuralSens::SensAnalysisMLP(object,
                                            trData = fdata,
-                                           .rawSens = TRUE,
-                                           plot = FALSE, ...)
+                                           plot = FALSE,
+                                           ...)
+    rawSens <- SensMLP$raw_sens
 
-  } else if(is.array(object)){
+  } else if(class(object) == "SensMLP"){
     # The raw sensitivities has been passed instead of the model
-    rawSens <- object
+    SensMLP <- object
+    rawSens <- SensMLP$raw_sens
+    fdata <- SensMLP$trData
   } else {
     stop(paste0("Class ", class(object)," is not accepted as object"))
   }
@@ -82,15 +85,19 @@ SensFeaturePlot <- function(object, fdata, ...) {
     }
   }
 
+  if (!((object$layer_origin == 1) && object$layer_origin_input)) {
+    stop("Feature plots only available for SensAnalysisMLP objects with origin layer the input layer")
+  }
+
   # Normalize data between 0 and 1
-  trData <- as.data.frame(lapply(trData[,colnames(rawSens)],
+  trData <- as.data.frame(lapply(trData[,colnames(rawSens[[1]])],
                                  function(x){
                                    (x - min(x, na.rm = T)) /
                                      (max(x, na.rm = T) - min(x, na.rm = T))
                                    }))
   # Create plot layer by layer
   plotlist <- list()
-  for (out in 1:dim(rawSens)[3]) {
+  for (out in 1:length(rawSens)) {
     local({
       out <- out
       p <- ggplot2::ggplot()
@@ -100,10 +107,10 @@ SensFeaturePlot <- function(object, fdata, ...) {
           p <<- p +
             ggplot2::geom_vline(xintercept = i, linetype = "dotdash") +
             ggplot2::geom_violin(alpha = 0.3,
-                                 ggplot2::aes(x = i, y = rawSens[,i,out]),
+                                 ggplot2::aes(x = i, y = rawSens[[out]][,i]),
                                  color = "darkgray", fill = "gray") +
             ggplot2::geom_hline(yintercept = 0) +
-            ggforce::geom_sina(ggplot2::aes(x = i, y = rawSens[,i,out],
+            ggforce::geom_sina(ggplot2::aes(x = i, y = rawSens[[out]][,i],
                                             color = trData[,i]),
                                scale = FALSE)
           # ggplot2::geom_jitter(ggplot2::aes(x = i, y = rawSens[,i,1], color = trData[,i]),
@@ -114,8 +121,8 @@ SensFeaturePlot <- function(object, fdata, ...) {
       p <- p +
         ggplot2::labs(x = NULL, y = "sens") +
         ggplot2::coord_flip() +
-        ggplot2::scale_x_continuous(breaks = seq_len(dim(rawSens)[2]),
-                                    labels = colnames(rawSens)) +
+        ggplot2::scale_x_continuous(breaks = seq_len(dim(rawSens[[out]])[2]),
+                                    labels = colnames(rawSens[[out]])) +
         ggplot2::scale_color_gradient(low="#FFCC33", high="#6600CC",
                                       breaks=c(0,1), labels=c("Low","High")) +
         ggplot2::labs(color = "Feature value") +
