@@ -53,20 +53,20 @@ ActFunc <- function(type = "sigmoid", ...) {
                        function(y) {max(0,y)})
                })
            },
-           PReLU = {
-             return(
-               function(x,a){
-                 apply(x,c(1,2),
-                       function(y) {ifelse(y >= 0, y, a*y)})
-               })
-           },
-           ELU = {
-             return(
-               function(x,a){
-                 apply(x,c(1,2),
-                       function(y) {ifelse(y >= 0, y, a*(exp(y)-1))})
-               })
-           },
+           # PReLU = {
+           #   return(
+           #     function(x,a){
+           #       apply(x,c(1,2),
+           #             function(y) {ifelse(y >= 0, y, a*y)})
+           #     })
+           # },
+           # ELU = {
+           #   return(
+           #     function(x,a){
+           #       apply(x,c(1,2),
+           #             function(y) {ifelse(y >= 0, y, a*(exp(y)-1))})
+           #     })
+           # },
            step = {
              return(
                function(x){
@@ -168,24 +168,24 @@ DerActFunc <- function(type = "sigmoid", ...) {
                }
              })
            },
-           PReLU = {
-             return(function(x,a){
-               if (length(x) == 1) {
-                 ifelse(x >= 0, 1, a)
-               } else {
-                 diag(ifelse(x >= 0, 1, a))
-               }
-             })
-           },
-           ELU = {
-             return(function(x,a){
-               if (length(x) == 1) {
-                 ifelse(x >= 0, 1,  a*(exp(x)-1) + a)
-               } else {
-                 diag(ifelse(x >= 0, 1,  a*(exp(x)-1) + a))
-               }
-             })
-           },
+           # PReLU = {
+           #   return(function(x,a){
+           #     if (length(x) == 1) {
+           #       ifelse(x >= 0, 1, a)
+           #     } else {
+           #       diag(ifelse(x >= 0, 1, a))
+           #     }
+           #   })
+           # },
+           # ELU = {
+           #   return(function(x,a){
+           #     if (length(x) == 1) {
+           #       ifelse(x >= 0, 1,  a*(exp(x)-1) + a)
+           #     } else {
+           #       diag(ifelse(x >= 0, 1,  a*(exp(x)-1) + a))
+           #     }
+           #   })
+           # },
            step = {
              return(function(x){
                if (length(x) == 1) {
