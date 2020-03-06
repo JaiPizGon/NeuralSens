@@ -490,6 +490,9 @@ SensAnalysisMLP.default <- function(MLP.fit,
 
     out <- ComputeSensMeasures(out)
 
+    out$D <- NULL
+    out$W <- NULL
+
     if (plot) {
       # show plots if required
       args <- list(...)
