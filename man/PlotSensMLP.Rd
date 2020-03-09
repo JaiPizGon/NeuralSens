@@ -15,7 +15,7 @@ PlotSensMLP(
 \arguments{
 \item{MLP.fit}{fitted neural network model}
 
-\item{metric}{metric to plot in the NID. It can be "mean" (default) or "sqmean".
+\item{metric}{metric to plot in the NID. It can be "mean" (default), "median or "sqmean".
 It can be any metric to combine the raw sensitivities}
 
 \item{sens_neg_col}{\code{character} string indicating color of negative sensitivity

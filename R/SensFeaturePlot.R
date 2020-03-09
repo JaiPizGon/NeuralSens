@@ -50,7 +50,7 @@
 #' @export SensFeaturePlot
 SensFeaturePlot <- function(object, fdata = NULL, ...) {
   # Check if the object passed is a model or the sensitivities
-  if (class(object)[[1]] != "SensMLP") {
+  if (!is.SensMLP(object)) {
     # Check if fdata has been passed to the function to calculate sensitivities
     if (is.null(fdata)) {
       stop("Must be passed fdata to calculate sensitivities of the model")
@@ -62,7 +62,7 @@ SensFeaturePlot <- function(object, fdata = NULL, ...) {
                                            ...)
     rawSens <- SensMLP$raw_sens
 
-  } else if(class(object) == "SensMLP"){
+  } else if(is.SensMLP(object)){
     # The raw sensitivities has been passed instead of the model
     SensMLP <- object
     rawSens <- SensMLP$raw_sens
@@ -85,9 +85,9 @@ SensFeaturePlot <- function(object, fdata = NULL, ...) {
     }
   }
 
-  if (!((object$layer_origin == 1) && object$layer_origin_input)) {
-    stop("Feature plots only available for SensAnalysisMLP objects with origin layer the input layer")
-  }
+  # if (!((object$layer_origin == 1) && object$layer_origin_input)) {
+  #   stop("Feature plots only available for SensAnalysisMLP objects with origin layer the input layer")
+  # }
 
   # Normalize data between 0 and 1
   trData <- as.data.frame(lapply(trData[,colnames(rawSens[[1]])],

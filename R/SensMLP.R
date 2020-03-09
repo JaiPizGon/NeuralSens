@@ -1,3 +1,51 @@
+#' Constructor of the SensMLP Class
+#'
+#' Create an object of SensMLP class
+#' @param sens \code{list} of sensitivity measures, one \code{data.frame} per output neuron
+#' @param raw_sens \code{list} of sensitivities, one \code{matrix} per output neuron
+#' @param mlp_struct \code{numeric} vector describing the structur of the MLP model
+#' @param trData \code{data.frame} with the data used to calculate the sensitivities
+#' @param coefnames \code{character} vector with the name of the predictor(s)
+#' @param output_name \code{character} vector with the name of the output(s)
+#' @return \code{SensMLP} object
+#' @export SensMLP
+SensMLP <- function(sens = list(),
+                    raw_sens = list(),
+                    mlp_struct = numeric(),
+                    trData = data.frame(),
+                    coefnames = character(),
+                    output_name = character()
+                    ) {
+  stopifnot(is.list(sens))
+  stopifnot(is.list(raw_sens))
+  stopifnot(is.numeric(mlp_struct))
+  stopifnot(is.character(coefnames))
+  stopifnot(is.character(output_name))
+  stopifnot(length(sens) == mlp_struct[length(mlp_struct)])
+  stopifnot(length(raw_sens) == mlp_struct[length(mlp_struct)])
+  stopifnot(length(output_name) == mlp_struct[length(mlp_struct)])
+
+  structure(
+    list(
+      sens = sens,
+      raw_sens = raw_sens,
+      mlp_struct = mlp_struct,
+      trData = trData,
+      coefnames = coefnames,
+      output_name = output_name
+    ),
+    class = "SensMLP"
+  )
+}
+#' Check if object is of class \code{SensMLP}
+#'
+#' Check if object is of class \code{SensMLP}
+#' @param object \code{SensMLP} object
+#' @return \code{TRUE} if \code{object} is a \code{SensMLP} object
+#' @export is.SensMLP
+is.SensMLP <- function(object) {
+  any(class(object) == "SensMLP")
+}
 #' Summary Method for the SensMLP Class
 #'
 #' Print the sensitivity metrics of a \code{SensMLP} object.
@@ -99,10 +147,10 @@ summary.SensMLP <- function(object, ...) {
 #' @export
 print.summary.SensMLP <- function(x, ...) {
   cat("Sensitivity analysis of ", paste(x$mlp_struct, collapse = "-"), " MLP network.\n\n", sep = "")
-  cat("Measures are calculated using the partial derivatives of ", x$layer_end, " layer's ",
-      ifelse(x$layer_end_input,"input","output"), "\nwith respect to ", x$layer_origin, " layer's ",
-      ifelse(x$layer_origin_input,"input","output"),".\n\n",
-      sep = "")
+  # cat("Measures are calculated using the partial derivatives of ", x$layer_end, " layer's ",
+  #     ifelse(x$layer_end_input,"input","output"), "\nwith respect to ", x$layer_origin, " layer's ",
+  #     ifelse(x$layer_origin_input,"input","output"),".\n\n",
+  #     sep = "")
   cat("Sensitivity measures of each output:\n")
   invisible(print(x$sens))
 }
@@ -111,6 +159,7 @@ print.summary.SensMLP <- function(x, ...) {
 #'
 #' Print the sensitivities of a \code{SensMLP} object.
 #' @param x \code{SensMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}
+#' @param n \code{integer} specifying number of sensitivities to print per each output
 #' @param ... additional parameters
 #' @examples
 #' ## Load data -------------------------------------------------------------------
@@ -152,17 +201,17 @@ print.summary.SensMLP <- function(x, ...) {
 #' sens
 #' @method print SensMLP
 #' @export
-print.SensMLP <- function(x, ...) {
-  cat("Sensitivity analysis of ", paste(x$mlp_struct, collapse = "-"), " MLP network.\n\n", sep = "")
-  cat("Measures are calculated using the partial derivatives of ", x$layer_end, " layer's ",
-      ifelse(x$layer_end_input,"input","output"), "\nwith respect to ", x$layer_origin, " layer's ",
-      ifelse(x$layer_origin_input,"input","output"),".\n",
-      sep = "")
+print.SensMLP <- function(x, n = 5, ...) {
+  cat("Sensitivity analysis of ", paste(x$mlp_struct, collapse = "-"), " MLP network.\n", sep = "")
+  # cat("Measures are calculated using the partial derivatives of ", x$layer_end, " layer's ",
+  #     ifelse(x$layer_end_input,"input","output"), "\nwith respect to ", x$layer_origin, " layer's ",
+  #     ifelse(x$layer_origin_input,"input","output"),".\n",
+  #     sep = "")
   cat("\n  ",nrow(x$trData)," samples\n\n", sep = "")
-  cat("Sensitivities of each output (only ",min(5,nrow(x$raw_sens[[1]]))," first samples):\n", sep = "")
+  cat("Sensitivities of each output (only ",min(n,nrow(x$raw_sens[[1]]))," first samples):\n", sep = "")
   for (out in 1:length(x$raw_sens)) {
     cat("$",names(x$raw_sens)[out],"\n", sep = "")
-    invisible(print(x$raw_sens[[out]][1:min(5,nrow(x$raw_sens[[1]])),]))
+    invisible(print(x$raw_sens[[out]][1:min(n,nrow(x$raw_sens[[1]])),]))
   }
 }
 #' Plot method for the SensMLP Class

@@ -193,10 +193,10 @@
 #'
 #'
 #' ## USE DEFAULT METHOD ----------------------------------------------------------
-#' NeuralSens::SensAnalysisMLP(RegNNET$caret$finalModel$wts,
+#' NeuralSens::SensAnalysisMLP(caretmod$finalModel$wts,
 #'                             trData = fdata.Reg.tv,
-#'                             mlpstr = RegNNET$caret$finalModel$n,
-#'                             coefnames = RegNNET$caret$coefnames,
+#'                             mlpstr = caretmod$finalModel$n,
+#'                             coefnames = caretmod$coefnames,
 #'                             actfun = c("linear","sigmoid","linear"),
 #'                             output_name = "DEM")
 #'
@@ -472,7 +472,22 @@ SensAnalysisMLP.default <- function(MLP.fit,
   args <- list(...)
 
   if (!"return_all_sens" %in% names(args[[1]])) {
-    out <- structure(list(
+    # out <- structure(list(
+    #   sens = NULL,
+    #   raw_sens = NULL,
+    #   layer_derivatives = D,
+    #   mlp_struct = mlpstr,
+    #   mlp_wts = W,
+    #   layer_origin = sens_origin_layer,
+    #   layer_origin_input = sens_origin_input,
+    #   layer_end = sens_end_layer,
+    #   layer_end_input = sens_end_input,
+    #   trData = trData,
+    #   coefnames = varnames,
+    #   output_name = output_name
+    # ),
+    # class = "SensMLP")
+    out <- list(
       sens = NULL,
       raw_sens = NULL,
       layer_derivatives = D,
@@ -485,13 +500,18 @@ SensAnalysisMLP.default <- function(MLP.fit,
       trData = trData,
       coefnames = varnames,
       output_name = output_name
-    ),
-    class = "SensMLP")
+    )
 
     out <- ComputeSensMeasures(out)
 
-    out$D <- NULL
-    out$W <- NULL
+    out <- SensMLP(
+      out$sens,
+      out$raw_sens,
+      mlpstr,
+      trData,
+      varnames,
+      names(out$sens)
+    )
 
     if (plot) {
       # show plots if required

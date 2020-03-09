@@ -4,7 +4,13 @@
 \alias{SensitivityPlots}
 \title{Plot sensitivities of a neural network model}
 \usage{
-SensitivityPlots(sens = NULL, der = TRUE, zoom = TRUE, quit.legend = FALSE)
+SensitivityPlots(
+  sens = NULL,
+  der = TRUE,
+  zoom = TRUE,
+  quit.legend = FALSE,
+  output = 1
+)
 }
 \arguments{
 \item{sens}{\code{SensAnalysisMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}.}
@@ -15,6 +21,9 @@ SensitivityPlots(sens = NULL, der = TRUE, zoom = TRUE, quit.legend = FALSE)
 \code{\link[ggforce]{facet_zoom}} function from \code{ggforce} package is required.}
 
 \item{quit.legend}{\code{logical} indicating if legend of the third plot should be removed. By default is \code{FALSE}}
+
+\item{output}{\code{numeric} or {character} specifying the output neuron or output name to be plotted.
+By default is the first output (\code{output = 1}).}
 }
 \value{
 List with the following plot for each output: \itemize{ \item Plot 1: colorful plot with the

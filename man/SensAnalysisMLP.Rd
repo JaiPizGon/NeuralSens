@@ -381,10 +381,10 @@ NeuralSens::SensAnalysisMLP(nnmod)
 
 
 ## USE DEFAULT METHOD ----------------------------------------------------------
-NeuralSens::SensAnalysisMLP(RegNNET$caret$finalModel$wts,
+NeuralSens::SensAnalysisMLP(caretmod$finalModel$wts,
                             trData = fdata.Reg.tv,
-                            mlpstr = RegNNET$caret$finalModel$n,
-                            coefnames = RegNNET$caret$coefnames,
+                            mlpstr = caretmod$finalModel$n,
+                            coefnames = caretmod$coefnames,
                             actfun = c("linear","sigmoid","linear"),
                             output_name = "DEM")
 

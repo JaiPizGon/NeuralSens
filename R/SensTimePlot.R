@@ -57,7 +57,7 @@
 SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
                          smooth = FALSE, nspline = NULL,  ...) {
   # Check if the object passed is a model or the sensitivities
-  if (class(object)[[1]] != "SensMLP") {
+  if (!is.SensMLP(object)) {
     # Check if fdata has been passed to the function to calculate sensitivities
     if (is.null(fdata)) {
       stop("Must be passed fdata to calculate sensitivities of the model")
@@ -69,7 +69,7 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
                                            ...)
     rawSens <- SensMLP$raw_sens
 
-  } else if(class(object) == "SensMLP"){
+  } else if(is.SensMLP(object)){
     # The raw sensitivities has been passed instead of the model
     SensMLP <- object
     rawSens <- SensMLP$raw_sens
@@ -109,11 +109,7 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
       if (facet) {
         args <- list(...)
         # Check if output name is defined
-        if ("output_name" %in% names(args)) {
-          outname <- args$output_name
-        } else {
-          outname <- "Output"
-        }
+        outname <- SensMLP$output_name
         labsvect <- c()
         for(ii in levels(plotdata$variable)) {
           labsvect<- c(labsvect, paste0("frac(partialdiff~",outname,",partialdiff~",ii,")"))

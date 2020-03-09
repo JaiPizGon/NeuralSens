@@ -3,7 +3,7 @@
 #' @description Plot a neural interpretation diagram colored by sensitivities
 #' of the model
 #' @param MLP.fit fitted neural network model
-#' @param metric metric to plot in the NID. It can be "mean" (default) or "sqmean".
+#' @param metric metric to plot in the NID. It can be "mean" (default), "median or "sqmean".
 #' It can be any metric to combine the raw sensitivities
 #' @param sens_neg_col \code{character} string indicating color of negative sensitivity
 #'  measure, default 'red'. The same is passed to argument \code{neg_col} of
@@ -66,12 +66,24 @@ PlotSensMLP <- function(MLP.fit, metric = "mean",
   sens <- list()
   for (i in 1:length(color_lengths)) {
     der <- aperm(d[[i]], c(3,1,2))
-    der <- CombineSens(der, metric)
+    if(is.function(metric)) {
+      der <- apply(der, c(1,2), metric)
+    } else if (metric == "mean") {
+      der <- apply(der, c(1,2), mean, na.rm = TRUE)
+    } else if (metric == "median") {
+      der <- apply(der, c(1,2), stats::median, na.rm = TRUE)
+    } else if (metric == "sqmean") {
+      der <- apply(der, c(1,2), function(x){mean(x^2, na.rm = TRUE)})
+    } else {
+      stop("metric must be a function to combine rows")
+    }
     # Apply metric to calculate
     if(is.function(metric)) {
       sens[[i]] <- apply(der, 2, metric)
     } else if (metric == "mean") {
       sens[[i]] <- apply(der, 2, mean, na.rm = TRUE)
+    } else if (metric == "median") {
+      sens[[i]] <- apply(der, c(2), stats::median, na.rm = TRUE)
     } else if (metric == "sqmean") {
       sens[[i]] <- apply(der, 2, function(x){mean(x^2, na.rm = TRUE)})
     } else {

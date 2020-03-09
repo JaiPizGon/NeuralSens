@@ -6,7 +6,8 @@
 #' @param zoom \code{logical} indicating if the distributions should be zoomed when there is any of them which is too tiny to be appreciated in the third plot.
 #' \code{\link[ggforce]{facet_zoom}} function from \code{ggforce} package is required.
 #' @param quit.legend \code{logical} indicating if legend of the third plot should be removed. By default is \code{FALSE}
-#'
+#' @param output \code{numeric} or {character} specifying the output neuron or output name to be plotted.
+#' By default is the first output (\code{output = 1}).
 #' @return List with the following plot for each output: \itemize{ \item Plot 1: colorful plot with the
 #'   classification of the classes in a 2D map \item Plot 2: b/w plot with
 #'   probability of the chosen class in a 2D map \item Plot 3: plot with the
@@ -53,7 +54,9 @@
 #' sens <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE)
 #' NeuralSens::SensitivityPlots(sens)
 #' @export SensitivityPlots
-SensitivityPlots <- function(sens = NULL, der = TRUE, zoom = TRUE, quit.legend = FALSE) {
+SensitivityPlots <- function(sens = NULL, der = TRUE,
+                             zoom = TRUE, quit.legend = FALSE,
+                             output = 1) {
   if (is.array(der)) stop("der argument is no more the raw sensitivities due to creation of SensMLP class. Check ?SensitivityPlots for more information")
   plotlist <- list()
   sens_orig <- sens
@@ -123,12 +126,12 @@ SensitivityPlots <- function(sens = NULL, der = TRUE, zoom = TRUE, quit.legend =
           ggplot2::theme(legend.position = "none")
       }
     }
-    # Plot the list of plots created before
-    gridExtra::grid.arrange(grobs = plotlist,
-                            nrow  = length(plotlist),
-                            ncols = 1)
     pl[[out]] <- plotlist
   }
+  # Plot the list of plots created before
+  gridExtra::grid.arrange(grobs = pl[[ifelse(is.character(output), which(output == names(sens_orig$sens)), output)]],
+                          nrow  = length(plotlist),
+                          ncols = 1)
   # Return the plots created if the user want to edit them by hand
   return(invisible(plotlist))
 }

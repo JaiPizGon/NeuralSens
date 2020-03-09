@@ -4,10 +4,12 @@
 \alias{print.SensMLP}
 \title{Print method for the SensMLP Class}
 \usage{
-\method{print}{SensMLP}(x, ...)
+\method{print}{SensMLP}(x, n = 5, ...)
 }
 \arguments{
 \item{x}{\code{SensMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}}
+
+\item{n}{\code{integer} specifying number of sensitivities to print per each output}
 
 \item{...}{additional parameters}
 }
