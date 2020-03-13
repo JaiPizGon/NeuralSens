@@ -14,10 +14,9 @@ The manipulations before the animation rending is already tested in the example 
 
 ## Test environments
 * Windows 10 Home x64, R 3.6.0
-* ubuntu 14.05.5 (on travis-ci), R (oldrel, release and devel)
-* Mac OS X 10.13.3 (on travis-ci), R (oldrel, release and devel)
+* ubuntu 16.04.6 (on travis-ci), R (oldrel, release and devel)
+* Mac OS X 10.13.6 (on travis-ci), R (oldrel, release and devel)
 * win-builder, R (oldrelease, release and devel)
-* macOS Sierra 10.12.6, R 3.5.1
 
 ### R CMD check
 
@@ -47,15 +46,4 @@ Duration: 27.5s
 - release pass
 - devel pass
 
-## CRAN check
--- Details of the CRAN check results for NeuralSens ----------------------------
-* NeuralSens - note: package dependencies
-   > r-devel-linux-x86_64-debian-gcc 
-   > r-release-linux-x86_64 
 
-     Package suggested but not available for checking: ‘h2o’
-
---------------------------------------------------------------------------------
-
-It seems that h2o package for debian and linux release is not available. 
-It is not mandatory for the package except for the own h2o models, so it would not crash when using the package.
