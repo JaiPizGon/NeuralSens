@@ -1324,7 +1324,7 @@ SensAnalysisMLP.nnetar <- function(MLP.fit,
                                               terms = NULL,
                                               plot = FALSE,
                                               output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"})
-    sensit[((i-1)*nrow(trData)+1):(i*nrow(trData)),,] <- sensitivities[[i]]
+    sensit[((i-1)*nrow(trData)+1):(i*nrow(trData)),,] <- sensitivities[[i]]$raw_sens
   }
 
   colnames(sensit) <- finalModel$coefnames
