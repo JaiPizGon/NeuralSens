@@ -1314,8 +1314,6 @@ SensAnalysisMLP.nnetar <- function(MLP.fit,
                                               trData = trData,
                                               actfunc = actfun,
                                               deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
-                                              .returnSens = TRUE,
-                                              .rawSens = TRUE,
                                               sens_origin_layer = sens_origin_layer,
                                               sens_end_layer = sens_end_layer,
                                               sens_origin_input = sens_origin_input,
@@ -1327,30 +1325,28 @@ SensAnalysisMLP.nnetar <- function(MLP.fit,
     sensit[((i-1)*nrow(trData)+1):(i*nrow(trData)),,] <- sensitivities[[i]]$raw_sens
   }
 
-  colnames(sensit) <- finalModel$coefnames
+  sens <- data.frame(
+    mean = colMeans(sensit[, , 1], na.rm = TRUE),
+    std = apply(sensit[, , 1], 2, stats::sd, na.rm = TRUE),
+    meanSensSQ = colMeans(sensit[, , 1] ^ 2, na.rm = TRUE),
+    row.names = varnames
+  )
 
-  sens <-
-    data.frame(
-      varNames = varnames,
-      mean = colMeans(sensit[, , 1], na.rm = TRUE),
-      std = apply(sensit[, , 1], 2, stats::sd, na.rm = TRUE),
-      meanSensSQ = colMeans(sensit[, , 1] ^ 2, na.rm = TRUE)
-    )
+  sens <- SensMLP(
+    sens,
+    sensit,
+    MLP.fit$model[[1]]$n,
+    trData,
+    varnames,
+    if("output_name" %in% names(args)){args$output_name}else{".outcome"}
+  )
+
 
   if (plot) {
     # show plots if required
-    NeuralSens::SensitivityPlots(sens,der = sensit[,,1])
+    NeuralSens::SensitivityPlots(sens)
   }
-
-  if (.returnSens) {
-    if(!.rawSens) {
-      # Check if there are more than one output
-      return(sens)
-    } else {
-      # Return sensitivities without processing
-      return(sensit)
-    }
-  }
+  return(sens)
 }
 
 #' @rdname SensAnalysisMLP
