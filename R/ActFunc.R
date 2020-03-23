@@ -326,10 +326,16 @@ Der2ActFunc <- function(type = "sigmoid", ...) {
              return(
                function(x) {
                  x <- exp(x - max(x)) / sum(exp(x - max(x))) #Numerical stability
-
-                 # Derivative as in http://saitcelebi.com/tut/output/part2.html
-                 x <- x %*% t(rep(1,length(x))) * (diag(length(x)) - rep(1,length(x)) %*% t(x))
-
+                 # build 'delta' arrays
+                 d_i_m <- array(diag(length(x)), dim = rep(length(x), 3))
+                 d_i_p <- aperm(delta_i_m, c(3,2,1))
+                 d_m_p <- aperm(delta_i_m, c(2,3,1))
+                 # Build 'a' arrays
+                 ai <- array(x %*% t(rep(1, length(x))), dim = rep(length(x), 3))
+                 am <- aperm(ai, c(2,1,3))
+                 ap <- aperm(ai, c(2,3,1))
+                 # Create second derivative array
+                 x <- ai * ((d_i_p - ap) * (d_i_m - am) - am * (d_m_p * ap))
                  return(x)
                }
              )
