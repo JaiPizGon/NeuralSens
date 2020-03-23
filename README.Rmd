@@ -96,7 +96,7 @@ mod <- caret::train(form = DEM~TEMP + WD,
                     metric = "RMSE")
 
 # Analysis of the neural network
-SensAnalysisMLP(mod)
+sens <- SensAnalysisMLP(mod)
 ```
 Apart from the plot created with the `SensAnalysisMLP` function by an internal call
 to `SensitivityPlot`, other plots can be obtained to analyze the neural network model.
@@ -105,7 +105,7 @@ how the sensitivity of the output changes over the time of the data.
 
 
 ```{r, results = 'hide', message=FALSE, fig.height = 6, fig.width = 9}
-SensTimePlot(mod, fdata = DAILY_DEMAND_TR, facet = TRUE)
+SensTimePlot(sens, fdata = DAILY_DEMAND_TR, facet = TRUE)
 ```
 
 Also, a more detailed plot about the distribution of the variables can be obtained with
@@ -114,8 +114,7 @@ for each input variable, where each point represent a sensitivity value of a sam
 dataset. The color of each point depends on the value of the input for its corresponding sample.
 
 ```{r, results = 'hide', message=FALSE, fig.height = 6, fig.width = 9}
-sensraw <- SensAnalysisMLP(mod, plot = FALSE, .rawSens = TRUE)
-SensFeaturePlot(sensraw, fdata = DAILY_DEMAND_TR)
+SensFeaturePlot(sens, fdata = DAILY_DEMAND_TR)
 ```
 
 ### License

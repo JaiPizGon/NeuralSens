@@ -1,4 +1,3 @@
-
 # NeuralSens <img src="man/logo/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@comillas.edu*
@@ -88,10 +87,10 @@ mod <- caret::train(form = DEM~TEMP + WD,
                     metric = "RMSE")
 
 # Analysis of the neural network
-SensAnalysisMLP(mod)
+sens <- SensAnalysisMLP(mod)
 ```
 
-![](README_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+![](README_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 Apart from the plot created with the `SensAnalysisMLP` function by an internal call
 to `SensitivityPlot`, other plots can be obtained to analyze the neural network model.
 If it is a forecast problem, the `SensTimePlot` function returns a plot which shows
@@ -100,10 +99,10 @@ how the sensitivity of the output changes over the time of the data.
 
 
 ```r
-SensTimePlot(mod, fdata = DAILY_DEMAND_TR, facet = TRUE)
+SensTimePlot(sens, fdata = DAILY_DEMAND_TR, facet = TRUE)
 ```
 
-![](README_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 Also, a more detailed plot about the distribution of the variables can be obtained with
 the `SensFeaturePlot` function. This function returns a scatter plot over a violin plot 
@@ -112,11 +111,10 @@ dataset. The color of each point depends on the value of the input for its corre
 
 
 ```r
-sensraw <- SensAnalysisMLP(mod, plot = FALSE, .rawSens = TRUE)
-SensFeaturePlot(sensraw, fdata = DAILY_DEMAND_TR)
+SensFeaturePlot(sens, fdata = DAILY_DEMAND_TR)
 ```
 
-![](README_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 ### License
 
