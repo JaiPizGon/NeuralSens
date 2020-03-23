@@ -3,7 +3,8 @@
 \name{syntheticdata}
 \alias{syntheticdata}
 \title{List of 4 dataframes to test the functions with different variables types}
-\format{list of 4 data.frames with 4 columns for 3 inputs and one output:
+\format{
+list of 4 data.frames with 4 columns for 3 inputs and one output:
 \describe{
   \item{RegOutNumInp}{data.frame}
   \itemize{
@@ -33,7 +34,8 @@
       \item{X3} {Input 3 of the subset 4 (numeric)}
       \item{Y} {Output of the subset 4 (numeric)}
   }
-}}
+}
+}
 \description{
 List of 4 dataframes to test the functions with different
 variables types (numeric and character output and inputs)

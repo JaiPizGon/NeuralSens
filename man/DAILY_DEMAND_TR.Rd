@@ -3,13 +3,15 @@
 \name{DAILY_DEMAND_TR}
 \alias{DAILY_DEMAND_TR}
 \title{Data frame with 4 variables}
-\format{A data frame with 1980 rows and 4 variables:
+\format{
+A data frame with 1980 rows and 4 variables:
 \describe{
   \item{DATE}{date of the measure}
   \item{DEM}{electrical demand}
   \item{WD}{Working Day: index which express how much work is made that day}
   \item{TEMP}{weather temperature}
-}}
+}
+}
 \description{
 Training dataset with values of temperature and working day to predict electrical demand
 }

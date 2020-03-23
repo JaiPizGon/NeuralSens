@@ -3,13 +3,15 @@
 \name{simdata}
 \alias{simdata}
 \title{Simulated data to test the package functionalities}
-\format{A data frame with 2000 rows and 4 variables:
+\format{
+A data frame with 2000 rows and 4 variables:
 \describe{
   \item{X1}{Random input 1}
   \item{X2}{Random input 2}
   \item{X3}{Random input 3}
   \item{Y}{Output}
-}}
+}
+}
 \description{
 \code{data.frame} with 2000 rows of 4 columns with 3
 input variables \code{X1, X2, X3} and one output variable \code{Y}.

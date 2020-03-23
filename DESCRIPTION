@@ -26,7 +26,7 @@ Suggests:
   RSNNS,
   nnet,
   neuralnet
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 NeedsCompilation: no
 URL: https://github.com/JaiPizGon/NeuralSens
 BugReports: https://github.com/JaiPizGon/NeuralSens/issues
