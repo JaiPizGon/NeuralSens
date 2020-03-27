@@ -40,7 +40,7 @@
 #'                            maxit = iters)
 #' # Try SensAnalysisMLP
 #' sens <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE)
-ComputeSensMeasures <- function(sens) {
+ComputeHessMeasures <- function(sens) {
   mlpstr <- sens$mlp_struct
   TestData <- sens$trData
   sens_origin_layer<- sens$layer_origin
@@ -75,58 +75,72 @@ ComputeSensMeasures <- function(sens) {
     stop("The layers specified could not be found in the neural network model")
   }
 
-  # Compute the cummulative derivatives
-  D <- list()
-  D[[1]] <- array(diag(mlpstr[sens_origin_layer]),
-                  dim=c(mlpstr[sens_origin_layer],
-                        mlpstr[sens_origin_layer],
-                        nrow(TestData)))
-  if (sens_origin_input) {
-    D[[1]] <- sens$layer_derivatives[[sens_origin_layer]]
-  }
+  # Compute the cumulative second derivatives
+  X <- list()
+  Q <- list()
+  D_ <- list()
+
+  # Initialize the cross-derivatives
+  D <- sens$layer_derivatives
+  D2 <- sens$layer_second_derivatives
+  W <- sens$mlp_wts
+  D_[[1]] <- sens$layer_derivatives[[sens_origin_layer]]
+  Q[[1]] <- diag3Darray(dim = mlpstr[sens_origin_layer])
+  X[[1]] <- D2[[sens_origin_layer]]
+
   l <- 1
-  # Only perform further operations if origin is not equal to end layer
   if (sens_origin_layer != sens_end_layer) {
+    # Damn, there are no array multiplications, we need to use sapplys
     counter <- 1
     for (l in (sens_origin_layer+1):sens_end_layer) {
       counter <- counter + 1
-      D[[counter]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], nrow(TestData)))
-      # Check if it must be multiplied by the jacobian of the nest layer
-      if ((l == sens_end_layer) && sens_end_input) {
-        for (irow in 1:nrow(TestData)){
-          D[[counter]][,,irow] <- D[[counter - 1]][,,irow] %*%
-            sens$mlp_wts[[l]][2:nrow(sens$mlp_wts[[l]]),]
-        }
-      } else {
-        for (irow in 1:nrow(TestData)){
-          D[[counter]][,,irow] <- D[[counter - 1]][,,irow] %*%
-            sens$mlp_wts[[l]][2:nrow(sens$mlp_wts[[l]]),] %*%
-            sens$layer_derivatives[[l]][,,irow]
-        }
+      # Now we add a third dimension for the second input
+      D_[[counter]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], nrow(TestData)))
+      Q[[counter]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], mlpstr[sens_origin_layer], nrow(TestData)))
+      X[[counter]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], mlpstr[sens_origin_layer], nrow(TestData)))
+      for (irow in 1:nrow(TestData)) {
+        D_[[counter]][,,irow] <- D_[[counter - 1]][,,irow] %*% D[[l - 1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),]
+
+        Q[[counter]][,,,irow] <- array(apply(X[[counter - 1]][,,,irow], 3, function(x) x %*% W[[l]][2:nrow(W[[l]]),]),
+                                 dim = c(mlpstr[sens_origin_layer], dim(W[[l]])[2], mlpstr[sens_origin_layer]))
+
+        X[[counter]][,,,irow] <- array(apply(array(apply(array(D2[[l]][,,,irow], dim = dim(D2[[l]])[1:3]), 3,
+                                                   function(x) matrix(D_[[counter]][,,irow], nrow = dim(D_[[counter]])[1]) %*% x),
+                                             dim = c(mlpstr[sens_origin_layer], dim(D2[[l]])[2], dim(D2[[l]])[3])),
+                                       1, function(x) matrix(D_[[counter]][,,irow], nrow = dim(D_[[counter]])[1]) %*% x),
+                                 dim = c(mlpstr[sens_origin_layer], dim(D2[[l]])[2], mlpstr[sens_origin_layer])) + # Here ends y^2/z^2 * z/x1 * z/x2
+                           array(apply(array(Q[[counter]][,,,irow],dim = dim(Q[[counter]])[1:3]),3,
+                                       function(x){x %*% D[[l]][,,irow]}),
+                                 dim = c(mlpstr[sens_origin_layer], dim(D2[[l]])[2], mlpstr[sens_origin_layer]))
       }
     }
     l <- counter
   }
-  der <- aperm(D[[l]],c(3,1,2))
 
+  if (sens_end_input) {
+    der <- Q[[l]]
+  } else {
+    der <- X[[l]]
+  }
   # Prepare the derivatives for the following calculations
   varnames <- sens$coefnames
   if (sens_origin_layer != 1) {
     varnames <- paste0("Neuron ",sens_origin_layer,".",1:mlpstr[sens_origin_layer])
   }
-  colnames(der) <- varnames
+  dimnames(der)[[1]] <- varnames
+  dimnames(der)[[3]] <- varnames
+  der <- aperm(der, c(1,3,2,4))
 
   # Add rawSens to the structure
   rs <- list()
   out <- list()
   for (i in 1:dim(der)[3]) {
-    out[[i]] <- data.frame(
-      mean = colMeans(der[, , i], na.rm = TRUE),
-      std = apply(der[, , i], 2, stats::sd, na.rm = TRUE),
-      meanSensSQ = colMeans(der[, , i] ^ 2, na.rm = TRUE),
-      row.names = varnames
+    out[[i]] <- list(
+      mean = apply(der[,,i,], c(1,2), mean, na.rm = TRUE),
+      std = apply(der[,,i,], c(1,2), stats::sd, na.rm = TRUE),
+      meanSensSQ = apply(der[,,i,]^2, c(1,2), mean, na.rm = TRUE)
     )
-    rs[[i]] <- der[,,i]
+    rs[[i]] <- der[,,i,]
   }
   if (is.factor(sens$trData$.outcome)) {
     names(out) <- make.names(unique(sens$trData$.outcome), unique = TRUE)

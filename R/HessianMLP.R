@@ -8,7 +8,7 @@
 #'   neurons layer.
 #' @param deractfunc \code{character} vector indicating the derivative of the activation
 #' function of each neurons layer.
-#' @param deractfunc \code{character} vector indicating the second derivative of the activation
+#' @param der2actfunc \code{character} vector indicating the second derivative of the activation
 #' function of each neurons layer.
 #' @param .returnSens DEPRECATED
 #' @param preProc preProcess structure applied to the training data. See also
@@ -425,7 +425,7 @@ HessianMLP.default <- function(MLP.fit,
     }
   }
 
-  TestData <- TestData[, varnames]
+  TestData <- TestData[, varnames, drop = FALSE]
   if (!is.null(preProc)) {
     TestData <- stats::predict(preProc, TestData[, varnames])
   }
@@ -507,7 +507,52 @@ HessianMLP.default <- function(MLP.fit,
                                dim = c(mlpstr[1], dim(D2[[l]])[2], mlpstr[1]))
     }
   }
-  return(X)
+  args <- list(...)
+  out <- list(
+    sens = NULL,
+    raw_sens = NULL,
+    layer_derivatives = D,
+    layer_second_derivatives = D2,
+    mlp_struct = mlpstr,
+    mlp_wts = W,
+    layer_origin = sens_origin_layer,
+    layer_origin_input = sens_origin_input,
+    layer_end = sens_end_layer,
+    layer_end_input = sens_end_input,
+    trData = trData,
+    coefnames = varnames,
+    output_name = output_name
+  )
+
+  out <- ComputeHessMeasures(out)
+
+  out <- HessMLP(
+    out$sens,
+    out$raw_sens,
+    mlpstr,
+    trData,
+    varnames,
+    names(out$sens)
+  )
+
+  if (plot) {
+    # show plots if required
+    args <- list(...)
+    zoom <- TRUE
+    quit.legend <- FALSE
+    der <- TRUE
+    if ("zoom" %in% names(args[[1]])) {
+      zoom <- args[[1]]$zoom
+    }
+    if ("quit.legend" %in% names(args[[1]])) {
+      quit.legend <- args[[1]]$quit.legend
+    }
+    if ("der" %in% names(args[[1]])) {
+      der <- args[[1]]$der
+    }
+    NeuralSens::SensitivityPlots(out, der, zoom, quit.legend)
+  }
+  return(out)
 }
 
 #' @rdname HessianMLP

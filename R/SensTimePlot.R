@@ -56,6 +56,9 @@
 #' @export SensTimePlot
 SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
                          smooth = FALSE, nspline = NULL,  ...) {
+  if (is.HessMLP(object)) {
+    object <- HessToSensMLP(object)
+  }
   # Check if the object passed is a model or the sensitivities
   if (!is.SensMLP(object)) {
     # Check if fdata has been passed to the function to calculate sensitivities

@@ -58,6 +58,9 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
                              zoom = TRUE, quit.legend = FALSE,
                              output = 1) {
   if (is.array(der)) stop("der argument is no more the raw sensitivities due to creation of SensMLP class. Check ?SensitivityPlots for more information")
+  if (is.HessMLP(sens)) {
+    sens <- HessToSensMLP(sens)
+  }
   plotlist <- list()
   sens_orig <- sens
   pl <- list()

@@ -201,7 +201,10 @@ is of the output (\code{FALSE}) or from the input (\code{TRUE}) of the
 \item{actfunc}{\code{character} vector indicating the activation function of each
 neurons layer.}
 
-\item{deractfunc}{\code{character} vector indicating the second derivative of the activation
+\item{deractfunc}{\code{character} vector indicating the derivative of the activation
+function of each neurons layer.}
+
+\item{der2actfunc}{\code{character} vector indicating the second derivative of the activation
 function of each neurons layer.}
 
 \item{preProc}{preProcess structure applied to the training data. See also

@@ -50,7 +50,7 @@
 #' @export SensFeaturePlot
 SensFeaturePlot <- function(object, fdata = NULL, ...) {
   # Check if the object passed is a model or the sensitivities
-  if (!is.SensMLP(object)) {
+  if(!is.SensMLP(object)) {
     # Check if fdata has been passed to the function to calculate sensitivities
     if (is.null(fdata)) {
       stop("Must be passed fdata to calculate sensitivities of the model")

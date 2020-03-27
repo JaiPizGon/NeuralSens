@@ -422,7 +422,7 @@ SensAnalysisMLP.default <- function(MLP.fit,
     }
   }
 
-  TestData <- TestData[, varnames]
+  TestData <- TestData[, varnames, drop = FALSE]
   if (!is.null(preProc)) {
     TestData <- stats::predict(preProc, TestData[, varnames])
   }
