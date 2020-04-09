@@ -85,7 +85,7 @@
 #'                       decay = decay,
 #'                       maxit = iters)
 #' # Try HessianMLP
-#' NeuralSens::HessianMLP(nnetmod, trData = nntrData)
+#' NeuralSens::HessianMLP(nnetmod, trData = nntrData, plot = FALSE)
 #' \donttest{
 #' # Try HessianMLP to calculate sensitivities with respect to output of hidden neurones
 #' NeuralSens::HessianMLP(nnetmod, trData = nntrData,

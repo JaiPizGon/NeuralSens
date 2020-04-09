@@ -64,6 +64,5 @@ sens <- NeuralSens::HessianMLP(nnetmod, trData = nntrData, plot = FALSE)
 \dontrun{
 plot(sens)
 plot(sens,"time")
-plot(sens,"features")
 }
 }

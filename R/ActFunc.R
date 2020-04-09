@@ -328,8 +328,8 @@ Der2ActFunc <- function(type = "sigmoid", ...) {
                  x <- exp(x - max(x)) / sum(exp(x - max(x))) #Numerical stability
                  # build 'delta' arrays
                  d_i_m <- array(diag(length(x)), dim = rep(length(x), 3))
-                 d_i_p <- aperm(delta_i_m, c(3,2,1))
-                 d_m_p <- aperm(delta_i_m, c(2,3,1))
+                 d_i_p <- aperm(d_i_m, c(3,2,1))
+                 d_m_p <- aperm(d_i_m, c(2,3,1))
                  # Build 'a' arrays
                  ai <- array(x %*% t(rep(1, length(x))), dim = rep(length(x), 3))
                  am <- aperm(ai, c(2,1,3))

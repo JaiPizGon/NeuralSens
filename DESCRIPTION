@@ -19,7 +19,8 @@ Imports:
     stringr,
     Hmisc,
     ggforce,
-    scales
+    scales,
+    ggnewscale
 Suggests:
   h2o,
   neural,

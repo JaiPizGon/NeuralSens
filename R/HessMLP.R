@@ -266,7 +266,6 @@ print.HessMLP <- function(x, n = 5, ...) {
 #' \dontrun{
 #' plot(sens)
 #' plot(sens,"time")
-#' plot(sens,"features")
 #' }
 #' @method plot HessMLP
 #' @export
