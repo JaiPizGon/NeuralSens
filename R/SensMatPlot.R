@@ -57,7 +57,7 @@
 #' NeuralSens::SensMatPlot(H, S, senstype = "interactions")
 #' @export SensMatPlot
 SensMatPlot <- function(hess, sens = NULL, output = 1, metric = c("mean","std","meanSensSQ"),
-                        senstype = c("matrix","interactions"), colors = c("blue", "white", "red"), ...) {
+                        senstype = c("matrix","interactions"), ...) {
   ggMatPlot <- function(corr, colors = c("blue", "white", "red"),
                         senstype = "matrix",
                         method = c("square", "circle"),
@@ -325,7 +325,7 @@ SensMatPlot <- function(hess, sens = NULL, output = 1, metric = c("mean","std","
       plotlist[[out]] <- list()
       for (met in 1:length(hess$sens[[out]])) {
 
-          plotlist[[out]][[met]] <- ggMatPlot(hess$sens[[out]][[met]], colors = colors, legend.title = legend.title, senstype = senstype, ...) +
+          plotlist[[out]][[met]] <- ggMatPlot(hess$sens[[out]][[met]], senstype = senstype, ...) +
             ggplot2::ggtitle(paste0("Matrix plot of second derivatives of metric ",names(hess$sens[[out]])[met],
                                     " of output ",names(hess$sens)[out]))
       }
@@ -338,7 +338,7 @@ SensMatPlot <- function(hess, sens = NULL, output = 1, metric = c("mean","std","
       for (met in 1:length(hess$sens[[out]])) {
         ders <- hess$sens[[out]][[met]]
         diag(ders) <- sens$sens[[out]][[met]]
-        plotlist[[out]][[met]] <- ggMatPlot(ders, colors = colors, legend.title = legend.title, senstype = senstype, ...) +
+        plotlist[[out]][[met]] <- ggMatPlot(ders, senstype = senstype, ...) +
           ggplot2::ggtitle(paste0("Interactions plot of metric ",names(hess$sens[[out]])[met],
                                   " of output ",names(hess$sens)[out]))
       }
@@ -346,6 +346,6 @@ SensMatPlot <- function(hess, sens = NULL, output = 1, metric = c("mean","std","
     }
     names(plotlist) <- names(hess$sens)
   }
-  plot(plotlist[[output]][[metric]])
+  graphics::plot(plotlist[[output]][[metric]])
   return(invisible(plotlist))
 }

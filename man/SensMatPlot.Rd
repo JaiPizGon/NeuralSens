@@ -10,7 +10,6 @@ SensMatPlot(
   output = 1,
   metric = c("mean", "std", "meanSensSQ"),
   senstype = c("matrix", "interactions"),
-  colors = c("blue", "white", "red"),
   ...
 )
 }
