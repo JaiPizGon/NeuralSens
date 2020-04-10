@@ -4,7 +4,7 @@
 \alias{plot.HessMLP}
 \title{Plot method for the HessMLP Class}
 \usage{
-\method{plot}{HessMLP}(x, plotType = "sensitivities", ...)
+\method{plot}{HessMLP}(x, plotType = c("sensitivities", "time", "matrix", "interactions"), ...)
 }
 \arguments{
 \item{x}{\code{HessMLP} object created by \code{\link[NeuralSens]{HessianMLP}}}

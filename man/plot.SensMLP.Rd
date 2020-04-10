@@ -4,7 +4,7 @@
 \alias{plot.SensMLP}
 \title{Plot method for the SensMLP Class}
 \usage{
-\method{plot}{SensMLP}(x, plotType = "sensitivities", ...)
+\method{plot}{SensMLP}(x, plotType = c("sensitivities", "time", "features"), ...)
 }
 \arguments{
 \item{x}{\code{SensMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}}

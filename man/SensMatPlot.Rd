@@ -37,7 +37,7 @@ a list of \code{\link[ggplot2]{ggplot}}s, one for each output neuron.
 Function to plot the sensitivities created by \code{\link[NeuralSens]{HessianMLP}}.
 }
 \details{
-Most of the code of this function is copied from
+Most of the code of this function is based on
 \code{ggcorrplot()} function from package \code{ggcorrplot}. However, due to the
 inhability of changing the limits of the color scale, it keeps giving a warning
 if that function is used and the color scale overwritten.

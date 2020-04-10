@@ -270,9 +270,9 @@ print.HessMLP <- function(x, n = 5, ...) {
 #' @method plot HessMLP
 #' @export
 plot.HessMLP <- function(x,
-                         plotType = "sensitivities",
+                         plotType = c("sensitivities","time","matrix","interactions"),
                          ...) {
-  if (!(plotType %in% c("sensitivities", "time"))) stop("plotType must be either sensitivities or time")
+  plotType <- match.arg(plotType)
 
   switch(plotType,
          sensitivities = {
@@ -280,6 +280,12 @@ plot.HessMLP <- function(x,
          },
          time = {
            NeuralSens::SensTimePlot(x, ...)
+         },
+         matrix = {
+           NeuralSens::SensMatPlot(x, senstype = "matrix", ...)
+         },
+         interactions = {
+           NeuralSens::SensMatPlot(x, senstype = "interactions", ...)
          })
 }
 #' Convert a HessMLP to a SensMLP object

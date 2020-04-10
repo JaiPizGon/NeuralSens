@@ -271,9 +271,9 @@ print.SensMLP <- function(x, n = 5, ...) {
 #' @method plot SensMLP
 #' @export
 plot.SensMLP <- function(x,
-                         plotType = "sensitivities",
+                         plotType = c("sensitivities","time","features"),
                          ...) {
-  if (!(plotType %in% c("sensitivities", "time", "features"))) stop("plotType must be either sensitivities, time or features")
+  plotType <- match.arg(plotType)
 
   switch(plotType,
          sensitivities = {
