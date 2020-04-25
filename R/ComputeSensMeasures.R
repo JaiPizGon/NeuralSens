@@ -129,7 +129,7 @@ ComputeSensMeasures <- function(sens) {
     rs[[i]] <- der[,,i]
   }
   if (is.factor(sens$trData$.outcome)) {
-    names(out) <- make.names(unique(sens$trData$.outcome), unique = TRUE)
+    names(out) <- make.names(unique(sens$trData$.outcome), unique = TRUE)[1:length(out)]
   } else if (!is.null(sens$output_name)) {
     names(out) <- sens$output_name
   }
