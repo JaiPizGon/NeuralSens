@@ -154,7 +154,7 @@
 #'
 #' # Try SensAnalysisMLP
 #' trData <- nntrData
-#' NeuralSens::SensAnalysisMLP(neuralmod, trData = trData, output_name = "DEM")
+#' NeuralSens::SensAnalysisMLP(neuralmod, trData = trData, output_name = "DEM",actfunc = c("linear","sigmoid","linear"))
 #'
 #' ## Train RSNNS NNET ------------------------------------------------------------
 #' # Normalize data using RSNNS algorithms

@@ -156,7 +156,7 @@
 #'
 #' # Try HessianMLP
 #' trData <- nntrData
-#' NeuralSens::HessianMLP(neuralmod, trData = trData, output_name = "DEM")
+#' NeuralSens::HessianMLP(neuralmod, trData = trData, output_name = "DEM", actfunc = c("linear","sigmoid","linear"))
 #'
 #' ## Train RSNNS NNET ------------------------------------------------------------
 #' # Normalize data using RSNNS algorithms
