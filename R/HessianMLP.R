@@ -483,30 +483,30 @@ HessianMLP.default <- function(MLP.fit,
   D_[[1]] <- array(diag(mlpstr[1]), dim=c(mlpstr[1], mlpstr[1], nrow(TestData)))
   Q[[1]] <- array(0, dim = c(mlpstr[1],mlpstr[1],mlpstr[1],nrow(TestData)))
   X[[1]] <- D2[[1]]
-
-
-  # Damn, there are no array multiplications, we need to use sapplys
-  for (l in 2:length(mlpstr)) {
-    # Now we add a third dimension for the second input
-    D_[[l]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], nrow(TestData)))
-    Q[[l]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], mlpstr[sens_origin_layer], nrow(TestData)))
-    X[[l]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], mlpstr[sens_origin_layer], nrow(TestData)))
-    for (irow in 1:nrow(TestData)) {
-      D_[[l]][,,irow] <- D_[[l - 1]][,,irow] %*% D[[l-1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),]
-
-      Q[[l]][,,,irow] <- array(apply(X[[l-1]][,,,irow], 3, function(x) x %*% W[[l]][2:nrow(W[[l]]),]),
-                               dim = c(mlpstr[1], dim(W[[l]])[2], mlpstr[1]))
-
-      X[[l]][,,,irow] <- array(apply(array(apply(array(D2[[l]][,,,irow], dim = dim(D2[[l]])[1:3]), 3,
-                                                 function(x) matrix(D_[[l]][,,irow], nrow = dim(D_[[l]])[1]) %*% x),
-                               dim = c(mlpstr[1], dim(D2[[l]])[2], dim(D2[[l]])[3])),
-                               1, function(x) matrix(D_[[l]][,,irow], nrow = dim(D_[[l]])[1]) %*% x),
-                               dim = c(mlpstr[1], dim(D2[[l]])[2], mlpstr[1])) + # Here ends y^2/z^2 * z/x1 * z/x2
-                         array(apply(array(Q[[l]][,,,irow],dim = dim(Q[[l]])[1:3]),3,
-                                     function(x){x %*% D[[l]][,,irow]}),
-                               dim = c(mlpstr[1], dim(D2[[l]])[2], mlpstr[1]))
-    }
-  }
+#
+#
+#   # Damn, there are no array multiplications, we need to use sapplys
+#   for (l in 2:length(mlpstr)) {
+#     # Now we add a third dimension for the second input
+#     D_[[l]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], nrow(TestData)))
+#     Q[[l]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], mlpstr[sens_origin_layer], nrow(TestData)))
+#     X[[l]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], mlpstr[sens_origin_layer], nrow(TestData)))
+#     for (irow in 1:nrow(TestData)) {
+#       D_[[l]][,,irow] <- D_[[l - 1]][,,irow] %*% D[[l-1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),]
+#
+#       Q[[l]][,,,irow] <- array(apply(X[[l-1]][,,,irow], 3, function(x) x %*% W[[l]][2:nrow(W[[l]]),]),
+#                                dim = c(mlpstr[1], dim(W[[l]])[2], mlpstr[1]))
+#
+#       X[[l]][,,,irow] <- array(apply(array(apply(array(D2[[l]][,,,irow], dim = dim(D2[[l]])[1:3]), 3,
+#                                                  function(x) matrix(D_[[l]][,,irow], nrow = dim(D_[[l]])[1]) %*% x),
+#                                dim = c(mlpstr[1], dim(D2[[l]])[2], dim(D2[[l]])[3])),
+#                                1, function(x) matrix(D_[[l]][,,irow], nrow = dim(D_[[l]])[1]) %*% x),
+#                                dim = c(mlpstr[1], dim(D2[[l]])[2], mlpstr[1])) + # Here ends y^2/z^2 * z/x1 * z/x2
+#                          array(apply(array(Q[[l]][,,,irow],dim = dim(Q[[l]])[1:3]),3,
+#                                      function(x){x %*% D[[l]][,,irow]}),
+#                                dim = c(mlpstr[1], dim(D2[[l]])[2], mlpstr[1]))
+#     }
+#   }
   args <- list(...)
   out <- list(
     sens = NULL,
