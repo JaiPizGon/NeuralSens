@@ -139,11 +139,9 @@ DerActFunc <- function(type = "sigmoid", ...) {
            sigmoid = {
              return(function(x){
                if (length(x) == 1) {
-                 y <-  (1 / (1 + exp(-x))) *
-                   (1 - 1 / (1 + exp(-x)))
+                 (1 / (1 + exp(-x))) * (1 - 1 / (1 + exp(-x)))
                } else {
-                 diag((1 / (1 + exp(-x))) *
-                        (1 - 1 / (1 + exp(-x))))
+                 diag((1 / (1 + exp(-x))) * (1 - 1 / (1 + exp(-x))))
                }
              })
            },
@@ -228,3 +226,121 @@ DerActFunc <- function(type = "sigmoid", ...) {
     )
   }
 }
+#' Second derivative of activation function of neuron
+#'
+#' @description Evaluate derivative of activation function of a neuron
+#' @param type \code{character} name of the activation function
+#' @param ... extra arguments needed to calculate the functions
+#' @return \code{numeric} output of the neuron
+#' @examples
+#' # Return derivative of the sigmoid activation function of a neuron
+#' ActivationFunction <- Der2ActFunc("sigmoid")
+#' # Return derivative of the tanh activation function of a neuron
+#' ActivationFunction <- Der2ActFunc("tanh")
+#' # Return derivative of the activation function of several layers of neurons
+#' actfuncs <- c("linear","sigmoid","linear")
+#' ActivationFunctions <- sapply(actfuncs, Der2ActFunc)
+#' @export Der2ActFunc
+Der2ActFunc <- function(type = "sigmoid", ...) {
+  if (is.function(type)) {
+      # Custom function
+      return(
+        function(x) {
+                eval(parse(text = paste0(deparse(type), collapse = ""),
+                           keep.source = FALSE), envir = environment(type))(x)
+        }
+      )
+  } else {
+    # Switch case to define which value it returns
+    switch(type,
+           sigmoid = {
+             return(function(x){
+               if (length(x) == 1) {
+                 y <-  1/(1 + exp(-x)) * (1 - 1/(1 + exp(-x))) * (1 - 2/(1 + exp(-x)))
+               } else {
+                 NeuralSens::diag3Darray(1/(1 + exp(-x)) * (1 - 1/(1 + exp(-x))) * (1 - 2/(1 + exp(-x))))
+               }
+             })
+           },
+           tanh = {
+             return(function(x){
+               if (length(x) == 1) {
+                 -2 * tanh(x) * (1 - tanh(x)^2)
+               } else {
+                 NeuralSens::diag3Darray(-2 * tanh(x) * (1 - tanh(x)^2))
+               }
+             })
+           },
+           linear = {
+             return(function(x){array(0, dim = rep(length(x),3))})
+           },
+           ReLU = {
+             return(function(x){array(0, dim = rep(length(x),3))})
+           },
+           # PReLU = {
+           #   return(function(x,a){
+           #     if (length(x) == 1) {
+           #       ifelse(x >= 0, 1, a)
+           #     } else {
+           #       diag(ifelse(x >= 0, 1, a))
+           #     }
+           #   })
+           # },
+           # ELU = {
+           #   return(function(x,a){
+           #     if (length(x) == 1) {
+           #       ifelse(x >= 0, 1,  a*(exp(x)-1) + a)
+           #     } else {
+           #       diag(ifelse(x >= 0, 1,  a*(exp(x)-1) + a))
+           #     }
+           #   })
+           # },
+           step = {
+             return(function(x){
+               if (length(x) == 1) {
+                 ifelse(x != 0, 0, NA)
+               } else {
+                 NeuralSens::diag3Darray(ifelse(x != 0, 0, NA))
+               }
+             })
+           },
+           arctan = {
+             return(function(x){
+               if (length(x) == 1) {
+                 -2 * x / ((1 + x^2)^2)
+               } else {
+                 NeuralSens::diag3Darray(-2 * x / ((1 + x^2)^2))
+               }
+             })
+           },
+           softPlus = {
+             return(function(x){
+               if (length(x) == 1) {
+                 exp(-x)/((1 + exp(-x))^2)
+               } else {
+                 NeuralSens::diag3Darray(exp(-x)/((1 + exp(-x))^2))
+               }
+             })
+           },
+           softmax = {
+             return(
+               function(x) {
+                 x <- exp(x - max(x)) / sum(exp(x - max(x))) #Numerical stability
+                 # build 'delta' arrays
+                 d_i_m <- array(diag(length(x)), dim = rep(length(x), 3))
+                 d_i_p <- aperm(d_i_m, c(3,2,1))
+                 d_m_p <- aperm(d_i_m, c(2,3,1))
+                 # Build 'a' arrays
+                 ai <- array(x %*% t(rep(1, length(x))), dim = rep(length(x), 3))
+                 am <- aperm(ai, c(2,1,3))
+                 ap <- aperm(ai, c(2,3,1))
+                 # Create second derivative array
+                 x <- ai * ((d_i_p - ap) * (d_i_m - am) - am * (d_m_p * ap))
+                 return(x)
+               }
+             )
+           }
+    )
+  }
+}
+

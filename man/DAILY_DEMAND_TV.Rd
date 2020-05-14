@@ -3,12 +3,14 @@
 \name{DAILY_DEMAND_TV}
 \alias{DAILY_DEMAND_TV}
 \title{Data frame with 3 variables}
-\format{A data frame with 7 rows and 3 variables:
+\format{
+A data frame with 7 rows and 3 variables:
 \describe{
   \item{DATE}{date of the measure}
   \item{WD}{Working Day: index which express how much work is made that day}
   \item{TEMP}{weather temperature}
-}}
+}
+}
 \description{
 Validation dataset with values of temperature and working day to predict electrical demand
 }

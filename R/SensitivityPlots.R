@@ -1,7 +1,8 @@
 #' Plot sensitivities of a neural network model
 #'
 #' @description Function to plot the sensitivities created by \code{\link[NeuralSens]{SensAnalysisMLP}}.
-#' @param sens \code{SensAnalysisMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}.
+#' @param sens \code{SensAnalysisMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}} or \code{HessMLP} object
+#' created by \code{\link[NeuralSens]{HessianMLP}}.
 #' @param der \code{logical} indicating if density plots should be created. By default is \code{TRUE}
 #' @param zoom \code{logical} indicating if the distributions should be zoomed when there is any of them which is too tiny to be appreciated in the third plot.
 #' \code{\link[ggforce]{facet_zoom}} function from \code{ggforce} package is required.
@@ -12,9 +13,6 @@
 #'   classification of the classes in a 2D map \item Plot 2: b/w plot with
 #'   probability of the chosen class in a 2D map \item Plot 3: plot with the
 #'   stats::predictions of the data provided if param \code{der} is \code{FALSE}}
-#' @details Due to the fact that \code{sens} is calculated from \code{dens}, if the latter is passed as argument
-#' the argument \code{sens} is overwritten to maintain coherence between the three plots even. If only \code{sens} is
-#' given, the last plot with the density plots of the inputs is not calculated.
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")
@@ -58,6 +56,9 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
                              zoom = TRUE, quit.legend = FALSE,
                              output = 1) {
   if (is.array(der)) stop("der argument is no more the raw sensitivities due to creation of SensMLP class. Check ?SensitivityPlots for more information")
+  if (is.HessMLP(sens)) {
+    sens <- HessToSensMLP(sens)
+  }
   plotlist <- list()
   sens_orig <- sens
   pl <- list()

@@ -8,6 +8,8 @@
 #'   neurons layer.
 #' @param deractfunc \code{character} vector indicating the derivative of the activation
 #' function of each neurons layer.
+#' @param der2actfunc \code{character} vector indicating the second derivative of the activation
+#' function of each neurons layer.
 #' @param .returnSens DEPRECATED
 #' @param preProc preProcess structure applied to the training data. See also
 #'   \code{\link[caret]{preProcess}}
@@ -82,11 +84,11 @@
 #'                       size = hidden_neurons,
 #'                       decay = decay,
 #'                       maxit = iters)
-#' # Try SensAnalysisMLP
-#' NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData)
+#' # Try HessianMLP
+#' NeuralSens::HessianMLP(nnetmod, trData = nntrData, plot = FALSE)
 #' \donttest{
-#' # Try SensAnalysisMLP to calculate sensitivities with respect to output of hidden neurones
-#' NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData,
+#' # Try HessianMLP to calculate sensitivities with respect to output of hidden neurones
+#' NeuralSens::HessianMLP(nnetmod, trData = nntrData,
 #'                              sens_origin_layer = 2,
 #'                              sens_end_layer = "last",
 #'                              sens_origin_input = FALSE,
@@ -108,8 +110,8 @@
 #'                               trControl = ctrl_tune,
 #'                               metric = "RMSE")
 #'
-#' # Try SensAnalysisMLP
-#' NeuralSens::SensAnalysisMLP(caretmod)
+#' # Try HessianMLP
+#' NeuralSens::HessianMLP(caretmod)
 #'
 #' ## Train h2o NNET --------------------------------------------------------------
 #' # Create a cluster with 4 available cores
@@ -137,8 +139,8 @@
 #'                                      rate_decay = decay,
 #'                                      export_weights_and_biases = TRUE)
 #'
-#' # Try SensAnalysisMLP
-#' NeuralSens::SensAnalysisMLP(h2omod)
+#' # Try HessianMLP
+#' NeuralSens::HessianMLP(h2omod)
 #'
 #' # Turn off the cluster
 #' h2o::h2o.shutdown(prompt = FALSE)
@@ -152,9 +154,9 @@
 #'                                    it=iters,
 #'                                    visual=FALSE)
 #'
-#' # Try SensAnalysisMLP
+#' # Try HessianMLP
 #' trData <- nntrData
-#' NeuralSens::SensAnalysisMLP(neuralmod, trData = trData, output_name = "DEM")
+#' NeuralSens::HessianMLP(neuralmod, trData = trData, output_name = "DEM")
 #'
 #' ## Train RSNNS NNET ------------------------------------------------------------
 #' # Normalize data using RSNNS algorithms
@@ -168,8 +170,8 @@
 #'                            learnFuncParams=c(decay),
 #'                            maxit=iters)
 #'
-#' # Try SensAnalysisMLP
-#' NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData, output_name = "DEM")
+#' # Try HessianMLP
+#' NeuralSens::HessianMLP(RSNNSmod, trData = trData, output_name = "DEM")
 #'
 #' ## TRAIN neuralnet NNET --------------------------------------------------------
 #' # Create a formula to train NNET
@@ -188,12 +190,12 @@
 #'                                    learningrate = decay,
 #'                                    act.fct = "tanh")
 #'
-#' # Try SensAnalysisMLP
-#' NeuralSens::SensAnalysisMLP(nnmod)
+#' # Try HessianMLP
+#' NeuralSens::HessianMLP(nnmod)
 #'
 #'
 #' ## USE DEFAULT METHOD ----------------------------------------------------------
-#' NeuralSens::SensAnalysisMLP(caretmod$finalModel$wts,
+#' NeuralSens::HessianMLP(caretmod$finalModel$wts,
 #'                             trData = fdata.Reg.tv,
 #'                             mlpstr = caretmod$finalModel$n,
 #'                             coefnames = caretmod$coefnames,
@@ -237,8 +239,8 @@
 #'                                 trControl = ctrl_tune,
 #'                                 metric = "Accuracy")
 #'
-#' # Try SensAnalysisMLP
-#' NeuralSens::SensAnalysisMLP(caretmod)
+#' # Try HessianMLP
+#' NeuralSens::HessianMLP(caretmod)
 #'
 #' ## Train h2o NNET --------------------------------------------------------------
 #' # Create local cluster with 4 available cores
@@ -266,8 +268,8 @@
 #'                                        rate_decay = decay,
 #'                                        export_weights_and_biases = TRUE)
 #'
-#' # Try SensAnalysisMLP
-#' NeuralSens::SensAnalysisMLP(h2omod)
+#' # Try HessianMLP
+#' NeuralSens::HessianMLP(h2omod)
 #'
 #' # Apaga el cluster
 #' h2o::h2o.shutdown(prompt = FALSE)
@@ -281,8 +283,8 @@
 #' #                           it=iters,
 #' #                           visual=FALSE)
 #' #
-#' # # Try SensAnalysisMLP
-#' # NeuralSens::SensAnalysisMLP(neuralmod, trData = trData)
+#' # # Try HessianMLP
+#' # NeuralSens::HessianMLP(neuralmod, trData = trData)
 #'
 #' # ## Train RSNNS NNET ------------------------------------------------------------
 #' # # Normalize data using RSNNS algorithms
@@ -296,8 +298,8 @@
 #' #                      learnFuncParams=c(decay),
 #' #                      maxit=iters)
 #' #
-#' # # Try SensAnalysisMLP
-#' # NeuralSens::SensAnalysisMLP(RSNNSmod, trData = trData, output_name = "DEM")
+#' # # Try HessianMLP
+#' # NeuralSens::HessianMLP(RSNNSmod, trData = trData, output_name = "DEM")
 #'
 #' ## TRAIN neuralnet NNET --------------------------------------------------------
 #' # Create a formula to train NNET
@@ -316,8 +318,8 @@
 #' #                    learningrate = decay,
 #' #                    act.fct = "tanh")
 #' #
-#' # # Try SensAnalysisMLP
-#' # NeuralSens::SensAnalysisMLP(nnmod)
+#' # # Try HessianMLP
+#' # NeuralSens::HessianMLP(nnmod)
 #'
 #' ## TRAIN nnet NNET --------------------------------------------------------
 #' # Create a formula to train NNET
@@ -331,12 +333,12 @@
 #'                       size = hidden_neurons,
 #'                       decay = decay,
 #'                       maxit = iters)
-#' # Try SensAnalysisMLP
-#' NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData)
+#' # Try HessianMLP
+#' NeuralSens::HessianMLP(nnetmod, trData = nntrData)
 #' }
 #' @export
-#' @rdname SensAnalysisMLP
-SensAnalysisMLP <- function(MLP.fit,
+#' @rdname HessianMLP
+HessianMLP <- function(MLP.fit,
                             .returnSens = TRUE,
                             plot = TRUE,
                             .rawSens = FALSE,
@@ -344,28 +346,29 @@ SensAnalysisMLP <- function(MLP.fit,
                             sens_end_layer = "last",
                             sens_origin_input = TRUE,
                             sens_end_input = FALSE,
-                            ...) UseMethod('SensAnalysisMLP', MLP.fit)
+                            ...) UseMethod('HessianMLP', MLP.fit)
 
-#' @rdname SensAnalysisMLP
+#' @rdname HessianMLP
 #'
 #' @export
 #'
-#' @method SensAnalysisMLP default
-SensAnalysisMLP.default <- function(MLP.fit,
-                                    .returnSens = TRUE,
-                                    plot = TRUE,
-                                    .rawSens = FALSE,
-                                    sens_origin_layer = 1,
-                                    sens_end_layer = "last",
-                                    sens_origin_input = TRUE,
-                                    sens_end_input = FALSE,
-                                    trData,
-                                    actfunc = NULL,
-                                    deractfunc = NULL,
-                                    preProc = NULL,
-                                    terms = NULL,
-                                    output_name = NULL,
-                                    ...) {
+#' @method HessianMLP default
+HessianMLP.default <- function(MLP.fit,
+                               .returnSens = TRUE,
+                               plot = TRUE,
+                               .rawSens = FALSE,
+                               sens_origin_layer = 1,
+                               sens_end_layer = "last",
+                               sens_origin_input = TRUE,
+                               sens_end_input = FALSE,
+                               trData,
+                               actfunc = NULL,
+                               deractfunc = NULL,
+                               der2actfunc = NULL,
+                               preProc = NULL,
+                               terms = NULL,
+                               output_name = NULL,
+                               ...) {
   ### Things needed for calculating the sensibilities:
   #   - Structure of the model  -> MLP.fit$n
   #   - Weights of the model    -> MLP.fit$wts
@@ -431,28 +434,37 @@ SensAnalysisMLP.default <- function(MLP.fit,
   #    - Z stores the values just before entering the neuron, i.e., sum(weights*inputs)
   #    for each layer of neurons
   #    - O stores the output values of each layer of neurons
-  #    - D stores the derivative of the output values of each layer of neurons (Jacobian)
   #    - W stores the weights of the inputs of each layer of neurons
+  #    - D stores the derivative of the output values of each layer of neurons (Jacobian)
+  #    - D2 stores the second derivatives of the output values of each layer of neurones (Hessian)
+  #    - X stores the cross derivatives of the output value of a layer with respect of two inputs
+  #    - Q stores the cross derivatives of the input value of a layer with respect of two inputs
+  #    - D_ stores the derivatives of the output values with respect of one input
   Z <- list()
   O <- list()
   W <- list()
   D <- list()
+  D2 <- list()
+  X <- list()
+  Q <- list()
+  D_ <- list()
 
   # Initialize the activation and the derivative of the activation function for each layer
   if (is.null(deractfunc)) deractfunc <- actfunc
+  if (is.null(der2actfunc)) der2actfunc <- actfunc
   ActivationFunction <- lapply(actfunc, NeuralSens::ActFunc)
   DerActivationFunction <- lapply(deractfunc, NeuralSens::DerActFunc)
+  Der2ActivationFunction <- lapply(der2actfunc, NeuralSens::Der2ActFunc)
 
   W[[1]] <- rbind(rep(0,ncol(TestData)),diag(ncol(TestData)))
   # For each row in the TestData
   Z[[1]] <- as.matrix(TestData)
   O[[1]] <- ActivationFunction[[1]](Z[[1]])
-  D[[1]] <- array(diag(mlpstr[1]),
-                  dim=c(mlpstr[1],
-                        mlpstr[1],
-                        nrow(TestData)))
+  D[[1]] <- array(0, dim=c(mlpstr[1],mlpstr[1],nrow(TestData)))
+  D2[[1]] <- array(0, dim=c(mlpstr[1],mlpstr[1],mlpstr[1],nrow(TestData)))
   for (irow in 1:nrow(TestData)) {
     D[[1]][,,irow] <- DerActivationFunction[[1]](Z[[1]][irow,])
+    D2[[1]][,,,irow] <- Der2ActivationFunction[[1]](Z[[1]][irow,])
   }
   # For each layer, calculate the input to the activation functions of each layer
   # This inputs are gonna be used to calculate the derivatives and the output of each layer
@@ -460,147 +472,132 @@ SensAnalysisMLP.default <- function(MLP.fit,
     W[[l]] <- data.matrix(as.data.frame(wts[(sum(mlpstr[1:(l-1)])-mlpstr[1]+1):(sum(mlpstr[1:l])-mlpstr[1])]))
     Z[[l]] <- cbind(1, O[[l-1]]) %*% W[[l]]
     O[[l]] <- ActivationFunction[[l]](Z[[l]])
-    D[[l]] <- array(diag(mlpstr[l]),
-                    dim=c(mlpstr[l],
-                          mlpstr[l],
-                          nrow(TestData)))
+    D[[l]] <- array(diag(mlpstr[l]),dim=c(mlpstr[l],mlpstr[l],nrow(TestData)))
+    D2[[l]] <- array(diag(mlpstr[l]),dim=c(mlpstr[l],mlpstr[l],mlpstr[l],nrow(TestData)))
     for (irow in 1:nrow(TestData)) {
       D[[l]][,,irow] <- DerActivationFunction[[l]](Z[[l]][irow,])
+      D2[[l]][,,,irow] <- Der2ActivationFunction[[l]](Z[[l]][irow,])
     }
   }
-
+  # Initialize the cross-derivatives
+  D_[[1]] <- array(diag(mlpstr[1]), dim=c(mlpstr[1], mlpstr[1], nrow(TestData)))
+  Q[[1]] <- array(0, dim = c(mlpstr[1],mlpstr[1],mlpstr[1],nrow(TestData)))
+  X[[1]] <- D2[[1]]
+#
+#
+#   # Damn, there are no array multiplications, we need to use sapplys
+#   for (l in 2:length(mlpstr)) {
+#     # Now we add a third dimension for the second input
+#     D_[[l]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], nrow(TestData)))
+#     Q[[l]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], mlpstr[sens_origin_layer], nrow(TestData)))
+#     X[[l]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], mlpstr[sens_origin_layer], nrow(TestData)))
+#     for (irow in 1:nrow(TestData)) {
+#       D_[[l]][,,irow] <- D_[[l - 1]][,,irow] %*% D[[l-1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),]
+#
+#       Q[[l]][,,,irow] <- array(apply(X[[l-1]][,,,irow], 3, function(x) x %*% W[[l]][2:nrow(W[[l]]),]),
+#                                dim = c(mlpstr[1], dim(W[[l]])[2], mlpstr[1]))
+#
+#       X[[l]][,,,irow] <- array(apply(array(apply(array(D2[[l]][,,,irow], dim = dim(D2[[l]])[1:3]), 3,
+#                                                  function(x) matrix(D_[[l]][,,irow], nrow = dim(D_[[l]])[1]) %*% x),
+#                                dim = c(mlpstr[1], dim(D2[[l]])[2], dim(D2[[l]])[3])),
+#                                1, function(x) matrix(D_[[l]][,,irow], nrow = dim(D_[[l]])[1]) %*% x),
+#                                dim = c(mlpstr[1], dim(D2[[l]])[2], mlpstr[1])) + # Here ends y^2/z^2 * z/x1 * z/x2
+#                          array(apply(array(Q[[l]][,,,irow],dim = dim(Q[[l]])[1:3]),3,
+#                                      function(x){x %*% D[[l]][,,irow]}),
+#                                dim = c(mlpstr[1], dim(D2[[l]])[2], mlpstr[1]))
+#     }
+#   }
   args <- list(...)
+  out <- list(
+    sens = NULL,
+    raw_sens = NULL,
+    layer_derivatives = D,
+    layer_second_derivatives = D2,
+    mlp_struct = mlpstr,
+    mlp_wts = W,
+    layer_origin = sens_origin_layer,
+    layer_origin_input = sens_origin_input,
+    layer_end = sens_end_layer,
+    layer_end_input = sens_end_input,
+    trData = trData,
+    coefnames = varnames,
+    output_name = output_name
+  )
 
-  if (!"return_all_sens" %in% names(args[[1]])) {
-    # out <- structure(list(
-    #   sens = NULL,
-    #   raw_sens = NULL,
-    #   layer_derivatives = D,
-    #   mlp_struct = mlpstr,
-    #   mlp_wts = W,
-    #   layer_origin = sens_origin_layer,
-    #   layer_origin_input = sens_origin_input,
-    #   layer_end = sens_end_layer,
-    #   layer_end_input = sens_end_input,
-    #   trData = trData,
-    #   coefnames = varnames,
-    #   output_name = output_name
-    # ),
-    # class = "SensMLP")
-    out <- list(
-      sens = NULL,
-      raw_sens = NULL,
-      layer_derivatives = D,
-      mlp_struct = mlpstr,
-      mlp_wts = W,
-      layer_origin = sens_origin_layer,
-      layer_origin_input = sens_origin_input,
-      layer_end = sens_end_layer,
-      layer_end_input = sens_end_input,
-      trData = trData,
-      coefnames = varnames,
-      output_name = output_name
-    )
+  out <- ComputeHessMeasures(out)
 
-    out <- ComputeSensMeasures(out)
+  out <- HessMLP(
+    out$sens,
+    out$raw_sens,
+    mlpstr,
+    trData,
+    varnames,
+    names(out$sens)
+  )
 
-    out <- SensMLP(
-      out$sens,
-      out$raw_sens,
-      mlpstr,
-      trData,
-      varnames,
-      names(out$sens)
-    )
-
-    if (plot) {
-      # show plots if required
-      args <- list(...)
-      zoom <- TRUE
-      quit.legend <- FALSE
-      der <- TRUE
-      if ("zoom" %in% names(args[[1]])) {
-        zoom <- args[[1]]$zoom
-      }
-      if ("quit.legend" %in% names(args[[1]])) {
-        quit.legend <- args[[1]]$quit.legend
-      }
-      if ("der" %in% names(args[[1]])) {
-        der <- args[[1]]$der
-      }
-      NeuralSens::SensitivityPlots(out, der, zoom, quit.legend)
+  if (plot) {
+    # show plots if required
+    args <- list(...)
+    zoom <- TRUE
+    quit.legend <- FALSE
+    der <- TRUE
+    if ("zoom" %in% names(args[[1]])) {
+      zoom <- args[[1]]$zoom
     }
-    return(out)
-  } else {
-
-    # Calculate derivatives with respect with the last layer's output
-    d <- list()
-    k <- 2 * length(D) - 1
-    d[[2 * length(D)]] <- array(diag(dim(D[[length(D)]])[1]),
-                                dim = dim(D[[length(D)]]))
-    for (l in length(D):1) {
-      d[[k]] <- array(NA, dim=c(dim(D[[(k+1)/2]])[2], dim(D[[length(D)]])[2], dim(D[[1]])[3]))
-      if (k > 1) {
-        d[[k - 1]] <- array(NA, dim=c(dim(W[[(k+1)/2]])[1]-1, dim(D[[length(D)]])[2], dim(D[[1]])[3]))
-      }
-      for (irow in 1:dim(D[[1]])[3]) {
-        d[[k]][,,irow] <- D[[l]][,,irow] %*% d[[k + 1]][,,irow]
-        if (k > 1) {
-          d[[k - 1]][,,irow] <- W[[l]][2:nrow(W[[l]]),, drop = FALSE] %*% d[[k]][,,irow]
-        }
-      }
-      k <- k - 2
+    if ("quit.legend" %in% names(args[[1]])) {
+      quit.legend <- args[[1]]$quit.legend
     }
-    d <- d[as.logical(1:length(d) %% 2)]
-
-    # Return all the derivatives and the weights of the net
-    return(list(d, MLP.fit$n, MLP.fit$wts, varnames, output_name))
+    if ("der" %in% names(args[[1]])) {
+      der <- args[[1]]$der
+    }
+    NeuralSens::SensitivityPlots(out, der, zoom, quit.legend)
   }
+  return(out)
 }
 
-#' @rdname SensAnalysisMLP
+#' @rdname HessianMLP
 #'
 #' @export
 #'
-#' @method SensAnalysisMLP train
-SensAnalysisMLP.train <- function(MLP.fit,
-                                  .returnSens = TRUE,
-                                  plot = TRUE,
-                                  .rawSens = FALSE,
-                                  sens_origin_layer = 1,
-                                  sens_end_layer = "last",
-                                  sens_origin_input = TRUE,
-                                  sens_end_input = FALSE,
-                                  ...) {
+#' @method HessianMLP train
+HessianMLP.train <- function(MLP.fit,
+                             .returnSens = TRUE,
+                             plot = TRUE,
+                             .rawSens = FALSE,
+                             sens_origin_layer = 1,
+                             sens_end_layer = "last",
+                             sens_origin_input = TRUE,
+                             sens_end_input = FALSE,
+                             ...) {
   args <- list(...)
-  SensAnalysisMLP(MLP.fit$finalModel,
-                  trData = if ("trData" %in% names(args)) {args$trData} else {MLP.fit$trainingData},
-                  .returnSens = .returnSens,
-                  .rawSens = .rawSens,
-                  sens_origin_layer = sens_origin_layer,
-                  sens_end_layer = sens_end_layer,
-                  sens_origin_input = sens_origin_input,
-                  sens_end_input = sens_end_input,
-                  preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
-                  terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
-                  plot = plot,
-                  args[!names(args) %in% c("trData","preProc","terms")])
+  HessianMLP(MLP.fit$finalModel,
+             trData = if ("trData" %in% names(args)) {args$trData} else {MLP.fit$trainingData},
+             .returnSens = .returnSens,
+             .rawSens = .rawSens,
+             sens_origin_layer = sens_origin_layer,
+             sens_end_layer = sens_end_layer,
+             sens_origin_input = sens_origin_input,
+             sens_end_input = sens_end_input,
+             preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
+             terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
+             plot = plot,
+             args[!names(args) %in% c("trData","preProc","terms")])
 }
 
-#' @rdname SensAnalysisMLP
+#' @rdname HessianMLP
 #'
 #' @export
 #'
-#' @method SensAnalysisMLP H2OMultinomialModel
-SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit,
-                                                .returnSens = TRUE,
-                                                plot = TRUE,
-                                                .rawSens = FALSE,
-                                                sens_origin_layer = 1,
-                                                sens_end_layer = "last",
-                                                sens_origin_input = TRUE,
-                                                sens_end_input = FALSE,
-                                                ...) {
+#' @method HessianMLP H2OMultinomialModel
+HessianMLP.H2OMultinomialModel <- function(MLP.fit,
+                                           .returnSens = TRUE,
+                                           plot = TRUE,
+                                           .rawSens = FALSE,
+                                           sens_origin_layer = 1,
+                                           sens_end_layer = "last",
+                                           sens_origin_input = TRUE,
+                                           sens_end_input = FALSE,
+                                           ...) {
   args <- list(...)
   createDummiesH2O <- function(trData) {
     # H2O dummies create all levels of factor variables and an extra level for missing (NA).
@@ -719,51 +716,52 @@ SensAnalysisMLP.H2OMultinomialModel <- function(MLP.fit,
              return("ReLU")
            },
            Maxout = {
-             stop("SensAnalysisMLP function is not ready for Maxout layers")
+             stop("HessianMLP function is not ready for Maxout layers")
            },
            MaxoutDropout = {
-             stop("SensAnalysisMLP function is not ready for Maxout layers")
+             stop("HessianMLP function is not ready for Maxout layers")
            },
            Softmax = {
              return("softmax")
            },
            {
-             stop("SensAnalysisMLP is not ready for the activation function used")
+             stop("HessianMLP is not ready for the activation function used")
            })
   }
   actfun <- sapply(MLP.fit@model$model_summary$type, PrepActFuncs)
   # Call to the default function
-  SensAnalysisMLP.default(finalModel,
-                          trData = trData,
-                          actfunc = actfun,
-                          .returnSens = .returnSens,
-                          .rawSens = .rawSens,
-                          sens_origin_layer = sens_origin_layer,
-                          sens_end_layer = sens_end_layer,
-                          sens_origin_input = sens_origin_input,
-                          sens_end_input = sens_end_input,
-                          preProc = preProc,
-                          terms = NULL,
-                          plot = plot,
-                          output_name = if("output_name" %in% names(args)){args$output_name}else{MLP.fit@parameters$y},
-                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
-                          args[!names(args) %in% c("trData","output_name","deractfunc")])
+  HessianMLP.default(finalModel,
+                     trData = trData,
+                     actfunc = actfun,
+                     .returnSens = .returnSens,
+                     .rawSens = .rawSens,
+                     sens_origin_layer = sens_origin_layer,
+                     sens_end_layer = sens_end_layer,
+                     sens_origin_input = sens_origin_input,
+                     sens_end_input = sens_end_input,
+                     preProc = preProc,
+                     terms = NULL,
+                     plot = plot,
+                     output_name = if("output_name" %in% names(args)){args$output_name}else{MLP.fit@parameters$y},
+                     deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                     der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
+                     args[!names(args) %in% c("trData","output_name","deractfunc")])
 }
 
-#' @rdname SensAnalysisMLP
+#' @rdname HessianMLP
 #'
 #' @export
 #'
-#' @method SensAnalysisMLP H2ORegressionModel
-SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit,
-                                               .returnSens = TRUE,
-                                               plot = TRUE,
-                                               .rawSens = FALSE,
-                                               sens_origin_layer = 1,
-                                               sens_end_layer = "last",
-                                               sens_origin_input = TRUE,
-                                               sens_end_input = FALSE,
-                                               ...) {
+#' @method HessianMLP H2ORegressionModel
+HessianMLP.H2ORegressionModel <- function(MLP.fit,
+                                          .returnSens = TRUE,
+                                          plot = TRUE,
+                                          .rawSens = FALSE,
+                                          sens_origin_layer = 1,
+                                          sens_end_layer = "last",
+                                          sens_origin_input = TRUE,
+                                          sens_end_input = FALSE,
+                                          ...) {
   args <- list(...)
   createDummiesH2O <- function(trData) {
     # H2O dummies create all levels of factor variables and an extra level for missing (NA).
@@ -881,54 +879,55 @@ SensAnalysisMLP.H2ORegressionModel <- function(MLP.fit,
              return("ReLU")
            },
            Maxout = {
-             stop("SensAnalysisMLP function is not ready for Maxout layers")
+             stop("HessianMLP function is not ready for Maxout layers")
            },
            MaxoutDropout = {
-             stop("SensAnalysisMLP function is not ready for Maxout layers")
+             stop("HessianMLP function is not ready for Maxout layers")
            },
            Softmax = {
              return("sigmoid")
            },
            {
-             stop("SensAnalysisMLP is not ready for the activation function used")
+             stop("HessianMLP is not ready for the activation function used")
            })
   }
   actfun <- sapply(MLP.fit@model$model_summary$type, PrepActFuncs)
   # Call to the default function
-  SensAnalysisMLP.default(finalModel,
-                          trData = trData,
-                          actfunc = actfun,
-                          .returnSens = .returnSens,
-                          .rawSens = .rawSens,
-                          sens_origin_layer = sens_origin_layer,
-                          sens_end_layer = sens_end_layer,
-                          sens_origin_input = sens_origin_input,
-                          sens_end_input = sens_end_input,
-                          preProc = preProc,
-                          terms = NULL,
-                          plot = plot,
-                          output_name = if("output_name" %in% names(args)){args$output_name}else{MLP.fit@parameters$y},
-                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
-                          args[!names(args) %in% c("trData","output_name","deractfunc")])
+  HessianMLP.default(finalModel,
+                     trData = trData,
+                     actfunc = actfun,
+                     .returnSens = .returnSens,
+                     .rawSens = .rawSens,
+                     sens_origin_layer = sens_origin_layer,
+                     sens_end_layer = sens_end_layer,
+                     sens_origin_input = sens_origin_input,
+                     sens_end_input = sens_end_input,
+                     preProc = preProc,
+                     terms = NULL,
+                     plot = plot,
+                     output_name = if("output_name" %in% names(args)){args$output_name}else{MLP.fit@parameters$y},
+                     deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                     der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
+                     args[!names(args) %in% c("trData","output_name","deractfunc")])
 }
 
 
-#' @rdname SensAnalysisMLP
+#' @rdname HessianMLP
 #'
 #' @export
 #'
-#' @method SensAnalysisMLP list
-SensAnalysisMLP.list <- function(MLP.fit,
-                                 .returnSens = TRUE,
-                                 plot = TRUE,
-                                 .rawSens = FALSE,
-                                 sens_origin_layer = 1,
-                                 sens_end_layer = "last",
-                                 sens_origin_input = TRUE,
-                                 sens_end_input = FALSE,
-                                 trData,
-                                 actfunc,
-                                 ...) {
+#' @method HessianMLP list
+HessianMLP.list <- function(MLP.fit,
+                            .returnSens = TRUE,
+                            plot = TRUE,
+                            .rawSens = FALSE,
+                            sens_origin_layer = 1,
+                            sens_end_layer = "last",
+                            sens_origin_input = TRUE,
+                            sens_end_input = FALSE,
+                            trData,
+                            actfunc,
+                            ...) {
   # For a neural nnet
   args <- list(...)
   ## Detect that it's from the neural package
@@ -967,40 +966,41 @@ SensAnalysisMLP.list <- function(MLP.fit,
                                       )))))
   }
 
-  SensAnalysisMLP.default(finalModel,
-                          trData = trData,
-                          .returnSens = .returnSens,
-                          .rawSens = .rawSens,
-                          sens_origin_layer = sens_origin_layer,
-                          sens_end_layer = sens_end_layer,
-                          sens_origin_input = sens_origin_input,
-                          sens_end_input = sens_end_input,
-                          actfunc = actfunc,
-                          preProc = NULL,
-                          terms = NULL,
-                          plot = plot,
-                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
-                          args[!names(args) %in% c("output_name","deractfunc")])
+  HessianMLP.default(finalModel,
+                     trData = trData,
+                     .returnSens = .returnSens,
+                     .rawSens = .rawSens,
+                     sens_origin_layer = sens_origin_layer,
+                     sens_end_layer = sens_end_layer,
+                     sens_origin_input = sens_origin_input,
+                     sens_end_input = sens_end_input,
+                     actfunc = actfunc,
+                     preProc = NULL,
+                     terms = NULL,
+                     plot = plot,
+                     output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                     deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                     der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
+                     args[!names(args) %in% c("output_name","deractfunc")])
 }
 
-#' @rdname SensAnalysisMLP
+#' @rdname HessianMLP
 #'
 #' @export
 #'
-#' @method SensAnalysisMLP mlp
-SensAnalysisMLP.mlp <- function(MLP.fit,
-                                .returnSens = TRUE,
-                                plot = TRUE,
-                                .rawSens = FALSE,
-                                sens_origin_layer = 1,
-                                sens_end_layer = "last",
-                                sens_origin_input = TRUE,
-                                sens_end_input = FALSE,
-                                trData,
-                                preProc = NULL,
-                                terms = NULL,
-                                ...) {
+#' @method HessianMLP mlp
+HessianMLP.mlp <- function(MLP.fit,
+                           .returnSens = TRUE,
+                           plot = TRUE,
+                           .rawSens = FALSE,
+                           sens_origin_layer = 1,
+                           sens_end_layer = "last",
+                           sens_origin_input = TRUE,
+                           sens_end_input = FALSE,
+                           trData,
+                           preProc = NULL,
+                           terms = NULL,
+                           ...) {
   args <- list(...)
   # For a RSNNS mlp
   netInfo <- RSNNS::extractNetInfo(MLP.fit)
@@ -1051,7 +1051,7 @@ SensAnalysisMLP.mlp <- function(MLP.fit,
              return("sigmoid")
            },
            {
-             stop("SensAnalysisMLP is not ready for the activation function used")
+             stop("HessianMLP is not ready for the activation function used")
            })
   }
   actfun <- sapply(unique(cbind(substr(netInfo$unitDefinitions$unitName,1,5),
@@ -1061,39 +1061,40 @@ SensAnalysisMLP.mlp <- function(MLP.fit,
     actfun <- c(actfun[1], rep(actfun[2], length(finalModel$n)-2),actfun[length(actfun)])
   }
 
-  SensAnalysisMLP.default(finalModel,
-                          trData = trData,
-                          actfunc = actfun,
-                          .returnSens = .returnSens,
-                          .rawSens = .rawSens,
-                          sens_origin_layer = sens_origin_layer,
-                          sens_end_layer = sens_end_layer,
-                          sens_origin_input = sens_origin_input,
-                          sens_end_input = sens_end_input,
-                          preProc = preProc,
-                          terms = terms,
-                          plot = plot,
-                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
-                          args[!names(args) %in% c("output_name","deractfunc")])
+  HessianMLP.default(finalModel,
+                     trData = trData,
+                     actfunc = actfun,
+                     .returnSens = .returnSens,
+                     .rawSens = .rawSens,
+                     sens_origin_layer = sens_origin_layer,
+                     sens_end_layer = sens_end_layer,
+                     sens_origin_input = sens_origin_input,
+                     sens_end_input = sens_end_input,
+                     preProc = preProc,
+                     terms = terms,
+                     plot = plot,
+                     output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                     deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                     der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
+                     args[!names(args) %in% c("output_name","deractfunc")])
 }
 
-#' @rdname SensAnalysisMLP
+#' @rdname HessianMLP
 #'
 #' @export
 #'
-#' @method SensAnalysisMLP nn
-SensAnalysisMLP.nn <- function(MLP.fit,
-                               .returnSens = TRUE,
-                               plot = TRUE,
-                               .rawSens = FALSE,
-                               sens_origin_layer = 1,
-                               sens_end_layer = "last",
-                               sens_origin_input = TRUE,
-                               sens_end_input = FALSE,
-                               preProc = NULL,
-                               terms = NULL,
-                               ...) {
+#' @method HessianMLP nn
+HessianMLP.nn <- function(MLP.fit,
+                          .returnSens = TRUE,
+                          plot = TRUE,
+                          .rawSens = FALSE,
+                          sens_origin_layer = 1,
+                          sens_end_layer = "last",
+                          sens_origin_input = TRUE,
+                          sens_end_input = FALSE,
+                          preProc = NULL,
+                          terms = NULL,
+                          ...) {
 
   # For a neuralnet nn
   args <- list(...)
@@ -1116,21 +1117,22 @@ SensAnalysisMLP.nn <- function(MLP.fit,
     }
     finalModel$n <- c(finalModel$n, dim(MLP.fit$weights[[j]][[i]])[2])
     finalModel$wts <- wts
-    sensitivities <- SensAnalysisMLP.default(finalModel,
-                                             trData = trData,
-                                             actfunc = actfun,
-                                             .returnSens = TRUE,
-                                             .rawSens = TRUE,
-                                             sens_origin_layer = sens_origin_layer,
-                                             sens_end_layer = sens_end_layer,
-                                             sens_origin_input = sens_origin_input,
-                                             sens_end_input = sens_end_input,
-                                             preProc = preProc,
-                                             terms = terms,
-                                             plot = FALSE,
-                                             output_name = names(trData)[names(trData) == MLP.fit$model.list$response],
-                                             deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
-                                             args[!names(args) %in% c("deractfunc")])
+    sensitivities <- HessianMLP.default(finalModel,
+                                        trData = trData,
+                                        actfunc = actfun,
+                                        .returnSens = TRUE,
+                                        .rawSens = TRUE,
+                                        sens_origin_layer = sens_origin_layer,
+                                        sens_end_layer = sens_end_layer,
+                                        sens_origin_input = sens_origin_input,
+                                        sens_end_input = sens_end_input,
+                                        preProc = preProc,
+                                        terms = terms,
+                                        plot = FALSE,
+                                        output_name = names(trData)[names(trData) == MLP.fit$model.list$response],
+                                        deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                                        der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
+                                        args[!names(args) %in% c("deractfunc")])
     sensit[((j-1)*nrow(trData)+1):(j*nrow(trData)),,] <- sensitivities
   }
   colnames(sensit) <- finalModel$coefnames
@@ -1159,23 +1161,23 @@ SensAnalysisMLP.nn <- function(MLP.fit,
   }
 }
 
-#' @rdname SensAnalysisMLP
+#' @rdname HessianMLP
 #'
 #' @export
 #'
-#' @method SensAnalysisMLP nnet
-SensAnalysisMLP.nnet <- function(MLP.fit,
-                                 .returnSens = TRUE,
-                                 plot = TRUE,
-                                 .rawSens = FALSE,
-                                 sens_origin_layer = 1,
-                                 sens_end_layer = "last",
-                                 sens_origin_input = TRUE,
-                                 sens_end_input = FALSE,
-                                 trData,
-                                 preProc = NULL,
-                                 terms = NULL,
-                                 ...) {
+#' @method HessianMLP nnet
+HessianMLP.nnet <- function(MLP.fit,
+                            .returnSens = TRUE,
+                            plot = TRUE,
+                            .rawSens = FALSE,
+                            sens_origin_layer = 1,
+                            sens_end_layer = "last",
+                            sens_origin_input = TRUE,
+                            sens_end_input = FALSE,
+                            trData,
+                            preProc = NULL,
+                            terms = NULL,
+                            ...) {
   # For a nnet nnet
   args <- list(...)
   # Check if some arguments has been changed in a parent function
@@ -1194,37 +1196,38 @@ SensAnalysisMLP.nnet <- function(MLP.fit,
 
   actfun <- c("linear","sigmoid",
               ifelse(is.factor(trData$.outcome),"sigmoid","linear"))
-  SensAnalysisMLP.default(finalModel,
-                          trData = trData,
-                          actfunc = actfun,
-                          .returnSens = .returnSens,
-                          sens_origin_layer = sens_origin_layer,
-                          sens_end_layer = sens_end_layer,
-                          sens_origin_input = sens_origin_input,
-                          sens_end_input = sens_end_input,
-                          .rawSens = .rawSens,
-                          preProc = preProc,
-                          terms = terms,
-                          plot = plot,
-                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
-                          args[!names(args) %in% c("output_name","deractfunc")])
+  HessianMLP.default(finalModel,
+                     trData = trData,
+                     actfunc = actfun,
+                     .returnSens = .returnSens,
+                     sens_origin_layer = sens_origin_layer,
+                     sens_end_layer = sens_end_layer,
+                     sens_origin_input = sens_origin_input,
+                     sens_end_input = sens_end_input,
+                     .rawSens = .rawSens,
+                     preProc = preProc,
+                     terms = terms,
+                     plot = plot,
+                     output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                     deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                     der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
+                     args[!names(args) %in% c("output_name","deractfunc")])
 }
 
-#' @rdname SensAnalysisMLP
+#' @rdname HessianMLP
 #'
 #' @export
 #'
-#' @method SensAnalysisMLP nnetar
-SensAnalysisMLP.nnetar <- function(MLP.fit,
-                                   .returnSens = TRUE,
-                                   plot = TRUE,
-                                   .rawSens = FALSE,
-                                   sens_origin_layer = 1,
-                                   sens_end_layer = "last",
-                                   sens_origin_input = TRUE,
-                                   sens_end_input = FALSE,
-                                   ...) {
+#' @method HessianMLP nnetar
+HessianMLP.nnetar <- function(MLP.fit,
+                              .returnSens = TRUE,
+                              plot = TRUE,
+                              .rawSens = FALSE,
+                              sens_origin_layer = 1,
+                              sens_end_layer = "last",
+                              sens_origin_input = TRUE,
+                              sens_end_input = FALSE,
+                              ...) {
   # Create the lags in the trData
   args = list(...)
   if (!is.null(MLP.fit$xreg)) {
@@ -1310,64 +1313,68 @@ SensAnalysisMLP.nnetar <- function(MLP.fit,
                               MLP.fit$model[[1]]$n[length(MLP.fit$model[[1]]$n)]))
   for (i in 1:length(MLP.fit$model)) {
     finalModel$wts <- MLP.fit$model[[1]]$wts
-    sensitivities[[i]] <-  SensAnalysisMLP.default(finalModel,
-
-    trData = trData,
-    actfunc = actfun,
-    deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
-    sens_origin_layer = sens_origin_layer,
-    sens_end_layer = sens_end_layer,
-    sens_origin_input = sens_origin_input,
-    sens_end_input = sens_end_input,
-    preProc = NULL,
-    terms = NULL,
-    plot = FALSE,
-    output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"})
+    sensitivities[[i]] <-  HessianMLP.default(finalModel,
+                                              trData = trData,
+                                              actfunc = actfun,
+                                              deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                                              der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
+                                              .returnSens = TRUE,
+                                              .rawSens = TRUE,
+                                              sens_origin_layer = sens_origin_layer,
+                                              sens_end_layer = sens_end_layer,
+                                              sens_origin_input = sens_origin_input,
+                                              sens_end_input = sens_end_input,
+                                              preProc = NULL,
+                                              terms = NULL,
+                                              plot = FALSE,
+                                              output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"})
     sensit[((i-1)*nrow(trData)+1):(i*nrow(trData)),,] <- sensitivities[[i]]$raw_sens
   }
 
-  sens <- data.frame(
-    mean = colMeans(sensit[, , 1], na.rm = TRUE),
-    std = apply(sensit[, , 1], 2, stats::sd, na.rm = TRUE),
-    meanSensSQ = colMeans(sensit[, , 1] ^ 2, na.rm = TRUE),
-    row.names = varnames
-  )
+  colnames(sensit) <- finalModel$coefnames
 
-  sens <- SensMLP(
-    sens,
-    sensit,
-    MLP.fit$model[[1]]$n,
-    trData,
-    varnames,
-    if("output_name" %in% names(args)){args$output_name}else{".outcome"}
-  )
-
+  sens <-
+    data.frame(
+      varNames = varnames,
+      mean = colMeans(sensit[, , 1], na.rm = TRUE),
+      std = apply(sensit[, , 1], 2, stats::sd, na.rm = TRUE),
+      meanSensSQ = colMeans(sensit[, , 1] ^ 2, na.rm = TRUE)
+    )
 
   if (plot) {
     # show plots if required
     NeuralSens::SensitivityPlots(sens)
   }
-  return(sens)
+
+  if (.returnSens) {
+    if(!.rawSens) {
+      # Check if there are more than one output
+      return(sens)
+    } else {
+      # Return sensitivities without processing
+      return(sensit)
+    }
+  }
 }
 
-#' @rdname SensAnalysisMLP
+#' @rdname HessianMLP
 #'
 #' @export
 #'
-#' @method SensAnalysisMLP numeric
-SensAnalysisMLP.numeric <- function(MLP.fit,
-                                    .returnSens = TRUE,
-                                    plot = TRUE,
-                                    .rawSens = FALSE,
-                                    sens_origin_layer = 1,
-                                    sens_end_layer = "last",
-                                    sens_origin_input = TRUE,
-                                    sens_end_input = FALSE,
-                                    trData,
-                                    actfunc = NULL,
-                                    preProc = NULL,
-                                    terms = NULL,
-                                    ...) {
+#' @method HessianMLP numeric
+HessianMLP.numeric <- function(MLP.fit,
+                               .returnSens = TRUE,
+                               plot = TRUE,
+                               .rawSens = FALSE,
+                               sens_origin_layer = 1,
+                               sens_end_layer = "last",
+                               sens_origin_input = TRUE,
+                               sens_end_input = FALSE,
+                               trData,
+                               actfunc = NULL,
+                               preProc = NULL,
+                               terms = NULL,
+                               ...) {
   # Generic method when the weights are passed in the argument MLP.fit
   finalModel <- NULL
   finalModel$wts <- MLP.fit
@@ -1404,19 +1411,20 @@ SensAnalysisMLP.numeric <- function(MLP.fit,
     stop("Number of activation functions does not match the structure of the MLP")
   }
 
-  SensAnalysisMLP.default(finalModel,
-                          trData = trData,
-                          actfunc = actfunc,
-                          .returnSens = .returnSens,
-                          .rawSens = .rawSens,
-                          sens_origin_layer = sens_origin_layer,
-                          sens_end_layer = sens_end_layer,
-                          sens_origin_input = sens_origin_input,
-                          sens_end_input = sens_end_input,
-                          preProc = preProc,
-                          terms = terms,
-                          plot = plot,
-                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                          deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
-                          args[!names(args) %in% c("output_name","deractfunc")])
+  HessianMLP.default(finalModel,
+                     trData = trData,
+                     actfunc = actfunc,
+                     .returnSens = .returnSens,
+                     .rawSens = .rawSens,
+                     sens_origin_layer = sens_origin_layer,
+                     sens_end_layer = sens_end_layer,
+                     sens_origin_input = sens_origin_input,
+                     sens_end_input = sens_end_input,
+                     preProc = preProc,
+                     terms = terms,
+                     plot = plot,
+                     output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                     deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+                     der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
+                     args[!names(args) %in% c("output_name","deractfunc","der2actfunc")])
 }

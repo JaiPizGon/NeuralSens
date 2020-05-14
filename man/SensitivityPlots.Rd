@@ -13,7 +13,8 @@ SensitivityPlots(
 )
 }
 \arguments{
-\item{sens}{\code{SensAnalysisMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}.}
+\item{sens}{\code{SensAnalysisMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}} or \code{HessMLP} object
+created by \code{\link[NeuralSens]{HessianMLP}}.}
 
 \item{der}{\code{logical} indicating if density plots should be created. By default is \code{TRUE}}
 
@@ -33,11 +34,6 @@ List with the following plot for each output: \itemize{ \item Plot 1: colorful p
 }
 \description{
 Function to plot the sensitivities created by \code{\link[NeuralSens]{SensAnalysisMLP}}.
-}
-\details{
-Due to the fact that \code{sens} is calculated from \code{dens}, if the latter is passed as argument
-the argument \code{sens} is overwritten to maintain coherence between the three plots even. If only \code{sens} is
-given, the last plot with the density plots of the inputs is not calculated.
 }
 \examples{
 ## Load data -------------------------------------------------------------------
