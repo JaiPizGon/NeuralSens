@@ -1,11 +1,11 @@
 Package: NeuralSens
 Version: 0.2.1
 Title: Sensitivity Analysis of Neural Networks
-Date: 2020-03-13
-Description: Analysis functions to quantify inputs importance in neural network models. 
-  Functions are available for calculating and plotting the inputs importance and obtaining 
-  the activation function of each neuron layer and its derivatives. The importance of a given 
-  input is defined as the distribution of the derivatives of the output with respect to that 
+Date: 2020-05-15
+Description: Analysis functions to quantify inputs importance in neural network models.
+  Functions are available for calculating and plotting the inputs importance and obtaining
+  the activation function of each neuron layer and its derivatives. The importance of a given
+  input is defined as the distribution of the derivatives of the output with respect to that
   input in each training data point.
 Author: José Portela González [aut], Antonio Muñoz San Roque [aut], Jaime Pizarroso Gonzalo [aut, ctb, cre]
 Maintainer: Jaime Pizarroso Gonzalo <jpizarroso@comillas.edu>
@@ -35,10 +35,10 @@ License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 Authors@R: c(
-    person(given = "José", family = "Portela González", 
+    person(given = "José", family = "Portela González",
       email = "Jose.Portela@iit.comillas.edu", role = "aut"),
-	person(given = "Antonio", family = "Muñoz San Roque", 
+	person(given = "Antonio", family = "Muñoz San Roque",
       email = "antonio.munoz@iit.comillas.edu", role = "aut"),
-    person(given = "Jaime", family = "Pizarroso Gonzalo", 
+    person(given = "Jaime", family = "Pizarroso Gonzalo",
       email = "jpizarroso@comillas.edu", role = c("aut","ctb", "cre"))
     )
