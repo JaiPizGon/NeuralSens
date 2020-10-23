@@ -114,8 +114,7 @@
 #' ## Train h2o NNET --------------------------------------------------------------
 #' # Create a cluster with 4 available cores
 #' h2o::h2o.init(ip = "localhost",
-#'               nthreads = 4,
-#'               max_mem_size = "2g")
+#'               nthreads = 4)
 #'
 #' # Reset the cluster
 #' h2o::h2o.removeAll()
@@ -154,7 +153,8 @@
 #'
 #' # Try SensAnalysisMLP
 #' trData <- nntrData
-#' NeuralSens::SensAnalysisMLP(neuralmod, trData = trData, output_name = "DEM",actfunc = c("linear","sigmoid","linear"))
+#' NeuralSens::SensAnalysisMLP(neuralmod, trData = trData, output_name = "DEM",
+#'                             actfunc = c("linear","sigmoid","linear"))
 #'
 #' ## Train RSNNS NNET ------------------------------------------------------------
 #' # Normalize data using RSNNS algorithms
@@ -194,7 +194,7 @@
 #'
 #' ## USE DEFAULT METHOD ----------------------------------------------------------
 #' NeuralSens::SensAnalysisMLP(caretmod$finalModel$wts,
-#'                             trData = fdata.Reg.tv,
+#'                             trData = fdata.Reg.tr,
 #'                             mlpstr = caretmod$finalModel$n,
 #'                             coefnames = caretmod$coefnames,
 #'                             actfun = c("linear","sigmoid","linear"),
@@ -243,8 +243,7 @@
 #' ## Train h2o NNET --------------------------------------------------------------
 #' # Create local cluster with 4 available cores
 #' h2o::h2o.init(ip = "localhost",
-#'               nthreads = 4,
-#'               max_mem_size = "2g")
+#'               nthreads = 4)
 #'
 #' # Reset the cluster
 #' h2o::h2o.removeAll()

@@ -17,7 +17,7 @@ Not needed if the raw sensitivities has been passed as \code{object}}
 }
 \value{
 list of Feature sensitivity plot as described in
-\url{https://www.r-bloggers.com/a-gentle-introduction-to-shap-values-in-r/}
+\url{https://www.r-bloggers.com/2019/03/a-gentle-introduction-to-shap-values-in-r/}
 }
 \description{
 Show the distribution of the sensitivities of the output

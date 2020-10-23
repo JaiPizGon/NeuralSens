@@ -20,7 +20,7 @@ The manipulations before the animation rending is already tested in the example 
 
 ### R CMD check
 
--- R CMD check results ----------------------------------- NeuralSens 0.0.2 ----
+-- R CMD check results ----------------------------------- NeuralSens 0.2.2 ----
 Duration: 27.5s
 
 0 errors √ | 0 warnings √ | 0 notes √

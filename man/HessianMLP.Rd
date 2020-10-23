@@ -306,8 +306,7 @@ NeuralSens::HessianMLP(caretmod)
 ## Train h2o NNET --------------------------------------------------------------
 # Create a cluster with 4 available cores
 h2o::h2o.init(ip = "localhost",
-              nthreads = 4,
-              max_mem_size = "2g")
+              nthreads = 4)
 
 # Reset the cluster
 h2o::h2o.removeAll()
@@ -337,16 +336,17 @@ h2o::h2o.shutdown(prompt = FALSE)
 rm(fdata_h2o)
 
 ## Train neural NNET -----------------------------------------------------------
-set.seed(150)
-neuralmod <- neural::mlptrain(as.matrix(nntrData[,2:ncol(nntrData)]),
-                                   hidden_neurons,
-                                   as.matrix(nntrData[1]),
-                                   it=iters,
-                                   visual=FALSE)
+#set.seed(150)
+#neuralmod <- neural::mlptrain(as.matrix(nntrData[,2:ncol(nntrData)]),
+#                                   hidden_neurons,
+#                                   as.matrix(nntrData[1]),
+#                                   it=iters,
+#                                   visual=FALSE)
 
-# Try HessianMLP
-trData <- nntrData
-NeuralSens::HessianMLP(neuralmod, trData = trData, output_name = "DEM")
+## Try HessianMLP
+#trData <- nntrData
+#NeuralSens::HessianMLP(neuralmod, trData = trData, output_name = "DEM",
+#                       actfunc = c("linear","sigmoid","linear"))
 
 ## Train RSNNS NNET ------------------------------------------------------------
 # Normalize data using RSNNS algorithms
@@ -365,28 +365,28 @@ NeuralSens::HessianMLP(RSNNSmod, trData = trData, output_name = "DEM")
 
 ## TRAIN neuralnet NNET --------------------------------------------------------
 # Create a formula to train NNET
-form <- paste(names(fdata.Reg.tr)[2:ncol(fdata.Reg.tr)], collapse = " + ")
-form <- formula(paste(names(fdata.Reg.tr)[1], form, sep = " ~ "))
+#form <- paste(names(fdata.Reg.tr)[2:ncol(fdata.Reg.tr)], collapse = " + ")
+#form <- formula(paste(names(fdata.Reg.tr)[1], form, sep = " ~ "))
 
-set.seed(150)
-nnmod <- neuralnet::neuralnet(form,
-                                   nntrData,
-                                   linear.output = TRUE,
-                                   rep = 1,
-                                   hidden = hidden_neurons,
-                                   lifesign = "minimal",
-                                   threshold = 7,
-                                   stepmax = iters,
-                                   learningrate = decay,
-                                   act.fct = "tanh")
+#set.seed(150)
+#nnmod <- neuralnet::neuralnet(form,
+#                              nntrData,
+#                              linear.output = TRUE,
+#                              rep = 1,
+#                              hidden = hidden_neurons,
+#                              lifesign = "minimal",
+#                              threshold = 7,
+#                              stepmax = iters,
+#                              learningrate = decay,
+#                              act.fct = "tanh")
 
-# Try HessianMLP
-NeuralSens::HessianMLP(nnmod)
+## Try HessianMLP
+#NeuralSens::HessianMLP(nnmod)
 
 
 ## USE DEFAULT METHOD ----------------------------------------------------------
 NeuralSens::HessianMLP(caretmod$finalModel$wts,
-                            trData = fdata.Reg.tv,
+                            trData = fdata.Reg.tr,
                             mlpstr = caretmod$finalModel$n,
                             coefnames = caretmod$coefnames,
                             actfun = c("linear","sigmoid","linear"),
@@ -435,8 +435,7 @@ NeuralSens::HessianMLP(caretmod)
 ## Train h2o NNET --------------------------------------------------------------
 # Create local cluster with 4 available cores
 h2o::h2o.init(ip = "localhost",
-              nthreads = 4,
-              max_mem_size = "2g")
+              nthreads = 4)
 
 # Reset the cluster
 h2o::h2o.removeAll()
