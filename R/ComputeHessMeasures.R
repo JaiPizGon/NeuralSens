@@ -99,9 +99,16 @@ ComputeHessMeasures <- function(sens) {
       Q[[counter]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], mlpstr[sens_origin_layer], nrow(TestData)))
       X[[counter]] <- array(NA, dim=c(mlpstr[sens_origin_layer], mlpstr[l], mlpstr[sens_origin_layer], nrow(TestData)))
       for (irow in 1:nrow(TestData)) {
-        D_[[counter]][,,irow] <- D_[[counter - 1]][,,irow] %*% D[[l - 1]][,,irow] %*% W[[l]][2:nrow(W[[l]]),]
+        D_[[counter]][,,irow] <- matrix(D_[[counter - 1]][,,irow,drop=FALSE],
+                                        nrow=dim(D_[[counter - 1]][,,irow,drop=FALSE])[1],
+                                        ncol=dim(D_[[counter - 1]][,,irow,drop=FALSE])[2]) %*%
+          matrix(D[[l - 1]][,,irow,drop=FALSE],
+                 nrow=dim(D[[l - 1]][,,irow,drop=FALSE])[1],
+                 ncol=dim(D[[l - 1]][,,irow,drop=FALSE])[2]) %*%
+          matrix(W[[l]][2:nrow(W[[l]]),,drop=FALSE])
 
-        Q[[counter]][,,,irow] <- array(apply(X[[counter - 1]][,,,irow], 3, function(x) x %*% W[[l]][2:nrow(W[[l]]),]),
+        Q[[counter]][,,,irow] <- array(apply(array(X[[counter - 1]][,,,irow,drop=FALSE], dim = dim(X[[counter - 1]])[1:3]), 3,
+                                             function(x) x %*% matrix(W[[l]][2:nrow(W[[l]]),,drop = FALSE])),
                                  dim = c(mlpstr[sens_origin_layer], dim(W[[l]])[2], mlpstr[sens_origin_layer]))
 
         X[[counter]][,,,irow] <- array(apply(array(apply(array(D2[[l]][,,,irow], dim = dim(D2[[l]])[1:3]), 3,

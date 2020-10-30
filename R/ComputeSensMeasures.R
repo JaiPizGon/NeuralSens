@@ -94,14 +94,20 @@ ComputeSensMeasures <- function(sens) {
       # Check if it must be multiplied by the jacobian of the nest layer
       if ((l == sens_end_layer) && sens_end_input) {
         for (irow in 1:nrow(TestData)){
-          D[[counter]][,,irow] <- D[[counter - 1]][,,irow] %*%
-            sens$mlp_wts[[l]][2:nrow(sens$mlp_wts[[l]]),]
+          D[[counter]][,,irow] <- matrix(D[[counter - 1]][,,irow,drop=FALSE],
+                                         nrow = dim(D[[counter - 1]])[1],
+                                         ncol = dim(D[[counter - 1]])[2]) %*%
+            sens$mlp_wts[[l]][2:nrow(sens$mlp_wts[[l]]),,drop=FALSE]
         }
       } else {
         for (irow in 1:nrow(TestData)){
-          D[[counter]][,,irow] <- D[[counter - 1]][,,irow] %*%
-            sens$mlp_wts[[l]][2:nrow(sens$mlp_wts[[l]]),] %*%
-            sens$layer_derivatives[[l]][,,irow]
+          D[[counter]][,,irow] <- matrix(D[[counter - 1]][,,irow,drop=FALSE],
+                                         nrow = dim(D[[counter - 1]])[1],
+                                         ncol = dim(D[[counter - 1]])[2])  %*%
+            sens$mlp_wts[[l]][2:nrow(sens$mlp_wts[[l]]),,drop=FALSE] %*%
+            matrix(sens$layer_derivatives[[l]][,,irow,drop=FALSE],
+                   nrow = dim(sens$layer_derivatives[[l]])[1],
+                   ncol = dim(sens$layer_derivatives[[l]])[2])
         }
       }
     }
