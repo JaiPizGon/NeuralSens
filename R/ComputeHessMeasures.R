@@ -105,10 +105,14 @@ ComputeHessMeasures <- function(sens) {
           matrix(D[[l - 1]][,,irow,drop=FALSE],
                  nrow=dim(D[[l - 1]][,,irow,drop=FALSE])[1],
                  ncol=dim(D[[l - 1]][,,irow,drop=FALSE])[2]) %*%
-          matrix(W[[l]][2:nrow(W[[l]]),,drop=FALSE])
+          matrix(W[[l]][2:nrow(W[[l]]),,drop=FALSE],
+                 nrow = dim(W[[l]])[1] - 1,
+                 ncol = dim(W[[l]])[2])
 
         Q[[counter]][,,,irow] <- array(apply(array(X[[counter - 1]][,,,irow,drop=FALSE], dim = dim(X[[counter - 1]])[1:3]), 3,
-                                             function(x) x %*% matrix(W[[l]][2:nrow(W[[l]]),,drop = FALSE])),
+                                             function(x) x %*% matrix(W[[l]][2:nrow(W[[l]]),,drop=FALSE],
+                                                                      nrow = dim(W[[l]])[1] - 1,
+                                                                      ncol = dim(W[[l]])[2])),
                                  dim = c(mlpstr[sens_origin_layer], dim(W[[l]])[2], mlpstr[sens_origin_layer]))
 
         X[[counter]][,,,irow] <- array(apply(array(apply(array(D2[[l]][,,,irow], dim = dim(D2[[l]])[1:3]), 3,
