@@ -11,3 +11,4 @@ README.html
 ^README_files/.*
 ^appveyor\.yml$
 ^CRAN-RELEASE$
+^Python$

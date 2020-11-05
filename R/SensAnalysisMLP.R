@@ -173,23 +173,23 @@
 #'
 #' ## TRAIN neuralnet NNET --------------------------------------------------------
 #' # Create a formula to train NNET
-#' form <- paste(names(fdata.Reg.tr)[2:ncol(fdata.Reg.tr)], collapse = " + ")
-#' form <- formula(paste(names(fdata.Reg.tr)[1], form, sep = " ~ "))
-#'
-#' set.seed(150)
-#' nnmod <- neuralnet::neuralnet(form,
-#'                                    nntrData,
-#'                                    linear.output = TRUE,
-#'                                    rep = 1,
-#'                                    hidden = hidden_neurons,
-#'                                    lifesign = "minimal",
-#'                                    threshold = 7,
-#'                                    stepmax = iters,
-#'                                    learningrate = decay,
-#'                                    act.fct = "tanh")
-#'
-#' # Try SensAnalysisMLP
-#' NeuralSens::SensAnalysisMLP(nnmod)
+#' #form <- paste(names(fdata.Reg.tr)[2:ncol(fdata.Reg.tr)], collapse = " + ")
+#' #form <- formula(paste(names(fdata.Reg.tr)[1], form, sep = " ~ "))
+#'#
+#' #set.seed(150)
+#' #nnmod <- neuralnet::neuralnet(form,
+#' #                                   nntrData,
+#' #                                   linear.output = TRUE,
+#' #                                   rep = 1,
+#' #                                   hidden = hidden_neurons,
+#' #                                   lifesign = "minimal",
+#' #                                   threshold = 7,
+#' #                                   stepmax = iters,
+#' #                                   learningrate = decay,
+#' #                                   act.fct = "tanh")
+#'#
+#' ## Try SensAnalysisMLP
+#' #NeuralSens::SensAnalysisMLP(nnmod)
 #'
 #'
 #' ## USE DEFAULT METHOD ----------------------------------------------------------
@@ -961,9 +961,8 @@ SensAnalysisMLP.list <- function(MLP.fit,
     actfunc <- c("linear",
                  ifelse(actfunc == 1, "sigmoid",
                         ifelse(actfunc == 2, "tanh",
-                               ifelse(actfunc == 3, "Gauss",
-                                      ifelse(actfunc == 4, "linear"
-                                      )))))
+                               ifelse(actfunc == 3, "Gauss", "linear"
+                                      ))))
   }
 
   SensAnalysisMLP.default(finalModel,

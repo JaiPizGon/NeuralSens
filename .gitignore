@@ -51,3 +51,5 @@ Thumbs.db
 # Development of the package #
 ##############################
 /revdep/*
+
+/Python/*
