@@ -263,7 +263,7 @@ print.SensMLP <- function(x, n = 5, ...) {
 #'                            maxit = iters)
 #' # Try SensAnalysisMLP
 #' sens <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE)
-#' \dontrun{
+#' \donttest{
 #' plot(sens)
 #' plot(sens,"time")
 #' plot(sens,"features")

@@ -94,43 +94,43 @@ SensTimePlot <- function(object, fdata = NULL, date.var = NULL, facet = FALSE,
   if (is.null(nspline)) {
     nspline <- floor(sqrt(dim(rawSens[[1]])[1]))
   }
+  plot_for_output <- function(rawSens, out, smooth, facet, SensMLP) {
+    plotdata <- cbind(date.var,as.data.frame(rawSens[[out]]))
+    plotdata <- reshape2::melt(plotdata,id.vars = names(plotdata)[1])
+    p <- ggplot2::ggplot(plotdata, ggplot2::aes(x = plotdata[,1], y = plotdata$value,
+                                                group = plotdata$variable, color = plotdata$variable)) +
+      ggplot2::geom_line() +
+      ggplot2::labs(color = "Inputs") +
+      ggplot2::xlab("Time") +
+      ggplot2::ylab(NULL)
+    # See if the user want a smooth plot
+    if (smooth) p <- p + ggplot2::geom_smooth(method = "lm", color = "blue", formula = y ~ splines::bs(x, nspline), se = FALSE)
+    # See if the user want it faceted
+    if (facet) {
+      args <- list(...)
+      # Check if output name is defined
+      outname <- SensMLP$output_name
+      labsvect <- c()
+      for(ii in levels(plotdata$variable)) {
+        labsvect <- c(labsvect, paste0("frac(partialdiff~",outname,",partialdiff~",ii,")"))
+      }
+      levels(plotdata$variable) <- labsvect
+      p <- p + ggplot2::facet_wrap(plotdata$variable~.,
+                                   scales = "free_y",
+                                   nrow = length(levels(plotdata$variable)),
+                                   strip.position = "left",
+                                   labeller = ggplot2::label_parsed) +
+        ggplot2::theme(strip.background = ggplot2::element_blank(),
+                       strip.placement = "outside",
+                       legend.position = "none")#,
+      # strip.text.y = element_text(angle = 180))
+    }
+    print(p)
+    return(p)
+  }
   plotlist <- list()
   for (out in 1:length(rawSens)) {
-    local({
-      out <- out
-      plotdata <- cbind(date.var,as.data.frame(rawSens[[out]]))
-      plotdata <- reshape2::melt(plotdata,id.vars = names(plotdata)[1])
-      p <- ggplot2::ggplot(plotdata, ggplot2::aes(x = plotdata[,1], y = plotdata$value,
-                                                  group = plotdata$variable, color = plotdata$variable)) +
-        ggplot2::geom_line() +
-        ggplot2::labs(color = "Inputs") +
-        ggplot2::xlab("Time") +
-        ggplot2::ylab(NULL)
-      # See if the user want a smooth plot
-      if (smooth) p <- p + ggplot2::geom_smooth(method = "lm", color = "blue", formula = y ~ splines::bs(x, nspline), se = FALSE)
-      # See if the user want it faceted
-      if (facet) {
-        args <- list(...)
-        # Check if output name is defined
-        outname <- SensMLP$output_name
-        labsvect <- c()
-        for(ii in levels(plotdata$variable)) {
-          labsvect<- c(labsvect, paste0("frac(partialdiff~",outname,",partialdiff~",ii,")"))
-        }
-        levels(plotdata$variable) <- labsvect
-        p <- p + ggplot2::facet_wrap(plotdata$variable~.,
-                                     scales = "free_y",
-                                     nrow = length(levels(plotdata$variable)),
-                                     strip.position = "left",
-                                     labeller = ggplot2::label_parsed) +
-          ggplot2::theme(strip.background = ggplot2::element_blank(),
-                strip.placement = "outside",
-                legend.position = "none")#,
-                # strip.text.y = element_text(angle = 180))
-        }
-      print(p)
-      plotlist[[out]] <<- p
-    })
+      plotlist[[out]] <- plot_for_output(rawSens, out, smooth, facet, SensMLP)
   }
   return(invisible(plotlist))
 }

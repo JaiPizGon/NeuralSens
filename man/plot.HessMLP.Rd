@@ -61,7 +61,7 @@ nnetmod <- nnet::nnet(form,
                            maxit = iters)
 # Try HessianMLP
 sens <- NeuralSens::HessianMLP(nnetmod, trData = nntrData, plot = FALSE)
-\dontrun{
+\donttest{
 plot(sens)
 plot(sens,"time")
 }

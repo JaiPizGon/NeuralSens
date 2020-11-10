@@ -112,7 +112,7 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
       # if it's installed and there are any density distribution that is
       # too small compared with others, make a facet_zoom to show better all distributions
       if (zoom) {
-        if ("ggforce" %in% rownames(utils::installed.packages())) {
+        if (requireNamespace("ggforce")) {
           maxd <- c()
           for (i in 1:ncol(der2)) {
             maxd <- c(maxd, max(stats::density(der2[,i])$y))

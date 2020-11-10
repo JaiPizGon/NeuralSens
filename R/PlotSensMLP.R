@@ -109,6 +109,7 @@ PlotSensMLP <- function(MLP.fit, metric = "mean",
   # Plot Neural network NID and legend scale
   graphics::layout(matrix(1:2,nrow =1), widths = c(0.8,0.2))
   op <- graphics::par(mar=c(5.1,1.1,4.1,2.1))
+  on.exit(graphics::par(op))
   NeuralNetTools::plotnet(wts, mlpstr,
                           circle_col = senscolors_list,
                           pos_col = sens_pos_col,
@@ -165,6 +166,7 @@ PlotSensMLP <- function(MLP.fit, metric = "mean",
   yt <- 2
 
   graphics::par(mar=c(5.1,0.5,4.1,0.5))
+  on.exit(graphics::par(op))
   needed_colors <- sum(mlpstr[1:(length(mlpstr)-1)])
   graphics::plot(NA,type="n",ann=FALSE,xlim=c(1,2),ylim=c(1,2),xaxt="n",yaxt="n",bty="n")
   graphics::rect(

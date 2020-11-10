@@ -21,9 +21,27 @@ Plot of sensitivity of the neural network output respect
 to the inputs over the time variable from the data provided
 }
 \examples{
-\dontrun{
+\donttest{
+fdata <- iris
+## Parameters of the NNET ------------------------------------------------------
+hidden_neurons <- 5
+iters <- 250
+decay <- 0.1
+
+#' ## TRAIN nnet NNET --------------------------------------------------------
+# Create a formula to train NNET
+form <- paste(names(fdata)[1:ncol(fdata)-1], collapse = " + ")
+form <- formula(paste(names(fdata)[5], form, sep = " ~ "))
+
+set.seed(150)
+mod <- nnet::nnet(form,
+                  data = fdata,
+                  linear.output = TRUE,
+                  size = hidden_neurons,
+                  decay = decay,
+                  maxit = iters)
 # mod should be a neural network classification model
-sens <- SensAnalysisMLP(mod)
+sens <- SensAnalysisMLP(mod, trData = fdata, output_name = 'Species')
 combinesens <- CombineSens(sens, "sqmean")
 }
 }

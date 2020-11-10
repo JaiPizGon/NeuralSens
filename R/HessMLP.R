@@ -263,7 +263,7 @@ print.HessMLP <- function(x, n = 5, ...) {
 #'                            maxit = iters)
 #' # Try HessianMLP
 #' sens <- NeuralSens::HessianMLP(nnetmod, trData = nntrData, plot = FALSE)
-#' \dontrun{
+#' \donttest{
 #' plot(sens)
 #' plot(sens,"time")
 #' }

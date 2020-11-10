@@ -46,4 +46,11 @@ Duration: 27.5s
 - release pass
 - devel pass
 
+### Comments from the reviewer
+* \dontrun examples has been changed to \donttest because it can be run if a neural network model is trained, but can not be checked automatically.
+* Commented code lines of examples has been erased.
+* *immediate* call of on.exit() has been added when calling to par()
+* Use of <<- has been changed to avoid changing the global environment
+* installed.packages() has been changed to requireNamespace()
+* Errors in examples when running check with --run-donttest (the reason why the package was archived) have been corrected
 

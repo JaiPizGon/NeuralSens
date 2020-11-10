@@ -97,39 +97,38 @@ SensFeaturePlot <- function(object, fdata = NULL, ...) {
                                    }))
   # Create plot layer by layer
   plotlist <- list()
+  plot_for_input <- function(trData, rawSens, out, i, p) {
+    p <- p +
+      ggplot2::geom_vline(xintercept = i, linetype = "dotdash") +
+      ggplot2::geom_violin(alpha = 0.3,
+                           ggplot2::aes(x = i, y = rawSens[[out]][,i]),
+                           color = "darkgray", fill = "gray") +
+      ggplot2::geom_hline(yintercept = 0) +
+      ggforce::geom_sina(ggplot2::aes(x = i, y = rawSens[[out]][,i],
+                                      color = trData[,i]),
+                         scale = FALSE)
+    return(p)
+  }
+  plot_for_output <- function(trData, rawSens, out) {
+    p <- ggplot2::ggplot()
+    for (i in 1:ncol(trData)) {
+      p <- plot_for_input(trData, rawSens, out, i, p)
+    }
+    p <- p +
+      ggplot2::labs(x = NULL, y = "sens") +
+      ggplot2::coord_flip() +
+      ggplot2::scale_x_continuous(breaks = seq_len(dim(rawSens[[out]])[2]),
+                                  labels = colnames(rawSens[[out]])) +
+      ggplot2::scale_color_gradient(low="#FFCC33", high="#6600CC",
+                                    breaks=c(0,1), labels=c("Low","High")) +
+      ggplot2::labs(color = "Feature value") +
+      ggplot2::theme(legend.position = "bottom")
+    print(p)
+    return(p)
+  }
+
   for (out in 1:length(rawSens)) {
-    local({
-      out <- out
-      p <- ggplot2::ggplot()
-      for (i in 1:ncol(trData)) {
-        local({
-          i <- i
-          p <<- p +
-            ggplot2::geom_vline(xintercept = i, linetype = "dotdash") +
-            ggplot2::geom_violin(alpha = 0.3,
-                                 ggplot2::aes(x = i, y = rawSens[[out]][,i]),
-                                 color = "darkgray", fill = "gray") +
-            ggplot2::geom_hline(yintercept = 0) +
-            ggforce::geom_sina(ggplot2::aes(x = i, y = rawSens[[out]][,i],
-                                            color = trData[,i]),
-                               scale = FALSE)
-          # ggplot2::geom_jitter(ggplot2::aes(x = i, y = rawSens[,i,1], color = trData[,i]),
-          #                    shape = 16, position = position_jitterdodge(),
-          #                    size = 1.5, alpha = 0.7) +
-        })
-      }
-      p <- p +
-        ggplot2::labs(x = NULL, y = "sens") +
-        ggplot2::coord_flip() +
-        ggplot2::scale_x_continuous(breaks = seq_len(dim(rawSens[[out]])[2]),
-                                    labels = colnames(rawSens[[out]])) +
-        ggplot2::scale_color_gradient(low="#FFCC33", high="#6600CC",
-                                      breaks=c(0,1), labels=c("Low","High")) +
-        ggplot2::labs(color = "Feature value") +
-        ggplot2::theme(legend.position = "bottom")
-      print(p)
-      plotlist[[out]] <<- p
-    })
+      plotlist[[out]] <- plot_for_output(trData, rawSens, out)
   }
   return(invisible(plotlist))
 }
