@@ -53,4 +53,5 @@ Duration: 27.5s
 * Use of <<- has been changed to avoid changing the global environment
 * installed.packages() has been changed to requireNamespace()
 * Errors in examples when running check with --run-donttest (the reason why the package was archived) have been corrected
+* Regarding a reference about the method, there is not a published article yet that can be provided as reference. An article about the NeuralSens package is in minor revision by the Journal of Statistical Software.
 
