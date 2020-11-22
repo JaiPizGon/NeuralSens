@@ -1236,33 +1236,40 @@ SensAnalysisMLP.nnetar <- function(MLP.fit,
               ifelse(is.factor(trData$.outcome),"sigmoid","linear"))
   finalModel$coefnames <- varnames
   # Apply default function to all the models in the nnetar object
-  sensit <- array(NA, dim = c(length(MLP.fit$model)*nrow(trData),
-                              MLP.fit$model[[1]]$n[1],
-                              MLP.fit$model[[1]]$n[length(MLP.fit$model[[1]]$n)]))
+  sensit <- matrix(NA, nrow = length(MLP.fit$model)*nrow(trData),
+                              ncol = MLP.fit$model[[1]]$n[1])
   for (i in 1:length(MLP.fit$model)) {
     finalModel$wts <- MLP.fit$model[[1]]$wts
     sensitivities[[i]] <-  SensAnalysisMLP.default(finalModel,
-
-    trData = trData,
-    actfunc = actfun,
-    deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
-    sens_origin_layer = sens_origin_layer,
-    sens_end_layer = sens_end_layer,
-    sens_origin_input = sens_origin_input,
-    sens_end_input = sens_end_input,
-    preProc = NULL,
-    terms = NULL,
-    plot = FALSE,
-    output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"})
-    sensit[((i-1)*nrow(trData)+1):(i*nrow(trData)),,] <- sensitivities[[i]]$raw_sens
+      .returnSens = .returnSens,
+      .rawSens = .rawSens,
+      trData = trData,
+      actfunc = actfun,
+      deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
+      sens_origin_layer = sens_origin_layer,
+      sens_end_layer = sens_end_layer,
+      sens_origin_input = sens_origin_input,
+      sens_end_input = sens_end_input,
+      preProc = NULL,
+      terms = NULL,
+      plot = FALSE,
+      output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+      args[!names(args) %in% c("output_name","deractfunc")])
+    sensit[((i-1)*nrow(trData)+1):(i*nrow(trData)),] <- sensitivities[[i]]$raw_sens[[1]]
   }
-
-  sens <- data.frame(
-    mean = colMeans(sensit[, , 1], na.rm = TRUE),
-    std = apply(sensit[, , 1], 2, stats::sd, na.rm = TRUE),
-    meanSensSQ = colMeans(sensit[, , 1] ^ 2, na.rm = TRUE),
+  sens <- list(data.frame(
+    mean = colMeans(sensit, na.rm = TRUE),
+    std = apply(sensit, 2, stats::sd, na.rm = TRUE),
+    meanSensSQ = colMeans(sensit ^ 2, na.rm = TRUE),
     row.names = varnames
-  )
+  ))
+  names(sens) <- names(sensitivities[[1]]$raw_sens)
+
+
+  sensit <- list(sensit)
+  names(sensit) <- names(sensitivities[[1]]$raw_sens)
+  colnames(sensit[[1]]) <- names(trData[-length(trData)])
+
 
   sens <- SensMLP(
     sens,

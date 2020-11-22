@@ -1225,9 +1225,9 @@ HessianMLP.nnetar <- function(MLP.fit,
               ifelse(is.factor(trData$.outcome),"sigmoid","linear"))
   finalModel$coefnames <- varnames
   # Apply default function to all the models in the nnetar object
-  sensit <- array(NA, dim = c(length(MLP.fit$model)*nrow(trData),
+  sensit <- array(NA, dim = c(MLP.fit$model[[1]]$n[1],
                               MLP.fit$model[[1]]$n[1],
-                              MLP.fit$model[[1]]$n[length(MLP.fit$model[[1]]$n)]))
+                              length(MLP.fit$model)*nrow(trData)))
   for (i in 1:length(MLP.fit$model)) {
     finalModel$wts <- MLP.fit$model[[1]]$wts
     sensitivities[[i]] <-  HessianMLP.default(finalModel,
@@ -1244,19 +1244,34 @@ HessianMLP.nnetar <- function(MLP.fit,
                                               preProc = NULL,
                                               terms = NULL,
                                               plot = FALSE,
-                                              output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"})
-    sensit[((i-1)*nrow(trData)+1):(i*nrow(trData)),,] <- sensitivities[[i]]$raw_sens
+                                              output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                                              args[!names(args) %in% c("output_name","deractfunc")])
+    sensit[,,((i-1)*nrow(trData)+1):(i*nrow(trData))] <- sensitivities[[i]]$raw_sens[[1]]
   }
 
   colnames(sensit) <- finalModel$coefnames
+  rownames(sensit) <- finalModel$coefnames
 
-  sens <-
-    data.frame(
-      varNames = varnames,
-      mean = colMeans(sensit[, , 1], na.rm = TRUE),
-      std = apply(sensit[, , 1], 2, stats::sd, na.rm = TRUE),
-      meanSensSQ = colMeans(sensit[, , 1] ^ 2, na.rm = TRUE)
-    )
+  rs <- list()
+  out <- list()
+  out[[1]] <- list(
+    mean = apply(sensit, c(1,2), mean, na.rm = TRUE),
+    std = apply(sensit, c(1,2), stats::sd, na.rm = TRUE),
+    meanSensSQ = apply(sensit^2, c(1,2), mean, na.rm = TRUE)
+  )
+  rs[[1]] <- sensit
+
+  names(out) <- if("output_name" %in% names(args)){args$output_name}else{".outcome"}
+  names(rs) <- if("output_name" %in% names(args)){args$output_name}else{".outcome"}
+
+  sens <- HessMLP(
+    out,
+    rs,
+    MLP.fit$model[[1]]$n,
+    trData,
+    varnames,
+    if("output_name" %in% names(args)){args$output_name}else{".outcome"}
+  )
 
   if (plot) {
     # show plots if required
