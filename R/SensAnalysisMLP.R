@@ -515,8 +515,9 @@ SensAnalysisMLP.train <- function(MLP.fit,
                   sens_end_input = sens_end_input,
                   preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
                   terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
+                  output_name = if("output_name" %in% names(args)){args$output_name}else{".outccome"},
                   plot = plot,
-                  args[!names(args) %in% c("trData","preProc","terms")])
+                  args[!names(args) %in% c("output_name","trData","preProc","terms")])
 }
 
 #' @rdname SensAnalysisMLP
