@@ -93,20 +93,35 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
       der2 <- der2[,!sapply(der2,function(x){all(x ==  0)})]
       dataplot <- reshape2::melt(der2, measure.vars = names(der2))
 
+      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
+        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable", color = "variable"),
+                              alpha = 0.4,
+                              bw = "bcv") +
+        ggplot2::labs(x = "Sens", y = "density(Sens)")
+
       # Check the right x limits for the density plots
       quant <- stats::quantile(abs(dataplot$value), c(0.8, 1))
+      obtain_quant <- function(serie, quant1, quant2, iter = 0) {
+        quants <- stats::quantile(serie, c(quant1, quant2))
+        iter <- iter + 1
+        if (quants[1] != quants[2] || iter > 500) {
+          return(quants)
+        } else {
+          return(obtain_quant(serie, quant1*0.85, quant2/0.85, iter))
+        }
+      }
       if (10*quant[1] < quant[2]) { # Distribution has too much dispersion
-        xlim <- c(1,-1)*max(abs(stats::quantile(dataplot$value, c(0.2,0.8))))
+        xlim <- c(1,-1)*max(abs(obtain_quant(dataplot$value, 0.2, 0.8)))
+        if (xlim[2] < 1e-150) {
+          xlim <- c(-1e-150,1e-150)
+        }
       } else {
         xlim <- c(-1.1, 1.1)*max(abs(dataplot$value), na.rm = TRUE)
       }
+      if (xlim[1] != xlim[2]) {
+        plotlist[[3]] <- plotlist[[3]] + ggplot2::xlim(xlim)
+      }
 
-      plotlist[[3]] <- ggplot2::ggplot(dataplot) +
-        ggplot2::geom_density(ggplot2::aes_string(x = "value", fill = "variable"),
-                              alpha = 0.4,
-                              bw = "bcv") +
-        ggplot2::labs(x = "Sens", y = "density(Sens)") +
-        ggplot2::xlim(xlim)
       # ggplot2::xlim(-2 * max(sens$std, na.rm = TRUE), 2 * max(sens$std, na.rm = TRUE))
       # Check if ggforce package is installed in the device
       # if it's installed and there are any density distribution that is
