@@ -53,6 +53,7 @@
 #'                       maxit = iters)
 #' # Try SensDotPlot
 #' NeuralSens::SensDotPlot(nnetmod, fdata = nntrData)
+#' @importFrom magrittr '%>%'
 #' @export SensDotPlot
 SensDotPlot <- function(object, fdata = NULL, input_vars = "all",
                         output_vars = "all", smooth = FALSE,

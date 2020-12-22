@@ -10,7 +10,7 @@
 #' then scatter plots are created for all the output variables in \code{fdata}.
 #' @param input_vars \code{character vector} with the variables to create the scatter plot in x-axis. If \code{"all"},
 #' then scatter plots are created for all the input variables in \code{fdata}.
-#' @param input_vars \code{character vector} with the variables to create the scatter plot in y-axis. If \code{"all"},
+#' @param input_vars2 \code{character vector} with the variables to create the scatter plot in y-axis. If \code{"all"},
 #' then scatter plots are created for all the input variables in \code{fdata}.
 #' @param surface \code{logical} if \code{TRUE}, a 3D surface is created instead of 3D scatter plot
 #' (only for combinations of different inputs)
@@ -54,8 +54,9 @@
 #'                       size = hidden_neurons,
 #'                       decay = decay,
 #'                       maxit = iters)
-#' # Try SensDotPlot
-#' NeuralSens::HessDotPlot(nnetmod, fdata = nntrData)
+#' # Try HessDotPlot
+#' NeuralSens::HessDotPlot(nnetmod, fdata = nntrData, surface = TRUE, color = "WD")
+#' @importFrom magrittr '%>%'
 #' @export HessDotPlot
 HessDotPlot <- function(object, fdata = NULL, input_vars = "all",
                         input_vars2 = "all", output_vars = "all",
@@ -97,7 +98,6 @@ HessDotPlot <- function(object, fdata = NULL, input_vars = "all",
   }
 
   if (requireNamespace("plotly") && requireNamespace("magrittr")) {
-    library(magrittr)
     plot_for_output <- function(rawSens, fdata, out, inp, inp2, surface, color) {
       if (is.null(color)) {
         color <- "blue"

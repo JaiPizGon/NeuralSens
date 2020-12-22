@@ -10,25 +10,25 @@ Description: Analysis functions to quantify inputs importance in neural network 
 Author: José Portela González [aut], Antonio Muñoz San Roque [aut], Jaime Pizarroso Gonzalo [aut, ctb, cre]
 Maintainer: Jaime Pizarroso Gonzalo <jpizarroso@comillas.edu>
 Imports:
-    ggplot2,
-    gridExtra,
-    NeuralNetTools,
-    reshape2,
-    caret,
-    fastDummies,
-    stringr,
-    Hmisc,
-    ggforce,
-    scales,
-    ggnewscale,
-    plotly,
-    dplyr
+  ggplot2,
+  gridExtra,
+  NeuralNetTools,
+  reshape2,
+  caret,
+  fastDummies,
+  stringr,
+  Hmisc,
+  ggforce,
+  scales,
+  ggnewscale,
+  magrittr
 Suggests:
   h2o,
   neural,
   RSNNS,
   nnet,
   neuralnet,
+  plotly,
   e1071
 RoxygenNote: 7.1.1
 NeedsCompilation: no

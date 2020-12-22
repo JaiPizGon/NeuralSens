@@ -12,6 +12,7 @@ HessDotPlot(
   output_vars = "all",
   surface = FALSE,
   grid = FALSE,
+  color = NULL,
   ...
 )
 }
@@ -21,20 +22,27 @@ second derivatives from the function \code{\link[NeuralSens]{HessianMLP}}}
 
 \item{fdata}{\code{data.frame} containing the data to evaluate the second derivatives of the model.}
 
-\item{input_vars}{\code{character vector} with the variables to create the scatter plot in y-axis. If \code{"all"},
+\item{input_vars}{\code{character vector} with the variables to create the scatter plot in x-axis. If \code{"all"},
+then scatter plots are created for all the input variables in \code{fdata}.}
+
+\item{input_vars2}{\code{character vector} with the variables to create the scatter plot in y-axis. If \code{"all"},
 then scatter plots are created for all the input variables in \code{fdata}.}
 
 \item{output_vars}{\code{character vector} with the variables to create the scatter plot. If \code{"all"},
 then scatter plots are created for all the output variables in \code{fdata}.}
 
-\item{surface}{\code{logical} if \code{TRUE}, a 3D surface is created instead of 3D scatter plot}
+\item{surface}{\code{logical} if \code{TRUE}, a 3D surface is created instead of 3D scatter plot
+(only for combinations of different inputs)}
 
-\item{grid}{\code{logical}. If \code{TRUE}, plots created are show together using \code{\link[gridExtra]{arrangeGrob}}}
+\item{grid}{\code{logical}. If \code{TRUE}, plots created are show together using \code{\link[gridExtra]{arrangeGrob}}.
+It does not work on Windows platforms due to bugs in \code{plotly} library.}
+
+\item{color}{\code{character} specifying the name of a \code{numeric} variable of \code{fdata} to color the 3D scatter plot.}
 
 \item{...}{further arguments that should be passed to  \code{\link[NeuralSens]{HessianMLP}} function}
 }
 \value{
-list of \code{geom_point} plots for the inputs variables representing the
+list of 3D \code{geom_point} plots for the inputs variables representing the
 sensitivity of each output respect to the inputs
 }
 \description{
@@ -76,6 +84,6 @@ nnetmod <- nnet::nnet(form,
                       size = hidden_neurons,
                       decay = decay,
                       maxit = iters)
-# Try SensDotPlot
-NeuralSens::HessDotPlot(nnetmod, fdata = nntrData)
+# Try HessDotPlot
+NeuralSens::HessDotPlot(nnetmod, fdata = nntrData, surface = TRUE, color = "WD")
 }
