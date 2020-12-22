@@ -20,7 +20,9 @@ Imports:
     Hmisc,
     ggforce,
     scales,
-    ggnewscale
+    ggnewscale,
+    plotly,
+    dplyr
 Suggests:
   h2o,
   neural,
