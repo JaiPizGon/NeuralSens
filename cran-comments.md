@@ -1,11 +1,5 @@
 # cran-comments.md
-
-
-                
-## References
-Added reference to SensAnalysisMLP function where the formulation to calculate the partial derivatives is explained.
-I am currently writing a paper for the Journal of Statistic Software about the package.
-
+           
 ## donttest{} examples
 
 The `SensAnalysisMLP.R` function contains `\donttest{}` examples which produce animations that take >5sec that users need to know about, but cause issues in examples and checks. The `HessianMLP.R` function contains `\donttest{}` examples which produce animations that take >5sec that users need to know about, but cause issues in examples and checks. 
@@ -19,9 +13,8 @@ The manipulations before the animation rending is already tested in the examples
 * win-builder, R (oldrelease, release and devel)
 
 ### R CMD check
-
--- R CMD check results ----------------------------------- NeuralSens 0.2.3 ----
-Duration: 27.5s
+-- R CMD check results ------------------------------------- NeuralSens 0.2.3 ----
+Duration: 4m 20.1s
 
 0 errors √ | 0 warnings √ | 0 notes √
 
