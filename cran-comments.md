@@ -8,8 +8,8 @@ I am currently writing a paper for the Journal of Statistic Software about the p
 
 ## donttest{} examples
 
-The `SensAnalysisMLP.R` function contains `\donttest{}` examples which produce animations that take >5sec that users need to know about, but cause issues in examples and checks. 
-The manipulations before the animation rending is already tested in the example which is not wrapped by `\donttest{}`.
+The `SensAnalysisMLP.R` function contains `\donttest{}` examples which produce animations that take >5sec that users need to know about, but cause issues in examples and checks. The `HessianMLP.R` function contains `\donttest{}` examples which produce animations that take >5sec that users need to know about, but cause issues in examples and checks. 
+The manipulations before the animation rending is already tested in the examples which are not wrapped by `\donttest{}`.
 
 
 ## Test environments
@@ -20,7 +20,7 @@ The manipulations before the animation rending is already tested in the example 
 
 ### R CMD check
 
--- R CMD check results ----------------------------------- NeuralSens 0.2.2 ----
+-- R CMD check results ----------------------------------- NeuralSens 0.2.3 ----
 Duration: 27.5s
 
 0 errors √ | 0 warnings √ | 0 notes √
@@ -47,11 +47,5 @@ Duration: 27.5s
 - devel pass
 
 ### Comments from the reviewer
-* \dontrun examples has been changed to \donttest because it can be run if a neural network model is trained, but can not be checked automatically.
-* Commented code lines of examples has been erased.
-* *immediate* call of on.exit() has been added when calling to par()
-* Use of <<- has been changed to avoid changing the global environment
-* installed.packages() has been changed to requireNamespace()
-* Errors in examples when running check with --run-donttest (the reason why the package was archived) have been corrected
-* Regarding a reference about the method, there is not a published article yet that can be provided as reference. An article about the NeuralSens package is in minor revision by the Journal of Statistical Software.
+* Examples in `HessianMLP.R` function were revised due to error in function. Error was corrected.
 

@@ -497,10 +497,11 @@ HessianMLP.train <- function(MLP.fit,
              sens_end_layer = sens_end_layer,
              sens_origin_input = sens_origin_input,
              sens_end_input = sens_end_input,
+             output_name = if ("output_name" %in% names(args)) {args$preProc} else {".outcome"},
              preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
              terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
              plot = plot,
-             args[!names(args) %in% c("trData","preProc","terms")])
+             args[!names(args) %in% c("trData","preProc","terms","output_name")])
 }
 
 #' @rdname HessianMLP
@@ -1105,6 +1106,7 @@ HessianMLP.nnet <- function(MLP.fit,
   finalModel$n <- MLP.fit$n
   finalModel$wts <- MLP.fit$wts
   finalModel$coefnames <- MLP.fit$coefnames
+  output_name <- ".outcome"
   if(!any(names(trData) == ".outcome")){
     if (!"output_name" %in% names(args)) {
       output_name <- ".outcome"
