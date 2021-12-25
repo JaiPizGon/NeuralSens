@@ -228,7 +228,7 @@ DerActFunc <- function(type = "sigmoid", ...) {
 }
 #' Second derivative of activation function of neuron
 #'
-#' @description Evaluate derivative of activation function of a neuron
+#' @description Evaluate second derivative of activation function of a neuron
 #' @param type \code{character} name of the activation function
 #' @param ... extra arguments needed to calculate the functions
 #' @return \code{numeric} output of the neuron
@@ -344,3 +344,294 @@ Der2ActFunc <- function(type = "sigmoid", ...) {
   }
 }
 
+#' Loss function
+#'
+#' @description Evaluate loss function of a neuron
+#' @param type \code{character} name of the loss function
+#' @param ... extra arguments needed to calculate the functions
+#' @return \code{list} containing the \code{numeric} error of the neural network
+#' and a \code{numeric} vector to codify if it is a regression loss (0), a
+#' binary classification loss (1) or a multiclass classification loss (2)
+#' @examples
+#' lossFunction <- LossFunc("RMSE")
+#' @export LossFunc
+LossFunc <- function(type = "RMSE", ...) {
+  if (is.list(type)) {
+    # Custom function
+    return(
+      list(
+        function(y, y_pred) {
+          eval(parse(text = paste0(deparse(type[[1]]), collapse = ""),
+                     keep.source = FALSE),
+               envir = environment(type[[1]]))(y, y_pred)
+        }, type[[2]])
+    )
+  } else {
+    switch(type,
+           ####### REGRESSION ERROR
+           RMSE = {
+             return(
+               list(
+                 function(y, y_pred) {
+                  error <- sqrt(mean((y - y_pred)^2))
+                  return(error)
+                 }, 0)
+             )
+           },
+           R2 = {
+             return(
+               list(
+                 function(y, y_pred) {
+                  error <- 1 - sum((y - y_pred)^2) / sum((mean(y) - y_pred)^2)
+                  return(error)
+                 }, 0)
+             )
+           },
+           MBE = {
+             return(
+               list(
+                 function(y, y_pred) {
+                  error <- mean(y - y_pred)
+                  return(error)
+                }, 0)
+             )
+           },
+           MAE = {
+             return(
+               list(
+                 function(y, y_pred) {
+                  error <- mean(abs(y - y_pred))
+                  return(error)
+                }, 0)
+             )
+           },
+           MSE = {
+             return(
+               list(
+                 function(y, y_pred) {
+                  error <- mean((y - y_pred)^2)
+                  return(error)
+               }, 0)
+             )
+           },
+           SSE = {
+             return(
+               list(
+                 function(y, y_pred) {
+                   error <- sum((y - y_pred)^2)
+                   return(error)
+                 }, 0)
+             )
+           },
+           MSLE = {
+             return(
+               list(
+                 function(y, y_pred) {
+                  error <- mean((log10(y + 1) - log10(y_pred + 1))^2)
+                  return(error)
+                }, 0)
+             )
+           },
+           MAPE = {
+             return(
+               list(
+                 function(y, y_pred) {
+                  error <- mean(abs(y - y_pred) / y * 100)
+                  return(error)
+                }, 0)
+             )
+           },
+           Huber = {
+             return(
+               list(
+                 function(y, y_pred, delta) {
+                  dif_y_y_pred <- abs(y - y_pred)
+                  error <- sum(ifelse(dif_y_y_pred < delta,
+                                     (y - y_pred) ^ 2,
+                                     2 * delta * dif_y_y_pred - delta ^ 2))
+                  return(error)
+               }, 0)
+             )
+           },
+           logcosh = {
+             return(
+               list(
+                 function(y, y_pred) {
+                  error <- sum(log10(cosh(y_pred - y)))
+                  return(error)
+                }, 0)
+             )
+           },
+           ######### CLASSIFICATION ERROR
+           accuracy = {
+             return(
+               list(
+                 function(y, y_pred) {
+                   error <- mean(y == y_pred)
+                 }, c(1, 2)
+               )
+             )
+           },
+           crossentropy = {
+             return(
+               list(
+                 function(y, y_pred) {
+                    error <- -mean(y * log(y_pred))
+                    return(error)
+                 }, c(1, 2))
+             )
+           }
+           # Hinge = {
+           #   return(
+           #     list(
+           #       function(y, y_pred) {
+           #         hinge_err <- y - (1 - 2 * y) * y_pred
+           #         error <- sum(ifelse(hinge_err < 0, 0, hinge_err))
+           #         return(error)
+           #       }, c(1))
+           #   )
+           # },
+           # sqHinge = {
+           #   return(
+           #     list(
+           #       function(y, y_pred) {
+           #         hinge_err <- y - (1 - 2 * y) * y_pred
+           #         error <- sum(ifelse(hinge_err < 0, 0, hinge_err)^2)
+           #         return(error)
+           #       }, c(1))
+           #   )
+           # },
+           # KL = {
+           #   return(
+           #     list(
+           #       function(y, y_pred) {
+           #         error <- sum(y_pred * log(y_pred / y))
+           #         return(error)
+           #       }, 2)
+           #   )
+           # }
+           )
+  }
+}
+#' Derivative of loss function
+#'
+#' @description Evaluate derivative of loss function of a neuron
+#' @param type \code{character} name of the loss function
+#' @param ... extra arguments needed to calculate the functions
+#' @return \code{numeric} output of the neuron
+#' @examples
+#' lossFunction <- DerLossFunc("RMSE")
+#' @export DerLossFunc
+DerLossFunc <- function(type = "RMSE", ...) {
+  if (is.list(type)) {
+    # Custom function
+    return(
+        function(y, y_pred) {
+          eval(parse(text = paste0(deparse(type[[1]]), collapse = ""),
+                     keep.source = FALSE),
+               envir = environment(type[[1]]))(y, y_pred)
+        }
+    )
+  } else {
+    switch(type,
+           RMSE = {
+             return(
+               function(y, y_pred) {
+                 N <- length(y)
+                 dif <- y - y_pred
+                 der <- sqrt(N)/N * dif / sqrt(sum(dif^2))
+                 return(der)
+               }
+             )
+           },
+           R2 = {
+             return(
+               function(y, y_pred) {
+                 SSM = (y_pred - mean(y))^2
+                 derSSM = 2 * (y_pred - mean(y))
+                 SSE = (y - y_pred)^2
+                 derSSE = -2 * (y - y_pred)
+                 der = - (derSSE * SSM + SSE * derSSM) / SSM ^ 2
+                 return(der)
+               }
+             )
+           },
+           MBE = {
+             return(
+                 function(y, y_pred) {
+                   der <- -1
+                   return(der)
+                 }
+             )
+           },
+           MAE = {
+             return(
+                 function(y, y_pred) {
+                   der <- (y_pred - y) / abs(y - y_pred)
+                   return(der)
+                 }
+             )
+           },
+           MSE = {
+             return(
+                 function(y, y_pred) {
+                   der <- 2 *(y_pred - y)
+                   return(der)
+                 }
+             )
+           },
+           SSE = {
+             return(
+                 function(y, y_pred) {
+                   der <- 2 *(y_pred - y)
+                   return(der)
+                 }
+             )
+           },
+           MSLE = {
+             return(
+                 function(y, y_pred) {
+                   der <- 2 * (log(y_pred+1) - log(y+1)) / ((y_pred+1) * log(10)^2)
+                   return(der)
+                 }
+             )
+           },
+           MAPE = {
+             return(
+                 function(y, y_pred) {
+                   der <- (y_pred - y) / (y * abs(y - y_pred))
+                   return(der)
+                 }
+             )
+           },
+           Huber = {
+             return(
+                 function(y, y_pred, delta) {
+                   dif_y_y_pred <- abs(y - y_pred)
+                   der <- sum(ifelse(dif_y_y_pred < delta,
+                                    -2 * (y - y_pred),
+                                    2 * delta * (y_pred - y) / dif_y_y_pred))
+                   return(der)
+                 }
+             )
+           },
+           logcosh = {
+             return(
+                 function(y, y_pred) {
+                   error <- tanh(y_pred - y) / log(10)
+                   return(error)
+                 }
+             )
+           },
+           ######### CLASSIFICATION ERROR
+           crossentropy = {
+             return(
+               function(y, y_pred) {
+                 der <- -y / y_pred + (1 - y) / (1 - y_pred)
+                 return(der)
+               }
+             )
+           }
+           )
+  }
+}

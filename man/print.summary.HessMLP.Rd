@@ -4,10 +4,12 @@
 \alias{print.summary.HessMLP}
 \title{Print method of the summary HessMLP Class}
 \usage{
-\method{print}{summary.HessMLP}(x, ...)
+\method{print}{summary.HessMLP}(x, round_digits = NULL, ...)
 }
 \arguments{
 \item{x}{\code{summary.HessMLP} object created by summary method of \code{HessMLP} object}
+
+\item{round_digits}{\code{integer} number of decimal places, default \code{NULL}}
 
 \item{...}{additional parameters}
 }

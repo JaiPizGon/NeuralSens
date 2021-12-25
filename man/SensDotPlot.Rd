@@ -11,6 +11,7 @@ SensDotPlot(
   output_vars = "all",
   smooth = FALSE,
   nspline = NULL,
+  color = NULL,
   grid = FALSE,
   ...
 )
@@ -32,6 +33,8 @@ then scatter plots are created for all the output variables in \code{fdata}.}
 \item{nspline}{\code{integer} if \code{smooth} is TRUE, this determine the degree of the spline used
 to perform \code{geom_smooth}. If \code{nspline} is NULL, the square root of the length of the data
 is used as degrees of the spline.}
+
+\item{color}{\code{character} specifying the name of a \code{numeric} variable of \code{fdata} to color the scatter plot.}
 
 \item{grid}{\code{logical}. If \code{TRUE}, plots created are show together using \code{\link[gridExtra]{arrangeGrob}}}
 

@@ -4,10 +4,12 @@
 \alias{print.summary.SensMLP}
 \title{Print method of the summary SensMLP Class}
 \usage{
-\method{print}{summary.SensMLP}(x, ...)
+\method{print}{summary.SensMLP}(x, round_digits = NULL, ...)
 }
 \arguments{
 \item{x}{\code{summary.SensMLP} object created by summary method of \code{SensMLP} object}
+
+\item{round_digits}{\code{integer} number of decimal places, default \code{NULL}}
 
 \item{...}{additional parameters}
 }

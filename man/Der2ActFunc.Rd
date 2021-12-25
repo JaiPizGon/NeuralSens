@@ -15,7 +15,7 @@ Der2ActFunc(type = "sigmoid", ...)
 \code{numeric} output of the neuron
 }
 \description{
-Evaluate derivative of activation function of a neuron
+Evaluate second derivative of activation function of a neuron
 }
 \examples{
 # Return derivative of the sigmoid activation function of a neuron

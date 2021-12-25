@@ -99,12 +99,13 @@ HessDotPlot <- function(object, fdata = NULL, input_vars = "all",
 
   if (requireNamespace("plotly") && requireNamespace("magrittr")) {
     plot_for_output <- function(rawSens, fdata, out, inp, inp2, surface, color) {
-      if (is.null(color)) {
-        color <- "blue"
-      }
       plotdata <- as.data.frame(cbind(fdata[,inp], fdata[,inp2], rawSens[inp, inp2,]))
       names(plotdata) <- c("A", "B", "C")
-      plotdata$color <- fdata[,color]
+      if (is.null(color)) {
+        plotdata$color <- "blue"
+      } else {
+        plotdata$color <- fdata[,color]
+      }
       output_label <- paste0("<sup>",intToUtf8(0x2202L),"<sub>", out,
                              "</sub>", "</sup>", intToUtf8(0x2044L), "<sub>",
                              intToUtf8(0x2202L), "<sub>", inp, "</sub>",

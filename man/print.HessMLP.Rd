@@ -4,12 +4,14 @@
 \alias{print.HessMLP}
 \title{Print method for the HessMLP Class}
 \usage{
-\method{print}{HessMLP}(x, n = 5, ...)
+\method{print}{HessMLP}(x, n = 5, round_digits = NULL, ...)
 }
 \arguments{
 \item{x}{\code{HessMLP} object created by \code{\link[NeuralSens]{HessianMLP}}}
 
 \item{n}{\code{integer} specifying number of sensitivities to print per each output}
+
+\item{round_digits}{\code{integer} number of decimal places, default \code{NULL}}
 
 \item{...}{additional parameters}
 }

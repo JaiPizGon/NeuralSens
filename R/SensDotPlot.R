@@ -14,6 +14,7 @@
 #' to perform \code{geom_smooth}. If \code{nspline} is NULL, the square root of the length of the data
 #' is used as degrees of the spline.
 #' @param grid \code{logical}. If \code{TRUE}, plots created are show together using \code{\link[gridExtra]{arrangeGrob}}
+#' @param color \code{character} specifying the name of a \code{numeric} variable of \code{fdata} to color the scatter plot.
 #' @param ... further arguments that should be passed to  \code{\link[NeuralSens]{SensAnalysisMLP}} function
 #' @return list of \code{geom_point} plots for the inputs variables representing the
 #' sensitivity of each output respect to the inputs
@@ -57,7 +58,7 @@
 #' @export SensDotPlot
 SensDotPlot <- function(object, fdata = NULL, input_vars = "all",
                         output_vars = "all", smooth = FALSE,
-                        nspline = NULL, grid = FALSE, ...) {
+                        nspline = NULL, color = NULL, grid = FALSE, ...) {
   if (is.HessMLP(object)) {
     object <- HessToSensMLP(object)
   }
@@ -92,10 +93,16 @@ SensDotPlot <- function(object, fdata = NULL, input_vars = "all",
   if (is.null(nspline)) {
     nspline <- floor(sqrt(dim(SensMLP$raw_sens[[1]])[1]))
   }
-  plot_for_output <- function(rawSens, fdata, out, inp, smooth) {
+  plot_for_output <- function(rawSens, fdata, out, inp, smooth, color) {
     plotdata <- as.data.frame(cbind(fdata[,inp], rawSens[,inp]))
+    if (is.null(color)) {
+      plotdata[,'color'] <- 'blue'
+    } else {
+      plotdata[,'color'] <- plotdata[,color]
+    }
     p <- ggplot2::ggplot(plotdata, ggplot2::aes(x = plotdata[,1],
-                                                y = plotdata[,2])) +
+                                                y = plotdata[,2],
+                                                color = plotdata[,'color'])) +
       ggplot2::geom_point() +
       ggplot2::xlab(inp) +
       ggplot2::ylab(as.expression(bquote(partialdiff~.(out)~"/"~partialdiff~.(inp))))
@@ -114,7 +121,7 @@ SensDotPlot <- function(object, fdata = NULL, input_vars = "all",
     for (inp in input_vars) {
       plotlist[[out]][[inp]] <- plot_for_output(SensMLP$raw_sens[[out]],
                                                 as.data.frame(SensMLP$trData),
-                                                out, inp, smooth)
+                                                out, inp, smooth, color)
     }
     if (grid) {
       gr[[out]] <- gridExtra::arrangeGrob(grobs = plotlist[[out]], ncol = 1, top=out)

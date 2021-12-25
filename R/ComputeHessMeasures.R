@@ -149,7 +149,7 @@ ComputeHessMeasures <- function(sens) {
     out[[i]] <- list(
       mean = apply(der[,,i,], c(1,2), mean, na.rm = TRUE),
       std = apply(der[,,i,], c(1,2), stats::sd, na.rm = TRUE),
-      meanSensSQ = apply(der[,,i,]^2, c(1,2), mean, na.rm = TRUE)
+      meanSensSQ = sqrt(apply(der[,,i,]^2, c(1,2), mean, na.rm = TRUE))
     )
     rs[[i]] <- der[,,i,]
   }

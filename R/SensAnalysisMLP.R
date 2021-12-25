@@ -327,8 +327,8 @@ SensAnalysisMLP.default <- function(MLP.fit,
   # TestData
   dummies <-
     caret::dummyVars(
-      .outcome ~ .,
-      data = trData,
+      ~ .,
+      data = trData[,names(trData) != output_name, drop = FALSE],
       fullRank = TRUE,
       sep = NULL
     )
@@ -515,7 +515,7 @@ SensAnalysisMLP.train <- function(MLP.fit,
                   sens_end_input = sens_end_input,
                   preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
                   terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
-                  output_name = if("output_name" %in% names(args)){args$output_name}else{".outccome"},
+                  output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
                   plot = plot,
                   args[!names(args) %in% c("output_name","trData","preProc","terms")])
 }
@@ -1118,14 +1118,17 @@ SensAnalysisMLP.nnet <- function(MLP.fit,
   finalModel$n <- MLP.fit$n
   finalModel$wts <- MLP.fit$wts
   finalModel$coefnames <- MLP.fit$coefnames
+  output_name <- ".outcome"
   if(!any(names(trData) == ".outcome")){
     if (!"output_name" %in% names(args)) {
       names(trData)[!names(trData) %in% attr(MLP.fit$terms,"term.labels")] <- ".outcome"
+    } else {
+      output_name <- args$output_name
     }
   }
 
   actfun <- c("linear","sigmoid",
-              ifelse(is.factor(trData$.outcome),"sigmoid","linear"))
+              ifelse(is.factor(trData[,output_name]),"sigmoid","linear"))
   SensAnalysisMLP.default(finalModel,
                           trData = trData,
                           actfunc = actfun,
@@ -1138,7 +1141,7 @@ SensAnalysisMLP.nnet <- function(MLP.fit,
                           preProc = preProc,
                           terms = terms,
                           plot = plot,
-                          output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
+                          output_name = output_name,
                           deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
                           args[!names(args) %in% c("output_name","deractfunc")])
 }

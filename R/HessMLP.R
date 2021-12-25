@@ -96,7 +96,7 @@ is.HessMLP <- function(object) {
 #' @export
 summary.HessMLP <- function(object, ...) {
   class(object) <- c("summary.HessMLP", class(object))
-  object
+  print(object, ...)
 }
 #' Print method of the summary HessMLP Class
 #'
@@ -104,6 +104,7 @@ summary.HessMLP <- function(object, ...) {
 #' This metrics are the mean sensitivity, the standard deviation
 #' of sensitivities and the mean of sensitivities square
 #' @param x \code{summary.HessMLP} object created by summary method of \code{HessMLP} object
+#' @param round_digits \code{integer} number of decimal places, default \code{NULL}
 #' @param ... additional parameters
 #' @examples
 #' ## Load data -------------------------------------------------------------------
@@ -145,12 +146,22 @@ summary.HessMLP <- function(object, ...) {
 #' print(summary(sens))
 #' @method print summary.HessMLP
 #' @export
-print.summary.HessMLP <- function(x, ...) {
+print.summary.HessMLP <- function(x, round_digits = NULL, ...) {
   cat("Hessian matrix of ", paste(x$mlp_struct, collapse = "-"), " MLP network.\n\n", sep = "")
   # cat("Measures are calculated using the partial derivatives of ", x$layer_end, " layer's ",
   #     ifelse(x$layer_end_input,"input","output"), "\nwith respect to ", x$layer_origin, " layer's ",
   #     ifelse(x$layer_origin_input,"input","output"),".\n\n",
   #     sep = "")
+  if (!is.null(round_digits)) {
+    if (round_digits >= 0) {
+      x$sens <- lapply(x$sens,
+                       function(y) {
+                         lapply(y, function(z){
+                           round(z, round_digits)
+                         })
+                       })
+    }
+  }
   cat("Hessian measures of each output:\n")
   invisible(print(x$sens))
 }
@@ -160,6 +171,7 @@ print.summary.HessMLP <- function(x, ...) {
 #' Print the sensitivities of a \code{HessMLP} object.
 #' @param x \code{HessMLP} object created by \code{\link[NeuralSens]{HessianMLP}}
 #' @param n \code{integer} specifying number of sensitivities to print per each output
+#' @param round_digits \code{integer} number of decimal places, default \code{NULL}
 #' @param ... additional parameters
 #' @examples
 #' ## Load data -------------------------------------------------------------------
@@ -201,7 +213,7 @@ print.summary.HessMLP <- function(x, ...) {
 #' sens
 #' @method print HessMLP
 #' @export
-print.HessMLP <- function(x, n = 5, ...) {
+print.HessMLP <- function(x, n = 5, round_digits = NULL, ...) {
   cat("Sensitivity analysis of ", paste(x$mlp_struct, collapse = "-"), " MLP network.\n", sep = "")
   # cat("Measures are calculated using the partial derivatives of ", x$layer_end, " layer's ",
   #     ifelse(x$layer_end_input,"input","output"), "\nwith respect to ", x$layer_origin, " layer's ",
@@ -209,6 +221,14 @@ print.HessMLP <- function(x, n = 5, ...) {
   #     sep = "")
   cat("\n  ",nrow(x$trData)," samples\n\n", sep = "")
   cat("Sensitivities of each output (only ",min(n,dim(x$raw_sens[[1]])[3])," first samples):\n", sep = "")
+  if (!is.null(round_digits)) {
+    if (round_digits >= 0) {
+      x$raw_sens <- lapply(x$raw_sens,
+                       function(y) {
+                        round(y, round_digits)
+                       })
+    }
+  }
   for (out in 1:length(x$raw_sens)) {
     cat("$",names(x$raw_sens)[out],"\n", sep = "")
     invisible(print(x$raw_sens[[out]][,,1:min(n,dim(x$raw_sens[[1]])[3])]))
@@ -222,7 +242,11 @@ print.HessMLP <- function(x, n = 5, ...) {
 #' \itemize{
 #'      \item "sensitivities" (default): use \code{\link[NeuralSens]{HessianMLP}} function
 #'      \item "time": use \code{\link[NeuralSens]{SensTimePlot}} function
-#'      \item "features": use  \code{\link[NeuralSens]{SensFeaturePlot}} function
+#'      \item "features": use  \code{\link[NeuralSens]{HessFeaturePlot}} function
+#'      \item "matrix": use \code{\link[NeuralSens]{SensMatPlot}} function to show the values
+#'      of second partial derivatives
+#'      \item "interactions": use \code{\link[NeuralSens]{SensMatPlot}} function to show the
+#'      values of second partial derivatives and the first partial derivatives in the diagonal
 #'      }
 #' @param ... additional parameters passed to plot function of the \code{NeuralSens} package
 #' @return list of graphic objects created by \code{\link[ggplot2]{ggplot}}
@@ -270,7 +294,7 @@ print.HessMLP <- function(x, n = 5, ...) {
 #' @method plot HessMLP
 #' @export
 plot.HessMLP <- function(x,
-                         plotType = c("sensitivities","time","matrix","interactions"),
+                         plotType = c("sensitivities","time", "features","matrix","interactions"),
                          ...) {
   plotType <- match.arg(plotType)
 
@@ -280,6 +304,9 @@ plot.HessMLP <- function(x,
          },
          time = {
            NeuralSens::SensTimePlot(x, ...)
+         },
+         features = {
+           NeuralSens::HessFeaturePlot(x, ...)
          },
          matrix = {
            NeuralSens::SensMatPlot(x, senstype = "matrix", ...)
@@ -306,8 +333,12 @@ HessToSensMLP <- function(x) {
                                                  dimnames(x$sens[[out]]$mean)[[2]],
                                                  stringsAsFactors = FALSE),
                                      1,paste,collapse = "_")
+    indx <- matrix(TRUE, nrow(x$sens[[out]][[1]]), nrow(x$sens[[out]][[1]]))
+    indx[upper.tri(indx)] <- FALSE
     y$raw_sens[[out]] <- data.matrix(data.frame(aperm(y$raw_sens[[out]],c(3,1,2))))
     colnames(y$raw_sens[[out]]) <- rownames(y$sens[[out]])
+    y$sens[[out]] <- y$sens[[out]][as.vector(indx),]
+    y$raw_sens[[out]] <- y$raw_sens[[out]][,as.vector(indx)]
   }
   class(y) <- "SensMLP"
   return(y)

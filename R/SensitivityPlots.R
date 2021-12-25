@@ -111,8 +111,8 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
         }
       }
       if (10*quant[1] < quant[2]) { # Distribution has too much dispersion
-        xlim <- c(1,-1)*max(abs(obtain_quant(dataplot$value, 0.2, 0.8)))
-        if (xlim[2] < 1e-150) {
+        xlim <- c(-1,1)*max(abs(obtain_quant(dataplot$value, 0.2, 0.8)))
+        if (abs(xlim[1]) < 1e-150) {
           xlim <- c(-1e-150,1e-150)
         }
       } else {

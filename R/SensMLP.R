@@ -96,7 +96,7 @@ is.SensMLP <- function(object) {
 #' @export
 summary.SensMLP <- function(object, ...) {
   class(object) <- c("summary.SensMLP", class(object))
-  object
+  print(object, ...)
 }
 #' Print method of the summary SensMLP Class
 #'
@@ -104,6 +104,7 @@ summary.SensMLP <- function(object, ...) {
 #' This metrics are the mean sensitivity, the standard deviation
 #' of sensitivities and the mean of sensitivities square
 #' @param x \code{summary.SensMLP} object created by summary method of \code{SensMLP} object
+#' @param round_digits \code{integer} number of decimal places, default \code{NULL}
 #' @param ... additional parameters
 #' @examples
 #' ## Load data -------------------------------------------------------------------
@@ -145,12 +146,22 @@ summary.SensMLP <- function(object, ...) {
 #' print(summary(sens))
 #' @method print summary.SensMLP
 #' @export
-print.summary.SensMLP <- function(x, ...) {
+print.summary.SensMLP <- function(x, round_digits = NULL, ...) {
   cat("Sensitivity analysis of ", paste(x$mlp_struct, collapse = "-"), " MLP network.\n\n", sep = "")
   # cat("Measures are calculated using the partial derivatives of ", x$layer_end, " layer's ",
   #     ifelse(x$layer_end_input,"input","output"), "\nwith respect to ", x$layer_origin, " layer's ",
   #     ifelse(x$layer_origin_input,"input","output"),".\n\n",
   #     sep = "")
+  if (!is.null(round_digits)) {
+    if (round_digits >= 0) {
+      x$sens <- lapply(x$sens,
+                       function(y) {
+                         as.data.frame(lapply(y, function(z){
+                           round(z, round_digits)
+                         }), row.names = rownames(y))
+                       })
+    }
+  }
   cat("Sensitivity measures of each output:\n")
   invisible(print(x$sens))
 }
@@ -160,6 +171,7 @@ print.summary.SensMLP <- function(x, ...) {
 #' Print the sensitivities of a \code{SensMLP} object.
 #' @param x \code{SensMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}
 #' @param n \code{integer} specifying number of sensitivities to print per each output
+#' @param round_digits \code{integer} number of decimal places, default \code{NULL}
 #' @param ... additional parameters
 #' @examples
 #' ## Load data -------------------------------------------------------------------
@@ -201,7 +213,7 @@ print.summary.SensMLP <- function(x, ...) {
 #' sens
 #' @method print SensMLP
 #' @export
-print.SensMLP <- function(x, n = 5, ...) {
+print.SensMLP <- function(x, n = 5, round_digits = NULL, ...) {
   cat("Sensitivity analysis of ", paste(x$mlp_struct, collapse = "-"), " MLP network.\n", sep = "")
   # cat("Measures are calculated using the partial derivatives of ", x$layer_end, " layer's ",
   #     ifelse(x$layer_end_input,"input","output"), "\nwith respect to ", x$layer_origin, " layer's ",
@@ -209,6 +221,14 @@ print.SensMLP <- function(x, n = 5, ...) {
   #     sep = "")
   cat("\n  ",nrow(x$trData)," samples\n\n", sep = "")
   cat("Sensitivities of each output (only ",min(n,nrow(x$raw_sens[[1]]))," first samples):\n", sep = "")
+  if (!is.null(round_digits)) {
+    if (round_digits >= 0) {
+      x$raw_sens <- lapply(x$raw_sens,
+                           function(y) {
+                             round(y, round_digits)
+                           })
+    }
+  }
   for (out in 1:length(x$raw_sens)) {
     cat("$",names(x$raw_sens)[out],"\n", sep = "")
     invisible(print(x$raw_sens[[out]][1:min(n,nrow(x$raw_sens[[1]])),]))
