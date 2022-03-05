@@ -364,9 +364,9 @@ HessianMLP.default <- function(MLP.fit,
   W <- list()
   D <- list()
   D2 <- list()
-  X <- list()
-  Q <- list()
-  D_ <- list()
+  # X <- list()
+  # Q <- list()
+  # D_ <- list()
 
   # Initialize the activation and the derivative of the activation function for each layer
   if (is.null(deractfunc)) deractfunc <- actfunc
@@ -398,10 +398,10 @@ HessianMLP.default <- function(MLP.fit,
       D2[[l]][,,,irow] <- Der2ActivationFunction[[l]](Z[[l]][irow,])
     }
   }
-  # Initialize the cross-derivatives
-  D_[[1]] <- array(diag(mlpstr[1]), dim=c(mlpstr[1], mlpstr[1], nrow(TestData)))
-  Q[[1]] <- array(0, dim = c(mlpstr[1],mlpstr[1],mlpstr[1],nrow(TestData)))
-  X[[1]] <- D2[[1]]
+#   # Initialize the cross-derivatives
+#   D_[[1]] <- array(diag(mlpstr[1]), dim=c(mlpstr[1], mlpstr[1], nrow(TestData)))
+#   Q[[1]] <- array(0, dim = c(mlpstr[1],mlpstr[1],mlpstr[1],nrow(TestData)))
+#   X[[1]] <- D2[[1]]
 #
 #
 #   # Damn, there are no array multiplications, we need to use sapplys
@@ -497,7 +497,7 @@ HessianMLP.train <- function(MLP.fit,
              sens_end_layer = sens_end_layer,
              sens_origin_input = sens_origin_input,
              sens_end_input = sens_end_input,
-             output_name = if ("output_name" %in% names(args)) {args$preProc} else {".outcome"},
+             output_name = if ("output_name" %in% names(args)) {args$output_name} else {".outcome"},
              preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
              terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
              plot = plot,
@@ -665,7 +665,7 @@ HessianMLP.H2OMultinomialModel <- function(MLP.fit,
                      output_name = if("output_name" %in% names(args)){args$output_name}else{MLP.fit@parameters$y},
                      deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
                      der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
-                     args[!names(args) %in% c("trData","output_name","deractfunc")])
+                     args[!names(args) %in% c("trData","output_name","deractfunc","der2actfunc")])
 }
 
 #' @rdname HessianMLP
@@ -828,7 +828,7 @@ HessianMLP.H2ORegressionModel <- function(MLP.fit,
                      output_name = if("output_name" %in% names(args)){args$output_name}else{MLP.fit@parameters$y},
                      deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
                      der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
-                     args[!names(args) %in% c("trData","output_name","deractfunc")])
+                     args[!names(args) %in% c("trData","output_name","deractfunc","der2actfunc")])
 }
 
 
@@ -899,7 +899,7 @@ HessianMLP.list <- function(MLP.fit,
                      output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
                      deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
                      der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
-                     args[!names(args) %in% c("output_name","deractfunc")])
+                     args[!names(args) %in% c("output_name","deractfunc","der2actfunc")])
 }
 
 #' @rdname HessianMLP
@@ -994,7 +994,7 @@ HessianMLP.mlp <- function(MLP.fit,
                      output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
                      deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
                      der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
-                     args[!names(args) %in% c("output_name","deractfunc")])
+                     args[!names(args) %in% c("output_name","deractfunc","der2actfunc")])
 }
 
 #' @rdname HessianMLP
@@ -1050,7 +1050,7 @@ HessianMLP.nn <- function(MLP.fit,
                                         output_name = names(trData)[names(trData) == MLP.fit$model.list$response],
                                         deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
                                         der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
-                                        args[!names(args) %in% c("deractfunc")])
+                                        args[!names(args) %in% c("deractfunc","der2actfunc")])
     sensit[((j-1)*nrow(trData)+1):(j*nrow(trData)),,] <- sensitivities
   }
   colnames(sensit) <- finalModel$coefnames
@@ -1133,7 +1133,7 @@ HessianMLP.nnet <- function(MLP.fit,
                      output_name = output_name,
                      deractfunc = if("deractfunc" %in% names(args)){args$deractfunc}else{NULL},
                      der2actfunc = if("der2actfunc" %in% names(args)){args$der2actfunc}else{NULL},
-                     args[!names(args) %in% c("output_name","deractfunc")])
+                     args[!names(args) %in% c("output_name","deractfunc","der2actfunc")])
 }
 
 #' @rdname HessianMLP
@@ -1250,7 +1250,7 @@ HessianMLP.nnetar <- function(MLP.fit,
                                               terms = NULL,
                                               plot = FALSE,
                                               output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                                              args[!names(args) %in% c("output_name","deractfunc")])
+                                              args[!names(args) %in% c("output_name","deractfunc","der2actfunc")])
     sensit[,,((i-1)*nrow(trData)+1):(i*nrow(trData))] <- sensitivities[[i]]$raw_sens[[1]]
   }
 
