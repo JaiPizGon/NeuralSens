@@ -1,0 +1,20 @@
+bibentry(bibtype = "Article",
+  title        = "{NeuralSens}: Sensitivity Analysis of Neural Networks",
+  author       = c(person(given = "Jaime",
+                          family = "Pizarroso",
+                          email = "Jaime.Pizarroso@iit.comillas.edu"),
+                   person(given = "Jos\\'e",
+                          family = "Portela",
+                          email = "jose.portela@iit.comillas.edu"),
+                   person(given = "Antonio",
+                          family = "Mu\\~noz",
+                          email = "Antonio.Munoz@iit.comillas.edu")),
+  journal      = "Journal of Statistical Software",
+  year         = "2022",
+  volume       = "102",
+  number       = "7",
+  pages        = "1--36",
+  doi          = "10.18637/jss.v102.i07",
+  header       = "To cite NeuralSens in publications use:"
+)
+
