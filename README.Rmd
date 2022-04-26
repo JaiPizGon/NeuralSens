@@ -14,6 +14,8 @@ output:
 #### *Antonio Muñoz San Roque, Antonio.Munoz@iit.comillas.edu*
 #### *José Portela González, jose.portela@iit.comillas.edu*
 <!-- badges: start -->
+
+[![CRAN status](https://www.r-pkg.org/badges/version/NeuralSens)](https://CRAN.R-project.org/package=NeuralSens)
 [![Travis build status](https://travis-ci.org/JaiPizGon/NeuralSens.svg?branch=master)](https://travis-ci.org/JaiPizGon/NeuralSens)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/JaiPizGon/NeuralSens?branch=master&svg=true)](https://ci.appveyor.com/project/JaiPizGon/NeuralSens)
 [![CRAN_Download_Badge](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)
@@ -116,6 +118,16 @@ dataset. The color of each point depends on the value of the input for its corre
 ```{r, results = 'hide', message=FALSE, fig.height = 6, fig.width = 9}
 SensFeaturePlot(sens, fdata = DAILY_DEMAND_TR)
 ```
+
+### Citation
+
+Please, to cite NeuralSens in publications use:
+
+Pizarroso J, Portela J, Muñoz A (2022). “NeuralSens: Sensitivity Analysis of Neural Networks.” _Journal of
+Statistical Software_, *102*(7), 1-36. doi: 10.18637/jss.v102.i07 (URL:
+https://doi.org/10.18637/jss.v102.i07).
+
+
 
 ### License
 

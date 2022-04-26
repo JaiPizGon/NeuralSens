@@ -1,19 +1,11 @@
----
-output:
-  html_document:
-    keep_md: yes
-    toc: no
-    self_contained: yes
-  pdf_document:
-    toc: yes
----
-
 # NeuralSens <img src="man/logo/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@comillas.edu*
 #### *Antonio Muñoz San Roque, Antonio.Munoz@iit.comillas.edu*
 #### *José Portela González, jose.portela@iit.comillas.edu*
 <!-- badges: start -->
+
+[![CRAN status](https://www.r-pkg.org/badges/version/NeuralSens)](https://CRAN.R-project.org/package=NeuralSens)
 [![Travis build status](https://travis-ci.org/JaiPizGon/NeuralSens.svg?branch=master)](https://travis-ci.org/JaiPizGon/NeuralSens)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/JaiPizGon/NeuralSens?branch=master&svg=true)](https://ci.appveyor.com/project/JaiPizGon/NeuralSens)
 [![CRAN_Download_Badge](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)
@@ -132,6 +124,16 @@ SensFeaturePlot(sens, fdata = DAILY_DEMAND_TR)
 ```
 
 ![](README_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
+### Citation
+
+Please, to cite NeuralSens in publications use:
+
+Pizarroso J, Portela J, Muñoz A (2022). “NeuralSens: Sensitivity Analysis of Neural Networks.” _Journal of
+Statistical Software_, *102*(7), 1-36. doi: 10.18637/jss.v102.i07 (URL:
+https://doi.org/10.18637/jss.v102.i07).
+
+
 
 ### License
 
