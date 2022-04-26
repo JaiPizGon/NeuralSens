@@ -9,10 +9,20 @@
 #'  and last alpha evaluated is less than \code{tol}
 #' @param curve_equal_length make all the curves of the same length
 #' @param curve_equal_origin make all the curves begin at (1,0)
+#' @param curve_divided_max create second plot of curves divided by maximum alpha
 #' @return alpha-curves of the MLP function
 #' @examples
+#' \donttest{
+#' mod <- RSNNS::mlp(simdata[, c("X1", "X2", "X3")], simdata[, "Y"],
+#'                  maxit = 1000, size = 15, linOut = TRUE)
+#'
+#' sens <- SensAnalysisMLP(mod, trData = simdata,
+#'                         output_name = "Y", plot = FALSE)
+#'
+#' AlphaSensAnalysis(sens)
+#' }
 #' @export AlphaSensAnalysis
-AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 100, interpolate_alpha = FALSE, curve_equal_length = FALSE, curve_equal_origin = FALSE) {
+AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 100, interpolate_alpha = FALSE, curve_equal_length = FALSE, curve_equal_origin = FALSE, curve_divided_max = FALSE) {
   if (length(sens$raw_sens) != 1) {
     stop("This analysis is thought for MLPs focused on Regression, it does not work for Classiffication MLPs")
   }
@@ -64,14 +74,31 @@ AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 100, interpolate_alp
   }
 
   alpha_curves <- do.call("rbind",alpha_curves)
-  p <- ggplot2::ggplot(alpha_curves) +
-    ggplot2::geom_line(ggplot2::aes(x = alpha, y = alpha_curve, color = input_var)) +
-    ggplot2::geom_hline(ggplot2::aes(yintercept = alpha_bi, color = input_var),
+  p1 <- ggplot2::ggplot(alpha_curves) +
+    ggplot2::geom_line(ggplot2::aes_string(x = "alpha", y = "alpha_curve", color = "input_var")) +
+    ggplot2::geom_hline(ggplot2::aes_string(yintercept = "alpha_bi", color = "input_var"),
                         linetype = "dotted") +
-    ggplot2::geom_hline(ggplot2::aes(yintercept = alpha_max, color = input_var),
-                        linetype = "dashed")
-  plot(p)
-  return(p)
+    ggplot2::geom_hline(ggplot2::aes_string(yintercept = "alpha_max", color = "input_var"),
+                        linetype = "dashed") +
+    ggplot2::ylab("alpha value") +
+    ggplot2::ggtitle("Alpha curve of Lp norm values")
+  if (curve_divided_max) {
+    alpha_curves$divided <- alpha_curves$alpha_curve / alpha_curves$alpha_max
+    p2 <- ggplot2::ggplot(alpha_curves) +
+      ggplot2::geom_line(ggplot2::aes_string(x = "alpha", y = "divided", color = "input_var")) +
+      ggplot2::geom_hline(ggplot2::aes(yintercept = 1),
+                          linetype = "dashed") +
+      ggplot2::ylab("alpha value")+
+      ggplot2::ggtitle("Alpha curve of Lp norm values divided by maximum")
+    g <- gridExtra::grid.arrange(grobs=list(p1, p2), ncol = 2)
+    plot(g)
+    return(invisible(g))
+  } else {
+    plot(p1)
+    return(invisible(p1))
+  }
+
+
 }
 
 #' Sensitivity alpha-curve associated to MLP function of an input variable
@@ -83,6 +110,15 @@ AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 100, interpolate_alp
 #' @param max_alpha maximum alpha value to analyze
 #' @return alpha-curve of the MLP function
 #' @examples
+#' \donttest{
+#' mod <- RSNNS::mlp(simdata[, c("X1", "X2", "X3")], simdata[, "Y"],
+#'                  maxit = 1000, size = 15, linOut = TRUE)
+#'
+#' sens <- SensAnalysisMLP(mod, trData = simdata,
+#'                         output_name = "Y", plot = FALSE)
+#'
+#' AlphaSensCurve(sens$raw_sens[[1]][,1])
+#' }
 #' @export AlphaSensCurve
 AlphaSensCurve <- function(sens, tol = NULL, max_alpha = 100) {
   alpha_curve <- c()
@@ -90,17 +126,19 @@ AlphaSensCurve <- function(sens, tol = NULL, max_alpha = 100) {
   tol <- ifelse(is.null(tol), 0.0001 * max_sens, tol)
   alpha <- 0
   N <- length(sens)
+  order <- 10^(max(floor(log10(abs(sens))))+1)
   while(alpha < max_alpha) {
     alpha <- alpha + 1
-    alpha_curve <- c(alpha_curve, (sum(abs(sens)^alpha)/N)^(1/(alpha)))
+    # Scale alpha by order of magnitude of sens in order to avoid infinite values
+    alpha_curve <- c(alpha_curve, order * (sum((abs(sens)/order)^alpha/N))^(1/alpha))
     if (alpha >= 2) {
-      if (((max_sens - alpha_curve[alpha]) < tol) || is.infinite(alpha_curve[alpha])) {
+      if (((max_sens - alpha_curve[alpha]) < tol) || is.infinite(alpha_curve[alpha]) || (alpha_curve[alpha] < alpha_curve[alpha-1])) {
         break
         }
     }
   }
 
-  if (is.infinite(alpha_curve[alpha])) {
+  if (is.infinite(alpha_curve[alpha]) ||  alpha_curve[alpha] == 0) {
     alpha_curve <- alpha_curve[1:(alpha-1)]
   }
 

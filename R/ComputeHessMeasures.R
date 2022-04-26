@@ -109,20 +109,32 @@ ComputeHessMeasures <- function(sens) {
                  nrow = dim(W[[l]])[1] - 1,
                  ncol = dim(W[[l]])[2])
 
-        Q[[counter]][,,,irow] <- array(apply(array(X[[counter - 1]][,,,irow,drop=FALSE], dim = dim(X[[counter - 1]])[1:3]), 3,
-                                             function(x) x %*% matrix(W[[l]][2:nrow(W[[l]]),,drop=FALSE],
-                                                                      nrow = dim(W[[l]])[1] - 1,
-                                                                      ncol = dim(W[[l]])[2])),
-                                       dim = c(mlpstr[sens_origin_layer], dim(W[[l]])[2], mlpstr[sens_origin_layer]))
+        # Q[[counter]][,,,irow] <- array(apply(array(X[[counter - 1]][,,,irow,drop=FALSE], dim = dim(X[[counter - 1]])[1:3]), 3,
+        #                                      function(x) x %*% matrix(W[[l]][2:nrow(W[[l]]),,drop=FALSE],
+        #                                                               nrow = dim(W[[l]])[1] - 1,
+        #                                                               ncol = dim(W[[l]])[2]) %*% D[[l]][,,irow]),
+        #                                dim = c(mlpstr[sens_origin_layer], dim(D2[[l]])[2], mlpstr[sens_origin_layer]))
 
-        X[[counter]][,,,irow] <- array(apply(array(apply(array(D2[[l]][,,,irow], dim = dim(D2[[l]])[1:3]), 3,
-                                                         function(x) matrix(D_[[counter]][,,irow], nrow = dim(D_[[counter]])[1]) %*% x),
-                                                   dim = c(mlpstr[sens_origin_layer], dim(D2[[l]])[2], dim(D2[[l]])[3])),
-                                             1, function(x) matrix(D_[[counter]][,,irow], nrow = dim(D_[[counter]])[1]) %*% x),
-                                       dim = c(mlpstr[sens_origin_layer], dim(D2[[l]])[2], mlpstr[sens_origin_layer])) + # Here ends y^2/z^2 * z/x1 * z/x2
-          array(apply(array(Q[[counter]][,,,irow],dim = dim(Q[[counter]])[1:3]),3,
-                      function(x){x %*% D[[l]][,,irow]}),
-                dim = c(mlpstr[sens_origin_layer], dim(D2[[l]])[2], mlpstr[sens_origin_layer]))
+        # X[[counter]][,,,irow] <- array(apply(array(apply(array(D2[[l]][,,,irow], dim = dim(D2[[l]])[1:3]), 3,
+        #                                                  function(x) matrix(D_[[counter]][,,irow], nrow = dim(D_[[counter]])[1]) %*% x),
+        #                                            dim = c(mlpstr[sens_origin_layer], dim(D2[[l]])[2:3])),
+        #                                      1, function(x) matrix(D_[[counter]][,,irow], nrow = dim(D_[[counter]])[1]) %*% x),
+        #                                dim = c(mlpstr[sens_origin_layer], dim(D2[[l]])[2], mlpstr[sens_origin_layer])) + # Here ends y^2/z^2 * z/x1 * z/x2
+        #   array(Q[[counter]][,,,irow],dim = dim(Q[[counter]])[1:3])
+        h <- array(NA, dim = c(mlpstr[sens_origin_layer], dim(D2[[l]])[2:3]))
+        for (d in 1:dim(D2[[l]])[3]) {
+          h[,,d] <- matrix(D_[[counter]][,,irow], nrow = dim(D_[[counter]])[1]) %*% D2[[l]][,,d,irow]
+        }
+        for (d in 1:dim(h)[1]) {
+          Q[[counter]][d,,,irow] <- t(X[[counter - 1]][d,,,irow]) %*%
+                                    matrix(W[[l]][2:nrow(W[[l]]),,drop=FALSE],
+                                           nrow = dim(W[[l]])[1] - 1,
+                                           ncol = dim(W[[l]])[2]) %*%
+                                    D[[l]][,,irow]
+          X[[counter]][d,,,irow] <- t(matrix(D_[[counter]][,,irow], nrow = dim(D_[[counter]])[1]) %*% h[d,,])
+        }
+        X[[counter]][,,,irow] <- array(X[[counter]][,,,irow], dim = dim(X[[counter]])[1:3]) +
+          array(Q[[counter]][,,,irow],dim = dim(Q[[counter]])[1:3])
       }
     }
     l <- counter

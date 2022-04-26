@@ -4,7 +4,7 @@
 \alias{AlphaSensCurve}
 \title{Sensitivity alpha-curve associated to MLP function of an input variable}
 \usage{
-AlphaSensCurve(sens, tol = NULL, max_alpha = 1000)
+AlphaSensCurve(sens, tol = NULL, max_alpha = 100)
 }
 \arguments{
 \item{sens}{raw sensitivities of the MLP output with respect to input variable.}
@@ -19,4 +19,15 @@ alpha-curve of the MLP function
 \description{
 Obtain sensitivity alpha-curve associated to MLP function obtained from
 the sensitivities returned by \code{\link[NeuralSens]{SensAnalysisMLP}} of an input variable.
+}
+\examples{
+\donttest{
+mod <- RSNNS::mlp(simdata[, c("X1", "X2", "X3")], simdata[, "Y"],
+                 maxit = 1000, size = 15, linOut = TRUE)
+
+sens <- SensAnalysisMLP(mod, trData = simdata,
+                        output_name = "Y", plot = FALSE)
+
+AlphaSensCurve(sens$raw_sens[[1]][,1])
+}
 }

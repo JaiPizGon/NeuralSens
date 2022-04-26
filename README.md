@@ -1,3 +1,13 @@
+---
+output:
+  html_document:
+    keep_md: yes
+    toc: no
+    self_contained: yes
+  pdf_document:
+    toc: yes
+---
+
 # NeuralSens <img src="man/logo/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@comillas.edu*
@@ -71,6 +81,13 @@ decay <- 0.1
 
 # create neural network
 library(caret)
+```
+
+```
+## Warning: package 'caret' was built under R version 4.1.3
+```
+
+```r
 ctrl_tune <- trainControl(method = "boot",
                           savePredictions = FALSE,
                           summaryFunction = defaultSummary)

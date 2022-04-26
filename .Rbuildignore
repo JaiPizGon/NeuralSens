@@ -11,5 +11,12 @@ README.html
 ^README_files/.*
 ^appveyor\.yml$
 ^CRAN-RELEASE$
-^Python$
+^src$
 ^CRAN-SUBMISSION$
+^dist$
+.pypirc
+^neuralsens$
+pyproject.toml
+pythontests.ipynb
+setup.py
+LICENSE

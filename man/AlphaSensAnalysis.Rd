@@ -4,7 +4,15 @@
 \alias{AlphaSensAnalysis}
 \title{Sensitivity alpha-curve associated to MLP function}
 \usage{
-AlphaSensAnalysis(sens, tol = NULL, max_alpha = 1000)
+AlphaSensAnalysis(
+  sens,
+  tol = NULL,
+  max_alpha = 100,
+  interpolate_alpha = FALSE,
+  curve_equal_length = FALSE,
+  curve_equal_origin = FALSE,
+  curve_divided_max = FALSE
+)
 }
 \arguments{
 \item{sens}{sensitivity object returned by \code{\link[NeuralSens]{SensAnalysisMLP}}}
@@ -12,6 +20,15 @@ AlphaSensAnalysis(sens, tol = NULL, max_alpha = 1000)
 \item{tol}{difference between M_alpha and maximum sensitivity of the sensitivity of each input variable}
 
 \item{max_alpha}{maximum alpha value to analyze}
+
+\item{interpolate_alpha}{interpolate alpha mean if difference of maximum sensitivity
+and last alpha evaluated is less than \code{tol}}
+
+\item{curve_equal_length}{make all the curves of the same length}
+
+\item{curve_equal_origin}{make all the curves begin at (1,0)}
+
+\item{curve_divided_max}{create second plot of curves divided by maximum alpha}
 }
 \value{
 alpha-curves of the MLP function
@@ -19,4 +36,15 @@ alpha-curves of the MLP function
 \description{
 Obtain sensitivity alpha-curves associated to MLP function obtained from
 the sensitivities returned by \code{\link[NeuralSens]{SensAnalysisMLP}}.
+}
+\examples{
+\donttest{
+mod <- RSNNS::mlp(simdata[, c("X1", "X2", "X3")], simdata[, "Y"],
+                 maxit = 1000, size = 15, linOut = TRUE)
+
+sens <- SensAnalysisMLP(mod, trData = simdata,
+                        output_name = "Y", plot = FALSE)
+
+AlphaSensAnalysis(sens)
+}
 }

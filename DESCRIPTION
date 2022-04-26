@@ -1,5 +1,5 @@
 Package: NeuralSens
-Version: 0.2.3
+Version: 0.3.0
 Title: Sensitivity Analysis of Neural Networks
 Date: 2021-12-25
 Description: Analysis functions to quantify inputs importance in neural network models.

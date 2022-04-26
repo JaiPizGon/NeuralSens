@@ -376,24 +376,24 @@ Der3ActFunc <- function(type = "sigmoid", ...) {
                if (length(x) == 1) {
                  y <-  1/(1 + exp(-x)) * (1 - 1/(1 + exp(-x))) * (1 - 2/(1 + exp(-x))) * (1 - 3/(1 + exp(-x)))
                } else {
-                 NeuralSens::diag3Darray(1/(1 + exp(-x)) * (1 - 1/(1 + exp(-x))) * (1 - 2/(1 + exp(-x))) * (1 - 3/(1 + exp(-x))))
+                 NeuralSens::diag4Darray(1/(1 + exp(-x)) * (1 - 1/(1 + exp(-x))) * (1 - 2/(1 + exp(-x))) * (1 - 3/(1 + exp(-x))))
                }
              })
            },
            tanh = {
              return(function(x){
                if (length(x) == 1) {
-                 -2 * tanh(x) * (1 - tanh(x)^2)
+                 -2 * (1 - 4 * tanh(x)^2 + tanh(x)^4)
                } else {
-                 NeuralSens::diag3Darray(-2 * tanh(x) * (1 - tanh(x)^2))
+                 NeuralSens::diag4Darray(-2 * (1 - 4 * tanh(x)^2 + tanh(x)^4))
                }
              })
            },
            linear = {
-             return(function(x){array(0, dim = rep(length(x),3))})
+             return(function(x){array(0, dim = rep(length(x),4))})
            },
            ReLU = {
-             return(function(x){array(0, dim = rep(length(x),3))})
+             return(function(x){array(0, dim = rep(length(x),4))})
            },
            # PReLU = {
            #   return(function(x,a){
@@ -418,7 +418,7 @@ Der3ActFunc <- function(type = "sigmoid", ...) {
                if (length(x) == 1) {
                  ifelse(x != 0, 0, NA)
                } else {
-                 NeuralSens::diag3Darray(ifelse(x != 0, 0, NA))
+                 NeuralSens::diag4Darray(ifelse(x != 0, 0, NA))
                }
              })
            },
@@ -427,7 +427,7 @@ Der3ActFunc <- function(type = "sigmoid", ...) {
                if (length(x) == 1) {
                  -2 * x / ((1 + x^2)^2)
                } else {
-                 NeuralSens::diag3Darray(-2 * x / ((1 + x^2)^2))
+                 NeuralSens::diag4Darray(-2 * x / ((1 + x^2)^2))
                }
              })
            },
@@ -436,7 +436,7 @@ Der3ActFunc <- function(type = "sigmoid", ...) {
                if (length(x) == 1) {
                  exp(-x)/((1 + exp(-x))^2)
                } else {
-                 NeuralSens::diag3Darray(exp(-x)/((1 + exp(-x))^2))
+                 NeuralSens::diag4Darray(exp(-x)/((1 + exp(-x))^2))
                }
              })
            },
