@@ -62,3 +62,7 @@ nnetmod <- nnet::nnet(form,
 sens <- NeuralSens::SensAnalysisMLP(nnetmod, trData = nntrData, plot = FALSE)
 NeuralSens::SensFeaturePlot(sens)
 }
+\references{
+Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+Neural Networks. Journal of Statistical Software, 102(7), 1-36.
+}

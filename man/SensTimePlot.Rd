@@ -80,3 +80,7 @@ nnetmod <- nnet::nnet(form,
 # Try SensTimePlot
 NeuralSens::SensTimePlot(nnetmod, fdata = nntrData, date.var = NULL)
 }
+\references{
+Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+Neural Networks. Journal of Statistical Software, 102(7), 1-36.
+}

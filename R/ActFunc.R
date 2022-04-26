@@ -4,6 +4,9 @@
 #' @param type \code{character} name of the activation function
 #' @param ... extra arguments needed to calculate the functions
 #' @return \code{numeric} output of the neuron
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @examples
 #' # Return the sigmoid activation function of a neuron
 #' ActivationFunction <- ActFunc("sigmoid")
@@ -115,6 +118,9 @@ ActFunc <- function(type = "sigmoid", ...) {
 #' @param type \code{character} name of the activation function
 #' @param ... extra arguments needed to calculate the functions
 #' @return \code{numeric} output of the neuron
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @examples
 #' # Return derivative of the sigmoid activation function of a neuron
 #' ActivationFunction <- DerActFunc("sigmoid")

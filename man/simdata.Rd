@@ -29,6 +29,10 @@ The data is already scaled, and has been generated using the following code:
 
 \code{ simdata$Y <- simdata$X1^2 + 0.5*simdata$X2 + 0.1*rnorm(2000, 0, 1)}
 }
+\references{
+Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+Neural Networks. Journal of Statistical Software, 102(7), 1-36.
+}
 \author{
 Jaime Pizarroso Gonzalo
 }

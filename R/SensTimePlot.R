@@ -16,6 +16,9 @@
 #' @param ... further arguments that should be passed to  \code{\link[NeuralSens]{SensAnalysisMLP}} function
 #' @return list of \code{geom_line} plots for the inputs variables representing the
 #' sensitivity of each output respect to the inputs over time
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")

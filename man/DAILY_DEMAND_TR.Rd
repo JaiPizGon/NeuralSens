@@ -15,6 +15,10 @@ A data frame with 1980 rows and 4 variables:
 \description{
 Training dataset with values of temperature and working day to predict electrical demand
 }
+\references{
+Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+Neural Networks. Journal of Statistical Software, 102(7), 1-36.
+}
 \author{
 Jose Portela Gonzalez
 }

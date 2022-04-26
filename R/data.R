@@ -4,6 +4,9 @@
 #' @name DAILY_DEMAND_TR
 #' @doctype data
 #' @author Jose Portela Gonzalez
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @keywords data
 #' @format A data frame with 1980 rows and 4 variables:
 #' \describe{
@@ -19,6 +22,9 @@ NULL
 #' @name DAILY_DEMAND_TV
 #' @doctype data
 #' @author Jose Portela Gonzalez
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @keywords data
 #' @format A data frame with 7 rows and 3 variables:
 #' \describe{
@@ -34,6 +40,9 @@ NULL
 #' @name syntheticdata
 #' @doctype data
 #' @author Jose Portela Gonzalez
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @keywords data
 #' @format list of 4 data.frames with 4 columns for 3 inputs and one output:
 #' \describe{
@@ -89,6 +98,9 @@ NULL
 #' @name simdata
 #' @doctype data
 #' @author Jaime Pizarroso Gonzalo
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @keywords data
 #' @format A data frame with 2000 rows and 4 variables:
 #' \describe{

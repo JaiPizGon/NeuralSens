@@ -8,6 +8,9 @@
 #' @param coefnames \code{character} vector with the name of the predictor(s)
 #' @param output_name \code{character} vector with the name of the output(s)
 #' @return \code{SensMLP} object
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @export SensMLP
 SensMLP <- function(sens = list(),
                     raw_sens = list(),
@@ -42,6 +45,9 @@ SensMLP <- function(sens = list(),
 #' Check if object is of class \code{SensMLP}
 #' @param object \code{SensMLP} object
 #' @return \code{TRUE} if \code{object} is a \code{SensMLP} object
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @export is.SensMLP
 is.SensMLP <- function(object) {
   any(class(object) == "SensMLP")
@@ -54,6 +60,9 @@ is.SensMLP <- function(object) {
 #' @param object \code{SensMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}
 #' @param ... additional parameters
 #' @return summary object of the \code{SensMLP} object passed
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")
@@ -106,6 +115,9 @@ summary.SensMLP <- function(object, ...) {
 #' @param x \code{summary.SensMLP} object created by summary method of \code{SensMLP} object
 #' @param round_digits \code{integer} number of decimal places, default \code{NULL}
 #' @param ... additional parameters
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")
@@ -173,6 +185,9 @@ print.summary.SensMLP <- function(x, round_digits = NULL, ...) {
 #' @param n \code{integer} specifying number of sensitivities to print per each output
 #' @param round_digits \code{integer} number of decimal places, default \code{NULL}
 #' @param ... additional parameters
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")
@@ -246,6 +261,9 @@ print.SensMLP <- function(x, n = 5, round_digits = NULL, ...) {
 #'      }
 #' @param ... additional parameters passed to plot function of the \code{NeuralSens} package
 #' @return list of graphic objects created by \code{\link[ggplot2]{ggplot}}
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @examples
 #' #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")

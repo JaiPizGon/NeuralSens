@@ -6,7 +6,7 @@ Description: Analysis functions to quantify inputs importance in neural network 
   Functions are available for calculating and plotting the inputs importance and obtaining
   the activation function of each neuron layer and its derivatives. The importance of a given
   input is defined as the distribution of the derivatives of the output with respect to that
-  input in each training data point.
+  input in each training data point <doi:10.18637/jss.v102.i07>.
 Author: José Portela González [aut], Antonio Muñoz San Roque [aut], Jaime Pizarroso Gonzalo [aut, ctb, cre]
 Maintainer: Jaime Pizarroso Gonzalo <jpizarroso@comillas.edu>
 Imports:

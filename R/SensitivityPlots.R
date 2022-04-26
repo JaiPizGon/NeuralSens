@@ -13,6 +13,9 @@
 #'   classification of the classes in a 2D map \item Plot 2: b/w plot with
 #'   probability of the chosen class in a 2D map \item Plot 3: plot with the
 #'   stats::predictions of the data provided if param \code{der} is \code{FALSE}}
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")

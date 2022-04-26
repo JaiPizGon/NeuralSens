@@ -40,6 +40,10 @@ list of 4 data.frames with 4 columns for 3 inputs and one output:
 List of 4 dataframes to test the functions with different
 variables types (numeric and character output and inputs)
 }
+\references{
+Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+Neural Networks. Journal of Statistical Software, 102(7), 1-36.
+}
 \author{
 Jose Portela Gonzalez
 }

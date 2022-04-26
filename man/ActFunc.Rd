@@ -26,3 +26,7 @@ ActivationFunction <- ActFunc("tanh")
 actfuncs <- c("linear","sigmoid","linear")
 ActivationFunctions <- sapply(actfuncs, ActFunc)
 }
+\references{
+Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+Neural Networks. Journal of Statistical Software, 102(7), 1-36.
+}

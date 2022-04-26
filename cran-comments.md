@@ -1,4 +1,14 @@
 # cran-comments.md
+
+## (Possible) invalid DOIs:
+
+Found the following (possibly) invalid DOIs:
+  DOI: 10.18637/jss.v102.i07
+    From: inst/CITATION
+    Status: Not Found
+    Message: 404
+
+The DOI in the CITATION is for a new JSS publication that will be registered after publication on CRAN.
            
 ## donttest{} examples
 

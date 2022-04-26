@@ -9,6 +9,9 @@
 #' @param ... further arguments that should be passed to  \code{\link[NeuralSens]{SensAnalysisMLP}} function
 #' @return list of Feature sensitivity plot as described in
 #' \url{https://www.r-bloggers.com/2019/03/a-gentle-introduction-to-shap-values-in-r/}
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")

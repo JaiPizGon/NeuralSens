@@ -14,6 +14,10 @@ A data frame with 7 rows and 3 variables:
 \description{
 Validation dataset with values of temperature and working day to predict electrical demand
 }
+\references{
+Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+Neural Networks. Journal of Statistical Software, 102(7), 1-36.
+}
 \author{
 Jose Portela Gonzalez
 }

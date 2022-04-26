@@ -3,6 +3,9 @@
 #' @description Function to plot the sensitivities created by \code{\link[NeuralSens]{SensAnalysisMLP}}.
 #' @param sens \code{SensAnalysisMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}.
 #' @return \code{SensAnalysisMLP} object with the sensitivities calculated
+#' @references
+#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
+#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
 #' @examples
 #' ## Load data -------------------------------------------------------------------
 #' data("DAILY_DEMAND_TR")
