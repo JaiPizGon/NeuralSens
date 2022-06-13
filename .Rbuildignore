@@ -19,4 +19,7 @@ README.html
 pyproject.toml
 pythontests.ipynb
 setup.py
+test.py
 LICENSE
+^tests$
+^vscode$

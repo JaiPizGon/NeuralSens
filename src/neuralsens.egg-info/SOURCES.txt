@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+src/neuralsens/__init__.py
+src/neuralsens/activation_functions.py
+src/neuralsens/partial_derivatives.py
+src/neuralsens.egg-info/PKG-INFO
+src/neuralsens.egg-info/SOURCES.txt
+src/neuralsens.egg-info/dependency_links.txt
+src/neuralsens.egg-info/requires.txt
+src/neuralsens.egg-info/top_level.txt

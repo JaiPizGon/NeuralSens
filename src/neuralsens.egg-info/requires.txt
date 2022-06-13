@@ -1,0 +1,4 @@
+
+[calculus]
+numpy
+pandas
