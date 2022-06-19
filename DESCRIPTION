@@ -1,7 +1,7 @@
 Package: NeuralSens
-Version: 1.0.0
+Version: 1.0.1
 Title: Sensitivity Analysis of Neural Networks
-Date: 2022-04-26
+Date: 2022-06-13
 Description: Analysis functions to quantify inputs importance in neural network models.
   Functions are available for calculating and plotting the inputs importance and obtaining
   the activation function of each neuron layer and its derivatives. The importance of a given
@@ -24,13 +24,12 @@ Imports:
   magrittr
 Suggests:
   h2o,
-  neural,
   RSNNS,
   nnet,
   neuralnet,
   plotly,
   e1071
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 NeedsCompilation: no
 URL: https://github.com/JaiPizGon/NeuralSens
 BugReports: https://github.com/JaiPizGon/NeuralSens/issues

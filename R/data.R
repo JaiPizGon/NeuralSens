@@ -2,7 +2,6 @@
 #'
 #' @description Training dataset with values of temperature and working day to predict electrical demand
 #' @name DAILY_DEMAND_TR
-#' @doctype data
 #' @author Jose Portela Gonzalez
 #' @references
 #' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
@@ -20,7 +19,6 @@ NULL
 #'
 #' @description Validation dataset with values of temperature and working day to predict electrical demand
 #' @name DAILY_DEMAND_TV
-#' @doctype data
 #' @author Jose Portela Gonzalez
 #' @references
 #' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
@@ -38,7 +36,6 @@ NULL
 #' @description List of 4 dataframes to test the functions with different
 #' variables types (numeric and character output and inputs)
 #' @name syntheticdata
-#' @doctype data
 #' @author Jose Portela Gonzalez
 #' @references
 #' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
@@ -96,7 +93,6 @@ NULL
 #'
 #'
 #' @name simdata
-#' @doctype data
 #' @author Jaime Pizarroso Gonzalo
 #' @references
 #' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of

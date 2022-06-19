@@ -143,19 +143,6 @@
 #' h2o::h2o.shutdown(prompt = FALSE)
 #' rm(fdata_h2o)
 #'
-#' ## Train neural NNET -----------------------------------------------------------
-#' set.seed(150)
-#' neuralmod <- neural::mlptrain(as.matrix(nntrData[,2:ncol(nntrData)]),
-#'                                    hidden_neurons,
-#'                                    as.matrix(nntrData[1]),
-#'                                    it=iters,
-#'                                    visual=FALSE)
-#'
-#' # Try SensAnalysisMLP
-#' trData <- nntrData
-#' NeuralSens::SensAnalysisMLP(neuralmod, trData = trData, output_name = "DEM",
-#'                             actfunc = c("linear","sigmoid","linear"))
-#'
 #' ## Train RSNNS NNET ------------------------------------------------------------
 #' # Normalize data using RSNNS algorithms
 #' trData <- as.data.frame(RSNNS::normalizeData(fdata.Reg.tr))
