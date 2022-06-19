@@ -6,9 +6,9 @@
 <!-- badges: start -->
 
 [![CRAN status](https://www.r-pkg.org/badges/version/NeuralSens)](https://CRAN.R-project.org/package=NeuralSens)
-[![Travis build status](https://travis-ci.org/JaiPizGon/NeuralSens.svg?branch=master)](https://travis-ci.org/JaiPizGon/NeuralSens)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/JaiPizGon/NeuralSens?branch=master&svg=true)](https://ci.appveyor.com/project/JaiPizGon/NeuralSens)
 [![CRAN_Download_Badge](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)
+[![R-CMD-check](https://github.com/JaiPizGon/NeuralSens/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/JaiPizGon/NeuralSens/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 
@@ -73,13 +73,6 @@ decay <- 0.1
 
 # create neural network
 library(caret)
-```
-
-```
-## Warning: package 'caret' was built under R version 4.1.3
-```
-
-```r
 ctrl_tune <- trainControl(method = "boot",
                           savePredictions = FALSE,
                           summaryFunction = defaultSummary)

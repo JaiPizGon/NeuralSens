@@ -4,7 +4,6 @@
 ^Papers$
 ^revdep$
 cran-comments.md
-^\.travis\.yml$
 README.md
 README.Rmd
 README.html
@@ -13,3 +12,4 @@ README.html
 ^CRAN-RELEASE$
 ^CRAN-SUBMISSION$
 LICENSE
+^\.github$
