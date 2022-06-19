@@ -1,15 +1,6 @@
 # cran-comments.md
 
-## (Possible) invalid DOIs:
 
-Found the following (possibly) invalid DOIs:
-  DOI: 10.18637/jss.v102.i07
-    From: inst/CITATION
-    Status: Not Found
-    Message: 404
-
-The DOI in the CITATION is for a new JSS publication that will be registered after publication on CRAN.
-           
 ## donttest{} examples
 
 The `SensAnalysisMLP.R` function contains `\donttest{}` examples which produce animations that take >5sec that users need to know about, but cause issues in examples and checks. The `HessianMLP.R` function contains `\donttest{}` examples which produce animations that take >5sec that users need to know about, but cause issues in examples and checks. 
@@ -17,8 +8,8 @@ The manipulations before the animation rending is already tested in the examples
 
 
 ## Test environments
-* Windows 10 Home x64, R 3.6.0
-* ubuntu 16.04.6 (on travis-ci), R (oldrel, release and devel)
+* Windows 10 Home x64, R 4.2.0
+* ubuntu 20.04.1 (on travis-ci), R (oldrel, release and devel)
 * Mac OS X 10.13.6 (on travis-ci), R (oldrel, release and devel)
 * win-builder, R (oldrelease, release and devel)
 

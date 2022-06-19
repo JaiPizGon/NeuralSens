@@ -1,4 +1,0 @@
-
-[calculus]
-numpy
-pandas
