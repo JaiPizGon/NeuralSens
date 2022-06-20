@@ -7,16 +7,14 @@ license = "GPU-3"
 readme = "README.rst"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = ">=3.8,<3.11"
+matplotlib = "^3.5.2"
+numpy = "^1.22.4"
+pandas = "^1.4..80 2"
+scipy = "^1.8.1"
 
 [tool.poetry.dev-dependencies]
 
 [build-system]
-requires = ["poetry-core>=1.0.0",
-            "setuptools>=42",
-            "wheel",
-            "numpy",
-            "pandas",
-            "scipy",
-            "matplotlib"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

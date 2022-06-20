@@ -48,6 +48,5 @@ setup(
     url='https://github.com/JaiPizGon/neuralsens',
     version='0.0.4.dev9',
     zip_safe=False,
-    extras_require={"calculus": ["numpy", "pandas",]},
     keywords="neural networks, mlp, sensitivity, XAI, IML, neuralsens",
 )
