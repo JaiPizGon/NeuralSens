@@ -121,7 +121,7 @@ def test_activation_function_torch():
                     "tanh": tanh,
                     "relu": relu}
         for af, fct in act_fct.items(): 
-            random_size = randrange(2, 20)
+            random_size = randrange(5, 20)
             acf = ac_f.activation_function(af, use_torch=True)
             tns = rand(random_size)
             tns_acf = acf(tns)
@@ -152,11 +152,11 @@ def test_activation_function_numpy():
                 "tanh": tanh,
                 "relu": relu}
     for af, fct in act_fct.items(): 
-        random_size = randrange(2, 20)
+        random_size = randrange(5, 20)
         acf = ac_f.activation_function(af, use_torch=False)
         tns = rand(random_size)
         tns_acf = acf(tns)
         tns_check = tns
         for i in range(random_size):
             tns_check[i] = fct(tns[i])
-        assert array_equal(tns_acf, tns_check).all(), "Activation function of the package not working correctly"
+        assert array_equal(tns_acf, tns_check), "Activation function of the package not working correctly"
