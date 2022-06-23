@@ -13,13 +13,12 @@
 
 This is the development repository for the NeuralSens package.  Functions within this package can be used for the analysis of neural network models created in R. 
 
-The current version of this package can be installed from Github:
-
+The development version of this package can be installed from Github:
 
 ```r
 install.packages('devtools')
 library(devtools)
-install_github('JaiPizGon/NeuralSens')
+install_github('JaiPizGon/NeuralSens/R')
 ```
 
 The last version can be installed from CRAN:
@@ -35,9 +34,7 @@ Please submit any bug reports (or suggestions) using the [issues](https://github
 
 ### Functions
 
-
-One function is available to analyze the sensitivity of a multilayer perceptron, 
-evaluating variable importance and plotting the analysis results. A sample dataset is also provided for use with the examples. The function has S3 methods developed for neural networks from the following packages: [nnet](https://cran.r-project.org/package=nnet), [neuralnet](https://cran.r-project.org/package=neuralnet), [RSNNS](https://cran.r-project.org/package=RSNNS), [caret](https://cran.r-project.org/package=caret),
+One function is available to analyze the sensitivity of a multilayer perceptron, evaluating variable importance and plotting the analysis results. A sample dataset is also provided for use with the examples. The function has S3 methods developed for neural networks from the following packages: [nnet](https://cran.r-project.org/package=nnet), [neuralnet](https://cran.r-project.org/package=neuralnet), [RSNNS](https://cran.r-project.org/package=RSNNS), [caret](https://cran.r-project.org/package=caret),
 [neural](https://cran.r-project.org/package=neural),
 [h2o](https://cran.r-project.org/package=h2o) and [forecast](https://cran.r-project.org/package=forecast).  Numeric inputs that describe model weights are also acceptable. 
  
@@ -124,8 +121,6 @@ Please, to cite NeuralSens in publications use:
 Pizarroso J, Portela J, Muñoz A (2022). “NeuralSens: Sensitivity Analysis of Neural Networks.” _Journal of
 Statistical Software_, *102*(7), 1-36. doi: 10.18637/jss.v102.i07 (URL:
 https://doi.org/10.18637/jss.v102.i07).
-
-
 
 ### License
 
