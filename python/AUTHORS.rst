@@ -10,4 +10,5 @@ Development Lead
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Antonio Muñoz San Roque, <Antonio.Munoz@iit.comillas.edu>
+* José Portela González, <jose.portela@iit.comillas.edu>
