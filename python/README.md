@@ -1,9 +1,15 @@
-# NeuralSens <img src="man/logo/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
+# NeuralSens <img src="docs/source/_static/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@comillas.edu*
 #### *Antonio Muñoz San Roque, Antonio.Munoz@iit.comillas.edu*
 #### *José Portela González, jose.portela@iit.comillas.edu*
+<!-- badges: start -->
 
+[![Documentation Status](https://readthedocs.org/projects/neuralsens/badge/?version=latest)](https://neuralsens.readthedocs.io/en/latest/?version=latest)
+[![pypi](https://img.shields.io/pypi/v/neuralsens.svg)](https://pypi.python.org/pypi/neuralsens)
+[![python](https://img.shields.io/badge/python-%5E3.8-blue)]()
+[![os](https://img.shields.io/badge/OS-Ubuntu%2C%20Mac%2C%20Windows-purple)]()
+<!-- badges: end -->
 This is the development repository for the neuralsens package.  Functions within this package can be used for the analysis of neural network models created in Python. 
 
 The last version of this package can be installed using pip:
