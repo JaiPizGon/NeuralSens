@@ -4,13 +4,13 @@
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
+with open('README.md') as readme_file:
     readme = readme_file.read()
 
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [ ]
+requirements = ['']
 
 test_requirements = ['pytest>=3', ]
 
@@ -46,7 +46,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/JaiPizGon/neuralsens',
-    version='0.0.4.dev9',
+    version='0.0.4.dev10',
     zip_safe=False,
     keywords="neural networks, mlp, sensitivity, XAI, IML, neuralsens",
 )
