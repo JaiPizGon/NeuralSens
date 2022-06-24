@@ -15,7 +15,7 @@
 [![os](https://img.shields.io/badge/OS-Ubuntu%2C%20Mac%2C%20Windows-purple)]()
 <!-- badges: end -->
 
-This is the development repository for the ![Python Badge](https://img.shields.io/badge/Python-FFD43B?style=flat&logo=neuralsens&logoColor=blue) and ![R Badge](https://img.shields.io/badge/R-276DC3?style=flat&logo=NeuralSens&logoColor=white) package.  Functions within this package can be used for the analysis of neural network models created in R. 
+This is the development repository for the `neuralsens` ![Python Badge](https://img.shields.io/badge/Python-FFD43B?style=flat&logo=python&logoColor=blue) package and the `NeuralSens` ![R Badge](https://img.shields.io/badge/R-276DC3?style=flat&logo=r&logoColor=white) package.  Functions within this package can be used for the analysis of neural network models created in R. 
 
 ### Citation
 
