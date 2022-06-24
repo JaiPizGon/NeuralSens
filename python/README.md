@@ -29,11 +29,12 @@ One function is available to analyze the sensitivity of a multilayer perceptron,
 ```python
 # Import necessary packages to reproduce the example
 import neuralsens.partial_derivatives as ns
+from neuralsens.daily_demand_tr import load_daily_data_demand_tr
 import pandas as pd
 from sklearn.neural_network import MLPRegressor
 
 # Load data and scale variables
-daily_demand_tr = pd.read_csv("../../data/DAILY_DEMAND_TR.csv", sep=";", index_col="DATE")
+daily_demand_tr = load_daily_data_demand_tr()
 X_train = daily_demand_tr[["WD","TEMP"]]
 X_train.iloc[:, 1] = X_train.iloc[:, 1] / 10
 y_train = daily_demand_tr["DEM"] / 100

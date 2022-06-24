@@ -46,8 +46,9 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/JaiPizGon/neuralsens',
-    version='0.0.4.dev10',
+    version='0.0.4.dev11',
     zip_safe=False,
     keywords="neural networks, mlp, sensitivity, XAI, IML, neuralsens",
-    include_package_data=True
+    include_package_data=True,
+    package_data={'': ['data/*.csv']},
 )
