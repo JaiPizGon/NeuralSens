@@ -49,4 +49,5 @@ setup(
     version='0.0.4.dev10',
     zip_safe=False,
     keywords="neural networks, mlp, sensitivity, XAI, IML, neuralsens",
+    include_package_data=True
 )
