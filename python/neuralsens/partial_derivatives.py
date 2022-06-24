@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.patheffects as pe
 import warnings
+
+from traitlets import Float
 from neuralsens.activation_functions import (
     activation_function,
     der_activation_function,
@@ -22,12 +24,45 @@ def jacobian_mlp(
     X: pd.core.frame.DataFrame,
     y: pd.core.frame.DataFrame,
     sens_origin_layer: int = 0,
-    sens_end_layer: str = "last",
+    sens_end_layer: str | int = "last",
     sens_origin_input: bool = True,
     sens_end_input: bool = False,
     dev: str = "cpu",
     use_torch: bool = False,
 ):
+    """Obtain first derivatives of MLP model given an input space.
+    
+    First derivatives of MLP model may be used to analyze the variable
+    relationships between inputs and outputs. 
+
+    Args:
+        wts (list[float]): list of weight matrixes of the MLP layers.
+        bias (list[float]): list of bias vectors of the MLP layers.
+        actfunc (list[str]): list of names of the activation function of the MLP layers.
+        X (pd.core.frame.DataFrame): data.frame with the input data
+        y (pd.core.frame.DataFrame): data.frame with the output data
+        sens_origin_layer (int, optional): layer from where the derivatives shall be calculated. 
+            Defaults to 0 (input layer).
+        sens_end_layer (str | int, optional): layer to where the derivatives shall be calculated. 
+            Defaults to "last" (output layer).
+        sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
+            of the origin layer or the outputs (False). Defaults to True.
+        sens_end_input (bool, optional): flag to indicate if derivatives shall be calculated to inputs (True)
+            of the end layer or the outputs (False). Defaults to False.
+        dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
+            Only available if pytorch installation could be found. Defaults to "cpu".
+        use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
+
+    Raises:
+        ValueError: End layer to analyze cannot be smaller or equal to zero.
+        ValueError: Origin layer to analyze cannot be smaller or equal to zero.
+        ValueError: There must be a layer of neurons or weights between end layer and origin layer.
+        ValueError: Origin layer should be less than number of layers in the model.
+        ValueError: End layer should be less than number of layers in the model.
+
+    Returns:
+        Jacobian_MLP: custom object storing the first partial derivatives of the MLP model.
+    """
     # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
     if dev == "gpu" or use_torch:
         try:
@@ -226,6 +261,34 @@ def jacobian_mlp(
 
 # Define self class
 class Jacobian_mlp:
+    """A class used to store first partial derivatives of an MLP model.
+    
+    This class and its analogue for second partial derivatives are the main 
+    instruments of the package. It stores not only the partial derivatives but 
+    also the sensitivity metrics useful to interpret the input-output relationship.
+    Methods of this class are used to interpret the information given by
+    the first partial derivatives. It is not intended to be created outside the
+    jacobian_mlp() function.
+    
+    Attributes:
+        sens (list[]): list of sensitivity metrics stored in pandas DataFrames for
+            each of the outputs.
+        raw_sens (list[]): list of partial derivatives matrix for each of the outputs.
+        mlp_struct (list[int]): structure of the neural network as a list of neurons 
+            per layer.
+        X (pd.DataFrame): Dataframe with the input variable samples used to calculate
+            the partial derivatives stored in raw_sens.
+        input_names (list[str]): name of the input variables.
+        output_name (list[str]): name of the output variables.
+        
+    Methods:
+        summary(): print sensitivity measures
+        info(): print partial derivatives
+        sensitivityPlots(): plot sensitivity measures
+        featurePlots(): plot partial derivatives in a SHAP-alike manner
+        timePlots(): plot partial derivatives with respect a time variable
+    
+    """
     def __init__(
         self,
         sens: list,
@@ -235,6 +298,19 @@ class Jacobian_mlp:
         input_name: list[str],
         output_name: list[str],
     ):
+        """Constructs all the necessary attributes for the Jacobian_mlp object.
+
+        Args:
+            sens (list[]): list of sensitivity metrics stored in pandas DataFrames for
+                each of the outputs.
+            raw_sens (list[]): list of partial derivatives matrix for each of the outputs.
+            mlp_struct (list[int]): structure of the neural network as a list of neurons 
+                per layer.
+            X (pd.DataFrame): Dataframe with the input variable samples used to calculate
+                the partial derivatives stored in raw_sens.
+            input_names (list[str]): name of the input variables.
+            output_name (list[str]): name of the output variables.
+        """
         self.__sens = sens
         self.__raw_sens = raw_sens
         self.__mlp_struct = mlp_struct
@@ -267,6 +343,8 @@ class Jacobian_mlp:
         return self.__output_name
 
     def summary(self):
+        """Prints the sensitivity measures.
+        """
         print("Sensitivity analysis of", str(self.mlp_struct), "MLP network.\n")
         print("Sensitivity measures of each output:\n")
         for out in range(len(self.sens)):
@@ -274,6 +352,11 @@ class Jacobian_mlp:
             print(self.sens[out])
 
     def info(self, n=5):
+        """Prints the partial derivatives
+
+        Args:
+            n (int, optional): number of partial derivatives to display. Defaults to 5.
+        """
         print("Sensitivity analysis of", str(self.mlp_struct), "MLP network.\n")
         print(self.X.shape[0], "samples\n")
         print(
@@ -287,6 +370,12 @@ class Jacobian_mlp:
             print(self.raw_sens[out][: min([n, self.raw_sens[out].shape[0]])])
 
     def plot(self, type="sens"):
+        """Generate plot based on partial derivatives.
+
+        Args:
+            type (str, optional): Type of plot to generate, accepted options are "sens", "features" and "time. 
+                Defaults to "sens".
+        """
         if type == "sens":
             self.sensitivityPlots()
         elif type == "features":
@@ -319,6 +408,39 @@ def hessian_mlp(
     dev: str = "cpu",
     use_torch: bool = False,
 ):
+    """Obtain second derivatives of MLP model given an input space.
+    
+    Second derivatives of MLP model may be used to analyze the variable
+    relationships between inputs and outputs. 
+
+    Args:
+        wts (list[float]): list of weight matrixes of the MLP layers.
+        bias (list[float]): list of bias vectors of the MLP layers.
+        actfunc (list[str]): list of names of the activation function of the MLP layers.
+        X (pd.core.frame.DataFrame): data.frame with the input data
+        y (pd.core.frame.DataFrame): data.frame with the output data
+        sens_origin_layer (int, optional): layer from where the derivatives shall be calculated. 
+            Defaults to 0 (input layer).
+        sens_end_layer (str | int, optional): layer to where the derivatives shall be calculated. 
+            Defaults to "last" (output layer).
+        sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
+            of the origin layer or the outputs (False). Defaults to True.
+        sens_end_input (bool, optional): flag to indicate if derivatives shall be calculated to inputs (True)
+            of the end layer or the outputs (False). Defaults to False.
+        dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
+            Only available if pytorch installation could be found. Defaults to "cpu".
+        use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
+
+    Raises:
+        ValueError: End layer to analyze cannot be smaller or equal to zero.
+        ValueError: Origin layer to analyze cannot be smaller or equal to zero.
+        ValueError: There must be a layer of neurons or weights between end layer and origin layer.
+        ValueError: Origin layer should be less than number of layers in the model.
+        ValueError: End layer should be less than number of layers in the model.
+
+    Returns:
+        Hessian_MLP: custom object storing the second partial derivatives of the MLP model.
+    """
     # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
     if dev == "gpu" or use_torch:
         try:
@@ -571,6 +693,34 @@ def hessian_mlp(
 
 # Define self class
 class Hessian_mlp:
+    """A class used to store second partial derivatives of an MLP model.
+    
+    This class and its analogue for first partial derivatives are the main 
+    instruments of the package. It stores not only the partial derivatives but 
+    also the sensitivity metrics useful to interpret the input-output relationship.
+    Methods of this class are used to interpret the information given by
+    the v partial derivatives. It is not intended to be created outside the
+    jacobian_mlp() function.
+    
+    Attributes:
+        sens (list[]): list of sensitivity metrics stored in pandas DataFrames for
+            each of the outputs.
+        raw_sens (list[]): list of second partial derivatives matrix for each of the outputs.
+        mlp_struct (list[int]): structure of the neural network as a list of neurons 
+            per layer.
+        X (pd.DataFrame): Dataframe with the input variable samples used to calculate
+            the partial derivatives stored in raw_sens.
+        input_names (list[str]): name of the input variables.
+        output_name (list[str]): name of the output variables.
+        
+    Methods:
+        summary(): print sensitivity measures
+        info(): print partial derivatives
+        sensitivityPlots(): plot sensitivity measures
+        featurePlots(): plot partial derivatives in a SHAP-alike manner
+        timePlots(): plot partial derivatives with respect a time variable
+    
+    """
     def __init__(
         self,
         sens: list,
@@ -580,6 +730,19 @@ class Hessian_mlp:
         input_name: list[str],
         output_name: list[str],
     ):
+        """Constructs all the necessary attributes for the Hessian_mlp object.
+
+        Args:
+            sens (list[]): list of sensitivity metrics stored in pandas DataFrames for
+                each of the outputs.
+            raw_sens (list[]): list of second partial derivatives matrix for each of the outputs.
+            mlp_struct (list[int]): structure of the neural network as a list of neurons 
+                per layer.
+            X (pd.DataFrame): Dataframe with the input variable samples used to calculate
+                the partial derivatives stored in raw_sens.
+            input_names (list[str]): name of the input variables.
+            output_name (list[str]): name of the output variables.
+        """
         self.__sens = sens
         self.__raw_sens = raw_sens
         self.__mlp_struct = mlp_struct
@@ -612,6 +775,8 @@ class Hessian_mlp:
         return self.__output_name
 
     def summary(self):
+        """Print the sensitivity metrics
+        """
         print("Sensitivity analysis of", str(self.mlp_struct), "MLP network.\n")
         print("Sensitivity measures of each output:\n")
         for out in range(len(self.sens)):
@@ -619,6 +784,11 @@ class Hessian_mlp:
             print(self.sens[out])
 
     def info(self, n=5):
+        """Prints the partial derivatives
+
+        Args:
+            n (int, optional): number of partial derivatives to display. Defaults to 5.
+        """
         print("Sensitivity analysis of", str(self.mlp_struct), "MLP network.\n")
         print(self.X.shape[0], "samples\n")
         print(
@@ -632,6 +802,12 @@ class Hessian_mlp:
             print(self.raw_sens[out][: min([n, self.raw_sens[out].shape[0]])])
 
     def plot(self, type="sens"):
+        """Generate plot based on second partial derivatives.
+
+        Args:
+            type (str, optional): Type of plot to generate, accepted options are "sens", "features" and "time. 
+                Defaults to "sens".
+        """
         if type == "sens":
             self.sensitivityPlots()
         elif type == "features":
@@ -690,432 +866,443 @@ class Hessian_mlp:
         return temp_self
 
 
-def jerkian_mlp(
-    wts: list[float],
-    bias: list[float],
-    actfunc: list[str],
-    X: pd.core.frame.DataFrame,
-    y: pd.core.frame.DataFrame,
-    sens_origin_layer: int = 0,
-    sens_end_layer: str = "last",
-    sens_origin_input: bool = True,
-    sens_end_input: bool = False,
-    dev: str = "cpu",
-    use_torch: bool = False,
-):
-    # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
-    if dev == "gpu" or use_torch:
-        try:
-            from torch import (
-                eye as identity,
-                vstack,
-                ones,
-                mean,
-                std,
-                tensor,
-                device,
-                square,
-                matmul,
-                zeros,
-                from_numpy,
-                is_tensor,
-            )
-            from numpy import ndarray, asarray
-
-            def float_array(x, dev="cpu") -> tensor:
-                dev = device(dev)
-                if isinstance(x, pd.DataFrame):
-                    return from_numpy(x.to_numpy()).float()
-                if isinstance(x, list):
-                    x = asarray(x)
-                if isinstance(x, ndarray):
-                    return from_numpy(x).float()
-                if is_tensor(x):
-                    return x.clone().detach()
-                return tensor(x, device=dev)
-
-            use_torch = True
-
-        except ImportError:
-            warnings.warn(
-                "Pytorch installation could not be found, numpy would be used instead",
-                ImportWarning,
-            )
-            from numpy import (
-                identity,
-                vstack,
-                array,
-                ones,
-                mean,
-                std,
-                array,
-                square,
-                matmul,
-                zeros,
-            )
-
-            def float_array(x, dev="cpu") -> array:
-                return array(x.numpy())
-
-            use_torch = False
-
-    else:
-        from numpy import (
-            identity,
-            vstack,
-            array,
-            ones,
-            mean,
-            std,
-            array,
-            square,
-            matmul,
-            zeros,
-        )
-
-        def float_array(x, dev="cpu") -> array:
-            return array(x)
-
-        use_torch = False
-
-    # Check validity of inputs
-    if sens_end_layer == "last":
-        sens_end_layer = len(actfunc)
-
-    if sens_end_layer <= 0:
-        raise ValueError("End layer to analyze cannot be smaller or equal to zero.")
-
-    if sens_origin_layer < 0:
-        raise ValueError("Origin layer to analyze cannot be smaller or equal to zero.")
-
-    if not (sens_end_layer > sens_origin_layer) or (
-        (sens_end_layer == sens_origin_layer)
-        and (sens_origin_input and not sens_end_input)
-    ):
-        raise ValueError(
-            "There must be a layer of neurons or weights between end layer and origin layer."
-        )
-
-    if sens_origin_layer > len(actfunc):
-        raise ValueError(
-            "Origin layer should be less than number of layers in the model."
-        )
-
-    if sens_end_layer > len(actfunc):
-        raise ValueError("End layer should be less than number of layers in the model.")
-
-    ### Initialize all the necessary variables
-    # Structure of the mlp model
-    mlpstr = [wts[0].shape[0]] + [lyr.shape[1] for lyr in wts]
-
-    # Derivative and activation functions for each neuron layer
-    der3actfunc = [der_3_activation_function(af, use_torch) for af in actfunc]
-    der2actfunc = [der_2_activation_function(af, use_torch) for af in actfunc]
-    deractfunc = [der_activation_function(af, use_torch) for af in actfunc]
-    actfunc = [activation_function(af, use_torch) for af in actfunc]
-
-    # Number of samples to be cached (it is used several times)
-    n_samples = X.shape[0]
-    r_samples = range(n_samples)
-    n_inputs = X.shape[1]
-
-    # Weights of input layer
-    W = [identity(X.shape[1])]
-
-    # Input of input layer
-    # inputs = [np.hstack((ones((len(X_train),1), dtype=int), X_train))]
-    Z = [matmul(float_array(X, device), W[0])]
-
-    # Output of input layer
-    O = [actfunc[0](Z[0])]
-
-    # First Derivative of input layer
-    D = [float_array([deractfunc[0](Z[0][irow,]) for irow in r_samples], dev=device)]
-
-    # Second derivative of input layer
-    D2 = [float_array([der2actfunc[0](Z[0][irow,]) for irow in r_samples], dev=device)]
-
-    # Third derivative of input layer
-    D3 = [float_array([der3actfunc[0](Z[0][irow,]) for irow in r_samples], dev=device)]
-
-    # Let's go over all the layers calculating each variable
-    for lyr in range(1, len(mlpstr)):
-        # Calculate weights of each layer
-        W.append(vstack((bias[lyr - 1], wts[lyr - 1])))
-
-        # Calculate input of each layer
-        # Add columns of 1 for the bias
-        aux = ones((O[lyr - 1].shape[0], O[lyr - 1].shape[1] + 1))
-        aux[:, 1:] = O[lyr - 1]
-        Z.append(matmul(aux, W[lyr]))
-
-        # Calculate output of each layer
-        O.append(actfunc[lyr](Z[lyr]))
-
-        # Calculate first derivative of each layer
-        D.append(
-            float_array(
-                [deractfunc[lyr](Z[lyr][irow,]) for irow in r_samples], dev=device
-            )
-        )
-
-        # Calculate second derivative of each layer
-        D2.append(
-            float_array(
-                [der2actfunc[lyr](Z[lyr][irow,]) for irow in r_samples], dev=device
-            )
-        )
-
-        # Calculate third derivative of each layer
-        D3.append(
-            float_array(
-                [der3actfunc[lyr](Z[lyr][irow,]) for irow in r_samples], dev=device
-            )
-        )
-
-    # Now, let's calculate the derivatives of interest
-    if sens_end_layer == "last":
-        sens_end_layer = len(actfunc)
-
-    # Initialize cross derivatives
-    D_ = [identity(mlpstr[sens_origin_layer]) for irow in r_samples]
-    if sens_origin_input:
-        D_ = [D[sens_origin_layer]]
-    Q = [zeros((n_samples, n_inputs, n_inputs, n_inputs))]
-    H = [D2[0]]
-
-    M = [zeros((n_samples, n_inputs, n_inputs, n_inputs, n_inputs))]
-    # N = [zeros((n_samples,n_inputs,n_inputs,n_inputs,n_inputs))]
-    J = [D3[0]]
-
-    counter = 0
-    for layer in range(sens_origin_layer + 1, sens_end_layer):
-        counter += 1
-
-        # First derivatives
-        z_ = D_[counter - 1] @ W[layer][1:, :]
-        D_.append(z_ @ D[layer])
-
-        # Second derivatives
-        q = matmul(
-            matmul(H[counter - 1], W[layer][1:, :]).swapaxes(0, 1), D[counter]
-        ).swapaxes(0, 1)
-        h = matmul(z_, matmul(z_, D2[layer].swapaxes(0, 1)).swapaxes(0, 2)).swapaxes(
-            0, 1
-        )
-        Q.append(q)
-        H.append(h + q)
-
-        # Third derivatives
-        m = matmul(
-            matmul(J[counter - 1], W[layer][1:, :]).swapaxes(0, 2), D[counter]
-        ).swapaxes(0, 2)
-        n = matmul(
-            z_,
-            matmul(
-                matmul(
-                    np.broadcast_to(
-                        np.expand_dims(q, axis=4), list(q.shape) + [q.shape[-1]]
-                    )
-                    .swapaxes(0, 2)
-                    .swapaxes(0, 3),
-                    D2[layer][:, :, 0, :],
-                ).swapaxes(1, 3),
-                D2[layer][:, 0, :, :],
-            ).swapaxes(0, 3),
-        ).swapaxes(0, 2)
-        j = matmul(
-            z_,
-            matmul(z_, matmul(z_, D3[layer].swapaxes(0, 2)).swapaxes(0, 3)).swapaxes(
-                1, 3
-            ),
-        ).swapaxes(0, 2)
-
-        M.append(m)
-        # N.append(n)
-        J.append(
-            j
-            + m
-            + n
-            + n.swapaxes(2, 3).swapaxes(1, 2)
-            + n.swapaxes(1, 2).swapaxes(2, 3)
-        )
-
-    if sens_end_input:
-        raw_sens = M[counter]
-    else:
-        raw_sens = J[counter]
-
-    # Calculate sensitivity measures for each input and output
-    meanSens = mean(raw_sens, axis=0)
-    stdSens = std(raw_sens, axis=0)
-    meansquareSens = mean(square(raw_sens), axis=0)
-
-    # Store the information extracted from sensitivity analysis
-    input_name = X.columns.values.tolist()
-    metrics = ["mean", "std", "mean_squared"]
-
-    sens = [
-        pd.DataFrame(
-            float_array(
-                [meanSens[:, :, out], stdSens[:, :, out], meansquareSens[:, :, out]],
-                dev=device,
-            ).T.reshape(meanSens.shape[1], -1),
-            columns=pd.MultiIndex.from_product(
-                [metrics, input_name], names=["metric", "input"]
-            ),
-            index=input_name,
-        )
-        for out in range(meanSens.shape[2])
-    ]
-
-    raw_sens = [
-        pd.DataFrame(
-            raw_sens[:, :, :, out]
-            .T.reshape(raw_sens.shape[1] * raw_sens.shape[2], -1)
-            .T,
-            index=range(raw_sens.shape[0]),
-            columns=pd.MultiIndex.from_product(
-                [input_name, input_name], names=["input", "input"]
-            ),
-        )
-        for out in range(raw_sens.shape[3])
-    ]
-    for out in range(meanSens.shape[2]):
-        # Replace values on measures because don't know why they are not ordered correctly
-        sens[out]["mean"] = meanSens[:, :, out]
-        sens[out]["std"] = stdSens[:, :, out]
-        sens[out]["mean_squared"] = meansquareSens[:, :, out]
-
-    # Create output name for creating self
-    output_name = y.columns.to_list()
-    if D_[counter].shape[2] > 1:
-        output_name = ["_".join([y.name, lev]) for lev in y.unique()]
-    return Jerkian_mlp(sens, raw_sens, mlpstr, X, input_name, output_name)
-
-
-# Define self class
-class Jerkian_mlp:
-    def __init__(
-        self,
-        sens: list,
-        raw_sens: list,
-        mlp_struct: list[int],
-        X: pd.core.frame.DataFrame,
-        input_name: list[str],
-        output_name: list[str],
-    ):
-        self.__sens = sens
-        self.__raw_sens = raw_sens
-        self.__mlp_struct = mlp_struct
-        self.__X = X
-        self.__input_names = input_name
-        self.__output_name = output_name
-
-    @property
-    def sens(self):
-        return self.__sens
-
-    @property
-    def raw_sens(self):
-        return self.__raw_sens
-
-    @property
-    def mlp_struct(self):
-        return self.__mlp_struct
-
-    @property
-    def X(self):
-        return self.__X
-
-    @property
-    def input_name(self):
-        return self.__input_names
-
-    @property
-    def output_name(self):
-        return self.__output_name
-
-    def summary(self):
-        print("Sensitivity analysis of", str(self.mlp_struct), "MLP network.\n")
-        print("Sensitivity measures of each output:\n")
-        for out in range(len(self.sens)):
-            print("$" + self.output_name[out], "\n")
-            print(self.sens[out])
-
-    def info(self, n=5):
-        print("Sensitivity analysis of", str(self.mlp_struct), "MLP network.\n")
-        print(self.X.shape[0], "samples\n")
-        print(
-            "Sensitivities of each output (only ",
-            min([n, self.raw_sens[0].shape[0]]),
-            " first samples):\n",
-            sep="",
-        )
-        for out in range(len(self.raw_sens)):
-            print("$" + self.output_name[out], "\n")
-            print(self.raw_sens[out][: min([n, self.raw_sens[out].shape[0]])])
-
-    def plot(self, type="sens"):
-        if type == "sens":
-            self.sensitivityPlots()
-        elif type == "features":
-            self.featurePlots()
-        elif type == "time":
-            self.timePlots()
-        else:
-            print("The specifyed type", type, "is not an accepted plot type.")
-
-    def sensitivityPlots(self):
-        temp_self = self.hesstosens()
-        sensitivity_plots(temp_self)
-
-    def featurePlots(self):
-        pass
-
-    def timePlots(self):
-        pass
-
-    def hesstosens(self):
-        temp_self = self
-        for out in range(len(self.raw_sens)):
-            n_inputs = len(temp_self.input_name)
-            index_of_interest = triu_indices(n_inputs)
-            mean = temp_self.sens[out]["mean"].to_numpy()[index_of_interest]
-            std = temp_self.sens[out]["std"].to_numpy()[index_of_interest]
-            mean_squared = temp_self.sens[out]["mean_squared"].to_numpy()[
-                index_of_interest
-            ]
-            input_names = meshgrid(temp_self.input_name, temp_self.input_name)
-            input_names = (
-                input_names[0].astype(object) + "_" + input_names[1].astype(object)
-            )
-            input_names = input_names[index_of_interest]
-            temp_self.sens[out] = pd.DataFrame(
-                {"mean": mean, "std": std, "mean_squared": mean_squared},
-                index=input_names,
-            )
-            raw_sens = (
-                temp_self.raw_sens[out]
-                .to_numpy()
-                .reshape(
-                    temp_self.raw_sens[out].to_numpy().shape[0], n_inputs, n_inputs
-                )
-            )
-            raw_sens = float_array(
-                [
-                    raw_sens[:, x, y]
-                    for x, y in zip(index_of_interest[0], index_of_interest[1])
-                ]
-            )
-            temp_self.raw_sens[out] = pd.DataFrame(
-                raw_sens.T, index=range(raw_sens.shape[1]), columns=input_names
-            )
-
-        return temp_self
+# def jerkian_mlp(
+#     wts: list[float],
+#     bias: list[float],
+#     actfunc: list[str],
+#     X: pd.core.frame.DataFrame,
+#     y: pd.core.frame.DataFrame,
+#     sens_origin_layer: int = 0,
+#     sens_end_layer: str = "last",
+#     sens_origin_input: bool = True,
+#     sens_end_input: bool = False,
+#     dev: str = "cpu",
+#     use_torch: bool = False,
+# ):
+#     # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
+#     if dev == "gpu" or use_torch:
+#         try:
+#             from torch import (
+#                 eye as identity,
+#                 vstack,
+#                 ones,
+#                 mean,
+#                 std,
+#                 tensor,
+#                 device,
+#                 square,
+#                 matmul,
+#                 zeros,
+#                 from_numpy,
+#                 is_tensor,
+#             )
+#             from numpy import ndarray, asarray
+# 
+#             def float_array(x, dev="cpu") -> tensor:
+#                 dev = device(dev)
+#                 if isinstance(x, pd.DataFrame):
+#                     return from_numpy(x.to_numpy()).float()
+#                 if isinstance(x, list):
+#                     x = asarray(x)
+#                 if isinstance(x, ndarray):
+#                     return from_numpy(x).float()
+#                 if is_tensor(x):
+#                     return x.clone().detach()
+#                 return tensor(x, device=dev)
+# 
+#             use_torch = True
+# 
+#         except ImportError:
+#             warnings.warn(
+#                 "Pytorch installation could not be found, numpy would be used instead",
+#                 ImportWarning,
+#             )
+#             from numpy import (
+#                 identity,
+#                 vstack,
+#                 array,
+#                 ones,
+#                 mean,
+#                 std,
+#                 array,
+#                 square,
+#                 matmul,
+#                 zeros,
+#             )
+# 
+#             def float_array(x, dev="cpu") -> array:
+#                 return array(x.numpy())
+# 
+#             use_torch = False
+# 
+#     else:
+#         from numpy import (
+#             identity,
+#             vstack,
+#             array,
+#             ones,
+#             mean,
+#             std,
+#             array,
+#             square,
+#             matmul,
+#             zeros,
+#         )
+# 
+#         def float_array(x, dev="cpu") -> array:
+#             return array(x)
+# 
+#         use_torch = False
+# 
+#     # Check validity of inputs
+#     if sens_end_layer == "last":
+#         sens_end_layer = len(actfunc)
+# 
+#     if sens_end_layer <= 0:
+#         raise ValueError("End layer to analyze cannot be smaller or equal to zero.")
+# 
+#     if sens_origin_layer < 0:
+#         raise ValueError("Origin layer to analyze cannot be smaller or equal to zero.")
+# 
+#     if not (sens_end_layer > sens_origin_layer) or (
+#         (sens_end_layer == sens_origin_layer)
+#         and (sens_origin_input and not sens_end_input)
+#     ):
+#         raise ValueError(
+#             "There must be a layer of neurons or weights between end layer and origin layer."
+#         )
+# 
+#     if sens_origin_layer > len(actfunc):
+#         raise ValueError(
+#             "Origin layer should be less than number of layers in the model."
+#         )
+# 
+#     if sens_end_layer > len(actfunc):
+#         raise ValueError("End layer should be less than number of layers in the model.")
+# 
+#     ### Initialize all the necessary variables
+#     # Structure of the mlp model
+#     mlpstr = [wts[0].shape[0]] + [lyr.shape[1] for lyr in wts]
+# 
+#     # Derivative and activation functions for each neuron layer
+#     der3actfunc = [der_3_activation_function(af, use_torch) for af in actfunc]
+#     der2actfunc = [der_2_activation_function(af, use_torch) for af in actfunc]
+#     deractfunc = [der_activation_function(af, use_torch) for af in actfunc]
+#     actfunc = [activation_function(af, use_torch) for af in actfunc]
+# 
+#     # Number of samples to be cached (it is used several times)
+#     n_samples = X.shape[0]
+#     r_samples = range(n_samples)
+#     n_inputs = X.shape[1]
+# 
+#     # Weights of input layer
+#     W = [identity(X.shape[1])]
+# 
+#     # Input of input layer
+#     # inputs = [np.hstack((ones((len(X_train),1), dtype=int), X_train))]
+#     Z = [matmul(float_array(X, device), W[0])]
+# 
+#     # Output of input layer
+#     O = [actfunc[0](Z[0])]
+# 
+#     # First Derivative of input layer
+#     D = [float_array([deractfunc[0](Z[0][irow,]) for irow in r_samples], dev=device)]
+# 
+#     # Second derivative of input layer
+#     D2 = [float_array([der2actfunc[0](Z[0][irow,]) for irow in r_samples], dev=device)]
+# 
+#     # Third derivative of input layer
+#     D3 = [float_array([der3actfunc[0](Z[0][irow,]) for irow in r_samples], dev=device)]
+# 
+#     # Let's go over all the layers calculating each variable
+#     for lyr in range(1, len(mlpstr)):
+#         # Calculate weights of each layer
+#         W.append(vstack((bias[lyr - 1], wts[lyr - 1])))
+# 
+#         # Calculate input of each layer
+#         # Add columns of 1 for the bias
+#         aux = ones((O[lyr - 1].shape[0], O[lyr - 1].shape[1] + 1))
+#         aux[:, 1:] = O[lyr - 1]
+#         Z.append(matmul(aux, W[lyr]))
+# 
+#         # Calculate output of each layer
+#         O.append(actfunc[lyr](Z[lyr]))
+# 
+#         # Calculate first derivative of each layer
+#         D.append(
+#             float_array(
+#                 [deractfunc[lyr](Z[lyr][irow,]) for irow in r_samples], dev=device
+#             )
+#         )
+# 
+#         # Calculate second derivative of each layer
+#         D2.append(
+#             float_array(
+#                 [der2actfunc[lyr](Z[lyr][irow,]) for irow in r_samples], dev=device
+#             )
+#         )
+# 
+#         # Calculate third derivative of each layer
+#         D3.append(
+#             float_array(
+#                 [der3actfunc[lyr](Z[lyr][irow,]) for irow in r_samples], dev=device
+#             )
+#         )
+# 
+#     # Now, let's calculate the derivatives of interest
+#     if sens_end_layer == "last":
+#         sens_end_layer = len(actfunc)
+# 
+#     # Initialize cross derivatives
+#     D_ = [identity(mlpstr[sens_origin_layer]) for irow in r_samples]
+#     if sens_origin_input:
+#         D_ = [D[sens_origin_layer]]
+#     Q = [zeros((n_samples, n_inputs, n_inputs, n_inputs))]
+#     H = [D2[0]]
+# 
+#     M = [zeros((n_samples, n_inputs, n_inputs, n_inputs, n_inputs))]
+#     # N = [zeros((n_samples,n_inputs,n_inputs,n_inputs,n_inputs))]
+#     J = [D3[0]]
+# 
+#     counter = 0
+#     for layer in range(sens_origin_layer + 1, sens_end_layer):
+#         counter += 1
+# 
+#         # First derivatives
+#         z_ = D_[counter - 1] @ W[layer][1:, :]
+#         D_.append(z_ @ D[layer])
+# 
+#         # Second derivatives
+#         q = matmul(
+#             matmul(H[counter - 1], W[layer][1:, :]).swapaxes(0, 1), D[counter]
+#         ).swapaxes(0, 1)
+#         h = matmul(z_, matmul(z_, D2[layer].swapaxes(0, 1)).swapaxes(0, 2)).swapaxes(
+#             0, 1
+#         )
+#         Q.append(q)
+#         H.append(h + q)
+# 
+#         # Third derivatives
+#         m = matmul(
+#             matmul(J[counter - 1], W[layer][1:, :]).swapaxes(0, 2), D[counter]
+#         ).swapaxes(0, 2)
+#         n = matmul(
+#             z_,
+#             matmul(
+#                 matmul(
+#                     np.broadcast_to(
+#                         np.expand_dims(q, axis=4), list(q.shape) + [q.shape[-1]]
+#                     )
+#                     .swapaxes(0, 2)
+#                     .swapaxes(0, 3),
+#                     D2[layer][:, :, 0, :],
+#                 ).swapaxes(1, 3),
+#                 D2[layer][:, 0, :, :],
+#             ).swapaxes(0, 3),
+#         ).swapaxes(0, 2)
+#         j = matmul(
+#             z_,
+#             matmul(z_, matmul(z_, D3[layer].swapaxes(0, 2)).swapaxes(0, 3)).swapaxes(
+#                 1, 3
+#             ),
+#         ).swapaxes(0, 2)
+# 
+#         M.append(m)
+#         # N.append(n)
+#         J.append(
+#             j
+#             + m
+#             + n
+#             + n.swapaxes(2, 3).swapaxes(1, 2)
+#             + n.swapaxes(1, 2).swapaxes(2, 3)
+#         )
+# 
+#     if sens_end_input:
+#         raw_sens = M[counter]
+#     else:
+#         raw_sens = J[counter]
+# 
+#     # Calculate sensitivity measures for each input and output
+#     meanSens = mean(raw_sens, axis=0)
+#     stdSens = std(raw_sens, axis=0)
+#     meansquareSens = mean(square(raw_sens), axis=0)
+# 
+#     # Store the information extracted from sensitivity analysis
+#     input_name = X.columns.values.tolist()
+#     metrics = ["mean", "std", "mean_squared"]
+# 
+#     sens = [
+#         pd.DataFrame(
+#             float_array(
+#                 [meanSens[:, :, out], stdSens[:, :, out], meansquareSens[:, :, out]],
+#                 dev=device,
+#             ).T.reshape(meanSens.shape[1], -1),
+#             columns=pd.MultiIndex.from_product(
+#                 [metrics, input_name], names=["metric", "input"]
+#             ),
+#             index=input_name,
+#         )
+#         for out in range(meanSens.shape[2])
+#     ]
+# 
+#     raw_sens = [
+#         pd.DataFrame(
+#             raw_sens[:, :, :, out]
+#             .T.reshape(raw_sens.shape[1] * raw_sens.shape[2], -1)
+#             .T,
+#             index=range(raw_sens.shape[0]),
+#             columns=pd.MultiIndex.from_product(
+#                 [input_name, input_name], names=["input", "input"]
+#             ),
+#         )
+#         for out in range(raw_sens.shape[3])
+#     ]
+#     for out in range(meanSens.shape[2]):
+#         # Replace values on measures because don't know why they are not ordered correctly
+#         sens[out]["mean"] = meanSens[:, :, out]
+#         sens[out]["std"] = stdSens[:, :, out]
+#         sens[out]["mean_squared"] = meansquareSens[:, :, out]
+# 
+#     # Create output name for creating self
+#     output_name = y.columns.to_list()
+#     if D_[counter].shape[2] > 1:
+#         output_name = ["_".join([y.name, lev]) for lev in y.unique()]
+#     return Jerkian_mlp(sens, raw_sens, mlpstr, X, input_name, output_name)
+# 
+# 
+# # Define self class
+# class Jerkian_mlp:
+#     def __init__(
+#         self,
+#         sens: list,
+#         raw_sens: list,
+#         mlp_struct: list[int],
+#         X: pd.core.frame.DataFrame,
+#         input_name: list[str],
+#         output_name: list[str],
+#     ):
+#         self.__sens = sens
+#         self.__raw_sens = raw_sens
+#         self.__mlp_struct = mlp_struct
+#         self.__X = X
+#         self.__input_names = input_name
+#         self.__output_name = output_name
+# 
+#     @property
+#     def sens(self):
+#         return self.__sens
+# 
+#     @property
+#     def raw_sens(self):
+#         return self.__raw_sens
+# 
+#     @property
+#     def mlp_struct(self):
+#         return self.__mlp_struct
+# 
+#     @property
+#     def X(self):
+#         return self.__X
+# 
+#     @property
+#     def input_name(self):
+#         return self.__input_names
+# 
+#     @property
+#     def output_name(self):
+#         return self.__output_name
+# 
+#     def summary(self):
+#         print("Sensitivity analysis of", str(self.mlp_struct), "MLP network.\n")
+#         print("Sensitivity measures of each output:\n")
+#         for out in range(len(self.sens)):
+#             print("$" + self.output_name[out], "\n")
+#             print(self.sens[out])
+# 
+#     def info(self, n=5):
+#         print("Sensitivity analysis of", str(self.mlp_struct), "MLP network.\n")
+#         print(self.X.shape[0], "samples\n")
+#         print(
+#             "Sensitivities of each output (only ",
+#             min([n, self.raw_sens[0].shape[0]]),
+#             " first samples):\n",
+#             sep="",
+#         )
+#         for out in range(len(self.raw_sens)):
+#             print("$" + self.output_name[out], "\n")
+#             print(self.raw_sens[out][: min([n, self.raw_sens[out].shape[0]])])
+# 
+#     def plot(self, type="sens"):
+#         if type == "sens":
+#             self.sensitivityPlots()
+#         elif type == "features":
+#             self.featurePlots()
+#         elif type == "time":
+#             self.timePlots()
+#         else:
+#             print("The specifyed type", type, "is not an accepted plot type.")
+# 
+#     def sensitivityPlots(self):
+#         temp_self = self.hesstosens()
+#         sensitivity_plots(temp_self)
+# 
+#     def featurePlots(self):
+#         pass
+# 
+#     def timePlots(self):
+#         pass
+# 
+#     def hesstosens(self):
+#         temp_self = self
+#         for out in range(len(self.raw_sens)):
+#             n_inputs = len(temp_self.input_name)
+#             index_of_interest = triu_indices(n_inputs)
+#             mean = temp_self.sens[out]["mean"].to_numpy()[index_of_interest]
+#             std = temp_self.sens[out]["std"].to_numpy()[index_of_interest]
+#             mean_squared = temp_self.sens[out]["mean_squared"].to_numpy()[
+#                 index_of_interest
+#             ]
+#             input_names = meshgrid(temp_self.input_name, temp_self.input_name)
+#             input_names = (
+#                 input_names[0].astype(object) + "_" + input_names[1].astype(object)
+#             )
+#             input_names = input_names[index_of_interest]
+#             temp_self.sens[out] = pd.DataFrame(
+#                 {"mean": mean, "std": std, "mean_squared": mean_squared},
+#                 index=input_names,
+#             )
+#             raw_sens = (
+#                 temp_self.raw_sens[out]
+#                 .to_numpy()
+#                 .reshape(
+#                     temp_self.raw_sens[out].to_numpy().shape[0], n_inputs, n_inputs
+#                 )
+#             )
+#             raw_sens = float_array(
+#                 [
+#                     raw_sens[:, x, y]
+#                     for x, y in zip(index_of_interest[0], index_of_interest[1])
+#                 ]
+#             )
+#             temp_self.raw_sens[out] = pd.DataFrame(
+#                 raw_sens.T, index=range(raw_sens.shape[1]), columns=input_names
+#             )
+# 
+#         return temp_self
 
 
 def sensitivity_plots(jacobian: Jacobian_mlp):
+    """Generate plots to interpret sensitivities of MLP
+    
+    Generate three plots based on partial derivatives of a Jacobian_MLP object:
+    Plot 1: Label plot representing the relationship between average sensitivity (x-axis)
+        vs sensitivity standard deviation (y-axis). 
+    Plot 2: Bar plot of the square root of mean square sensitivities for each input variable. 
+    Plot 3: Density plot of the distribution of output sensitivities with regard to each input variable.
+
+    Args:
+        jacobian (Jacobian_mlp): Jacobian_mlp object with the partial derivatives of the MLP model.
+    """
     fig, ax = plt.subplots(3, len(jacobian.raw_sens))
     fig.suptitle("Sensitivity plots")
     for out, raw_sens in enumerate(jacobian.raw_sens):
@@ -1169,91 +1356,6 @@ def sensitivity_plots(jacobian: Jacobian_mlp):
         ax[axes[2]].set_xlabel("Sens")
         ax[axes[2]].set_ylabel("density(Sens)")
 
-
-def alpha_sens_curves(
-    jacobian,
-    tol: float = None,
-    max_alpha: int = 100,
-    alpha_step: int = 1,
-    curve_equal_origin: bool = False,
-    dev: str = "cpu",
-    use_torch: bool = False,
-):
-    # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
-    if dev == "gpu" or use_torch:
-        try:
-            from torch import arange
-
-        except ImportError:
-            warnings.warn(
-                "Pytorch installation could not be found, numpy would be used instead",
-                ImportWarning,
-            )
-            from numpy import (
-                arange,
-            )
-
-    else:
-        from numpy import (
-            arange,
-        )
-
-
-    # Initialize variables
-    raw_sens = jacobian.raw_sens
-    input_name = jacobian.X.columns
-    alphas = arange(1, max_alpha + 1, alpha_step)
-
-    # Select the color map named rainbow
-    cmap = cm.get_cmap(name="rainbow")
-
-    # Go through each output although this analysis is meant only for regression
-    fig, ax = plt.subplots(len(jacobian.raw_sens), 2)
-    fig.suptitle("Alpha sensitivity curves")
-    for out, rs in enumerate(raw_sens):
-        if len(ax.shape) > 1:
-            axes = [[out, 0], [out, 1]]
-        else:
-            axes = [0, 1]
-        for inp, input in enumerate(input_name):
-            alpha_curves = alpha_curve(
-                rs.iloc[:, inp], tol=tol, max_alpha=max_alpha, alpha_step=alpha_step, dev=dev
-            )
-            if curve_equal_origin:
-                alpha_curves -= alpha_curves[0]
-            
-            alpha_curves_scl = alpha_curves
-            max_alpha_mean = max(abs(rs.iloc[:, inp]))
-            if max_alpha_mean != 0:
-                alpha_curves_scl = alpha_curves / max_alpha_mean
-            var_color = cmap(inp / rs.shape[1])
-            ax[axes[0]].plot(
-                alphas, alpha_curves, label=input, color=var_color
-            )
-            ax[axes[0]].axhline(
-                y=max_alpha_mean, color=var_color, linestyle="dashed"
-            )
-            ax[axes[0]].text(
-                alphas[-1], alpha_curves[-1],
-                input, 
-                color=var_color,
-                path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
-            )
-            ax[axes[0]].text(
-                max([1,max_alpha - 20]), max_alpha_mean,
-                'max({0}): {1:.{2}f}'.format(input, max_alpha_mean, 2),
-                color=var_color,
-                path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
-            )
-            ax[axes[1]].plot(
-                alphas, alpha_curves_scl, label=input, color=var_color
-            )
-        ax[axes[1]].axhline(y=1, color="gray", linestyle="dashed")
-        ax[axes[1]].legend()
-        ax[axes[0]].title.set_text("Alpha curves")
-        ax[axes[1]].title.set_text("Alpha curves / max(sens)")
-
-
 def alpha_sens_curves(
     jacobian,
     tol: float = None,
@@ -1264,6 +1366,20 @@ def alpha_sens_curves(
     use_torch: bool = False,
     columns: list[str] = None 
 ):
+    """Generate plots of alpha curves of partial derivatives
+
+    Args:
+        jacobian (list[Float] | Jacobian_mlp): Object storing partial derivatives
+        tol (float, optional): Minimum change between consecutive alpha-mean values to continue calculating
+            means. If None, Defaults to None.
+        max_alpha (int, optional): Maximum alpha value to calculate. Defaults to 100.
+        alpha_step (int, optional): Specify increment between consecutive alphas. Defaults to 1.
+        curve_equal_origin (bool, optional): Flag to specify if all alpha curves must begin at (1, 0). D
+        efaults to False.
+        dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
+            Only available if pytorch installation could be found. Defaults to "cpu".
+        use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
+    """
     # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
     if dev == "gpu" or use_torch:
         try:
@@ -1351,7 +1467,22 @@ def alpha_curve(
     alpha_step: int = 1,
     dev: str = "cpu",
     use_torch: bool = False,
-):
+) -> list[Float]:
+    """Calculate alpha curve for a given variable
+
+    Args:
+        raw_sens (list): _description_Object storing partial derivatives
+        tol (float, optional): Minimum change between consecutive alpha-mean values to continue calculating
+            means. If None, Defaults to None.
+        max_alpha (int, optional): Maximum alpha value to calculate. Defaults to 100.
+        alpha_step (int, optional): Specify increment between consecutive alphas. Defaults to 1.
+        dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
+            Only available if pytorch installation could be found. Defaults to "cpu".
+        use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
+
+    Returns:
+        list[Float]: Calculated alpha curve
+    """
     # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
     if dev == "gpu" or use_torch:
         try:
