@@ -18,6 +18,11 @@ The last version of this package can be installed using pip:
 $ pip install neuralsens
 ```
 
+It can also be installed with conda:
+```bash
+$ conda install -c jaipizgon neuralsens
+```
+
 ### Bug reports
 
 Please submit any bug reports (or suggestions) using the [issues](https://github.com/JaiPizGon/NeuralSens/issues) tab of the GitHub page.

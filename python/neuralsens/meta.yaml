@@ -1,5 +1,5 @@
 {% set name = "neuralsens" %}
-{% set version = "0.0.4.dev10" %}
+{% set version = "0.0.4.dev11" %}
 
 package:
   name: "{{ name|lower }}"
@@ -7,7 +7,8 @@ package:
 
 source:
   url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
-  sha256: 67ab2d9e0ce11ae3cbc8acba07d7d0e8a702776f018bd8040cf231a23599673c
+  sha256: 7c903e2a60d7e837519ad86904a702c74eacf0b210d7fb21cb3e79cac34c3107
+
 
 build:
   number: 0
@@ -17,8 +18,12 @@ requirements:
   host:
     - pip
     - python
+    - poetry
   run:
     - python
+    - numpy
+    - pandas
+    - matplotlib
 
 test:
   imports:
@@ -30,8 +35,6 @@ about:
   license_family: GPL3
   license_file: LICENSE
   summary: "Analysis functions to quantify inputs importance in neural network models."
-  doc_url: 
-  dev_url: 
 
 extra:
   recipe-maintainers:

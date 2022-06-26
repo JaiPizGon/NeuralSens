@@ -8,6 +8,17 @@ __pycache__/
 # C extensions
 *.so
 
+# Python caching
+*.pyc
+*.pyd
+*.pyo
+__pycache__/
+
+# Jupyter & Spyder stuff
+.ipynb_checkpoints/
+.Trash-*/
+/.spyderproject
+
 # Distribution / packaging
 .Python
 env/
