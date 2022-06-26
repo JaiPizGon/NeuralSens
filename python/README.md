@@ -86,6 +86,7 @@ jacobian.plot("sens")
 ```
 
 ![](docs/source/_static/readme_example_sensplots.png)<!-- -->
+
 Apart from the plot created with the `"sens"` argument by an internal call
 to `sensitivity_plots()`, other plots can be obtained to analyze the neural 
 network model (although they are yet to be coded, thanks for your patience!).

@@ -17,6 +17,25 @@
 
 This is the development repository for the `neuralsens` ![Python Badge](https://img.shields.io/badge/Python-FFD43B?style=flat&logo=python&logoColor=blue) package and the `NeuralSens` ![R Badge](https://img.shields.io/badge/R-276DC3?style=flat&logo=r&logoColor=white) package.  Functions within this package can be used for the analysis of neural network models created in R. 
 
+### How to install
+
+For Python, the last version of the `neuralsens` package can be installed using pip or conda:
+
+```bash
+$ pip install neuralsens
+$ conda install -c jaipizgon neuralsens
+```
+
+For R, the last version of the `NeuralSens` package can be installed from Github or CRAN:
+```r
+# Github 
+install.packages('devtools')
+library(devtools)
+install_github('JaiPizGon/NeuralSens/R')
+# CRAN
+install.packages('NeuralSens')
+```
+
 ### Citation
 
 Please, to cite NeuralSens in publications use:
