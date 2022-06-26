@@ -6,16 +6,16 @@
 
 <!-- badges: start -->
 
-[![CRAN status](https://www.r-pkg.org/badges/version/NeuralSens)](https://CRAN.R-project.org/package=NeuralSens)
+- R : [![CRAN status](https://www.r-pkg.org/badges/version/NeuralSens)](https://CRAN.R-project.org/package=NeuralSens)
 [![CRAN_Download_Badge](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)
 [![R-CMD-check](https://github.com/JaiPizGon/NeuralSens/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/JaiPizGon/NeuralSens/actions/workflows/R-CMD-check.yaml)
-[![Documentation Status](https://readthedocs.org/projects/neuralsens/badge/?version=latest)](https://neuralsens.readthedocs.io/en/latest/?version=latest)
+- Python : [![Documentation Status](https://readthedocs.org/projects/neuralsens/badge/?version=latest)](https://neuralsens.readthedocs.io/en/latest/?version=latest)
 [![pypi](https://img.shields.io/pypi/v/neuralsens.svg)](https://pypi.python.org/pypi/neuralsens)
 [![python](https://img.shields.io/badge/python-%5E3.8-blue)]()
 [![os](https://img.shields.io/badge/OS-Ubuntu%2C%20Mac%2C%20Windows-purple)]()
 <!-- badges: end -->
 
-This is the development repository for the ![Python Badge](https://img.shields.io/badge/Python-FFD43B?style=flat&logo=neuralsens&logoColor=blue) and ![R Badge](https://img.shields.io/badge/R-276DC3?style=flat&logo=NeuralSens&logoColor=white) package.  Functions within this package can be used for the analysis of neural network models created in R. 
+This is the development repository for the `neuralsens` ![Python Badge](https://img.shields.io/badge/Python-FFD43B?style=flat&logo=python&logoColor=blue) package and the `NeuralSens` ![R Badge](https://img.shields.io/badge/R-276DC3?style=flat&logo=r&logoColor=white) package.  Functions within this package can be used for the analysis of neural network models created in R. 
 
 ### Citation
 
