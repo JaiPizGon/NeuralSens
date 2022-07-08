@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "neuralsens"
-version = "0.0.4.dev12"
+version = "0.0.4.dev13"
 description = "Calculate word counts in a text file."
 authors = ["Jaime Pizarroso Gonzalo", "Jose Portela Gonzalez", "Antonio Munoz San Roque"]
 license = "GPU-3"

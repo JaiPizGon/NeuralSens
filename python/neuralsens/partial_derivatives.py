@@ -1458,7 +1458,8 @@ def alpha_sens_curves(
         ax[axes[1]].legend()
         ax[axes[0]].title.set_text("Alpha curves")
         ax[axes[1]].title.set_text("Alpha curves / max(sens)")
-
+        ax[axes[0]].xaxis.get_major_locator().set_params(integer=True)
+        ax[axes[1]].xaxis.get_major_locator().set_params(integer=True)
 
 def alpha_curve(
     raw_sens: list,
