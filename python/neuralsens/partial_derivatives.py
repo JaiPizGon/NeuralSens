@@ -1325,7 +1325,7 @@ def sensitivity_plots(jacobian: Jacobian_mlp):
             xmax=max(sens["mean"]) + 0.2 * max(abs(sens["mean"])),
             color="blue",
         )
-        ax[axes[0]].vlines(x=0, ymin=0, ymax=1, color="blue")
+        ax[axes[0]].vlines(x=0, ymin=0, ymax=1.2 * max(sens["std"]), color="blue")
         ax[axes[0]].scatter(x=0, y=0, s=150, c="blue")
         for i, txt in enumerate(sens.index.values.tolist()):
             ax[axes[0]].annotate(
