@@ -79,6 +79,7 @@ def jacobian_mlp(
                 from_numpy,
                 is_tensor,
                 stack,
+                sqrt
             )
             from numpy import ndarray, asarray
 
@@ -114,6 +115,7 @@ def jacobian_mlp(
                 array,
                 square,
                 matmul,
+                sqrt
             )
 
             def float_array(x, dev="cpu") -> array:
@@ -132,6 +134,7 @@ def jacobian_mlp(
             array,
             square,
             matmul,
+            sqrt
         )
 
         def float_array(x, dev="cpu") -> array:
@@ -228,7 +231,7 @@ def jacobian_mlp(
     # Calculate sensitivity measures for each input and output
     meanSens = mean(D_accum[counter], axis=0)
     stdSens = std(D_accum[counter], axis=0)
-    meansquareSens = mean(square(D_accum[counter]), axis=0)
+    meansquareSens = sqrt(mean(square(D_accum[counter]), axis=0))
 
     # Store the information extracted from sensitivity analysis
     input_name = X.columns.values.tolist()
@@ -1364,7 +1367,9 @@ def alpha_sens_curves(
     curve_equal_origin: bool = False,
     dev: str = "cpu",
     use_torch: bool = False,
-    columns: list[str] = None 
+    columns: list[str] = None,
+    title: str = 'alpha-curves',
+    show_scaled: bool = True 
 ):
     """Generate plots of alpha curves of partial derivatives
 
@@ -1379,6 +1384,11 @@ def alpha_sens_curves(
         dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
             Only available if pytorch installation could be found. Defaults to "cpu".
         use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
+        columns (list[str], optional): List of variable names to show in alpha curves. If None,
+            a list of str [X1, ..., Xn] is generated and used as input variables. Defaults to None.
+        title [str]: title to show above alpha sensitivity curves plot
+        show_scaled (bool, optional): Flag to indicate if second plot of curves divided by maximum shall be plotted. 
+            Defaults to True.
     """
     # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
     if dev == "gpu" or use_torch:
@@ -1406,68 +1416,121 @@ def alpha_sens_curves(
         input_name = jacobian.X.columns
     else:
         input_name = columns
+        if columns is not None:
+            if len(columns) != jacobian.shape[1]:
+                warnings.warn(f"Number of columns names {len(columns)} does not match number of input variables {jacobian.shape[1]}, default variable names would be used.", warnings.WarningMessage)
+                columns = None
         if columns is None:
             input_name = ['X{}'.format(x) for x in (arange(0, jacobian.shape[1]))]
         raw_sens = [pd.DataFrame(jacobian, columns=input_name)]
     alphas = arange(1, max_alpha + 1, alpha_step)
     # Select the color map named rainbow
     cmap = cm.get_cmap(name="rainbow")
-
+    
     # Go through each output although this analysis is meant only for regression
-    fig, ax = plt.subplots(len(raw_sens), 2)
-    fig.suptitle("Alpha sensitivity curves")
-    for out, rs in enumerate(raw_sens):
-        if len(ax.shape) > 1:
-            axes = [[out, 0], [out, 1]]
-        else:
-            axes = [0, 1]
-        for inp, input in enumerate(input_name):
-            alpha_curves = alpha_curve(
-                rs.iloc[:, inp], tol=tol, max_alpha=max_alpha, alpha_step=alpha_step, dev=dev
-            )
-            if curve_equal_origin:
-                alpha_curves -= alpha_curves[0]
-            
-            alpha_curves_scl = alpha_curves
-            max_alpha_mean = max(abs(rs.iloc[:, inp]))
-            if max_alpha_mean != 0:
-                alpha_curves_scl = alpha_curves / max_alpha_mean
-            var_color = cmap(inp / rs.shape[1])
-            ax[axes[0]].plot(
-                alphas, alpha_curves, label=input, color=var_color
-            )
-            ax[axes[0]].axhline(
-                y=max_alpha_mean, color=var_color, linestyle="dashed"
-            )
-            ax[axes[0]].text(
-                alphas[-1], alpha_curves[-1],
-                input, 
-                color=var_color,
-                path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
-            )
-            ax[axes[0]].text(
-                max([1,max_alpha - 20]), max_alpha_mean,
-                'max({0}): {1:.{2}f}'.format(input, max_alpha_mean, 2),
-                color=var_color,
-                path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
-            )
-            ax[axes[1]].plot(
-                alphas, alpha_curves_scl, label=input, color=var_color
-            )
-        ax[axes[1]].axhline(y=1, color="gray", linestyle="dashed")
-        ax[axes[1]].legend()
-        ax[axes[0]].title.set_text("Alpha curves")
-        ax[axes[1]].title.set_text("Alpha curves / max(sens)")
-        ax[axes[0]].xaxis.get_major_locator().set_params(integer=True)
-        ax[axes[1]].xaxis.get_major_locator().set_params(integer=True)
-
+    if show_scaled:
+        fig, ax = plt.subplots(len(raw_sens), 2)
+        fig.suptitle(title)
+        for out, rs in enumerate(raw_sens):
+            if len(ax.shape) > 1:
+                axes = [[out, 0], [out, 1]]
+            else:
+                axes = [0, 1]
+            for inp, input in enumerate(input_name):
+                alpha_curves = alpha_curve(
+                    rs.iloc[:, inp], tol=tol, max_alpha=max_alpha, alpha_step=alpha_step, dev=dev
+                )
+                if curve_equal_origin:
+                    alpha_curves -= alpha_curves[0]
+                
+                alpha_curves_scl = alpha_curves
+                max_alpha_mean = max(abs(rs.iloc[:, inp]))
+                if max_alpha_mean != 0:
+                    alpha_curves_scl = alpha_curves / max_alpha_mean
+                var_color = cmap(inp / rs.shape[1])
+                ax[axes[0]].plot(
+                    alphas, alpha_curves, label=input, color=var_color
+                )
+                ax[axes[0]].axhline(
+                    y=max_alpha_mean, color=var_color, linestyle="dashed"
+                )
+                ax[axes[0]].text(
+                    alphas[-1], alpha_curves[-1],
+                    input, 
+                    color=var_color,
+                    path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
+                )
+                ax[axes[0]].text(
+                    max([1,max_alpha - 20]), max_alpha_mean,
+                    'max({0}): {1:.{2}f}'.format(input, max_alpha_mean, 2),
+                    color=var_color,
+                    path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
+                )
+                ax[axes[1]].plot(
+                    alphas, alpha_curves_scl, label=input, color=var_color
+                )
+            ax[axes[1]].axhline(y=1, color="gray", linestyle="dashed")
+            ax[axes[1]].legend()
+            ax[axes[0]].title.set_text("Alpha curves")
+            ax[axes[1]].title.set_text("Alpha curves / max(sens)")
+            ax[axes[0]].xaxis.get_major_locator().set_params(integer=True)
+            ax[axes[1]].xaxis.get_major_locator().set_params(integer=True)
+            ax[axes[0]].set_ylabel(r'$(ms_{X,j}^\alpha(f))^\alpha$')
+            ax[axes[1]].set_ylabel(r'$(ms_{X,j}^\alpha(f))^\alpha$')
+            ax[axes[0]].set_xlabel(r'$\alpha$')
+            ax[axes[1]].set_xlabel(r'$\alpha$')
+            return ax
+    else:
+        fig, ax = plt.subplots(len(raw_sens), 1)
+        # fig.suptitle("Alpha sensitivity curves")
+        for out, rs in enumerate(raw_sens):
+            if len(raw_sens) > 1:
+                axes = [[out, 0]]
+            else:
+                axes = [0]
+            for inp, input in enumerate(input_name):
+                alpha_curves = alpha_curve(
+                    rs.iloc[:, inp], tol=tol, max_alpha=max_alpha, alpha_step=alpha_step, dev=dev
+                )
+                if curve_equal_origin:
+                    alpha_curves -= alpha_curves[0]
+                
+                alpha_curves_scl = alpha_curves
+                max_alpha_mean = max(abs(rs.iloc[:, inp]))
+                if max_alpha_mean != 0:
+                    alpha_curves_scl = alpha_curves / max_alpha_mean
+                var_color = cmap(inp / rs.shape[1])
+                ax.plot(
+                    alphas, alpha_curves, label=input, color=var_color
+                )
+                ax.axhline(
+                    y=max_alpha_mean, color=var_color, linestyle="dashed"
+                )
+                ax.text(
+                    alphas[-1], alpha_curves[-1],
+                    input, 
+                    color=var_color,
+                    path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
+                )
+                ax.text(
+                    max([1,max_alpha - 20]), max_alpha_mean,
+                    'max({0}): {1:.{2}f}'.format(input, max_alpha_mean, 2),
+                    color=var_color,
+                    path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
+                )
+            ax.set_ylabel(r'$(ms_{X,j}^\alpha(f))$')
+            ax.set_xlabel(r'$\alpha$')
+            ax.title.set_text(title)
+            ax.xaxis.get_major_locator().set_params(integer=True)
+            return ax
+        
 def alpha_curve(
     raw_sens: list,
     tol: float = None,
     max_alpha: int = 100,
     alpha_step: int = 1,
     dev: str = "cpu",
-    use_torch: bool = False,
+    use_torch: bool = False
 ) -> list[Float]:
     """Calculate alpha curve for a given variable
 
@@ -1480,6 +1543,7 @@ def alpha_curve(
         dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
             Only available if pytorch installation could be found. Defaults to "cpu".
         use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
+        
 
     Returns:
         list[Float]: Calculated alpha curve
@@ -1543,7 +1607,9 @@ def alpha_curve(
 
     # Calculate scale factor
     N = raw_sens.shape[0]
-    scl_factor = 10 ** (max(floor(log10(abs(raw_sens)))) + 1) 
+    scl_factor = 1
+    if not all(v == 0 for v in raw_sens):
+        scl_factor = 10 ** (max(floor(log10(abs(raw_sens[raw_sens != 0.0])))) + 1) 
     alpha = arange(1, max_alpha + 1, alpha_step)
     scl_rs = abs(raw_sens) / scl_factor
     alpha_curve = empty(alpha.shape)
