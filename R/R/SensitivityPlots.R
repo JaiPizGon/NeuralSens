@@ -77,8 +77,7 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
       ggplot2::geom_hline(ggplot2::aes(yintercept = 0), color = "blue") +
       ggplot2::geom_vline(ggplot2::aes(xintercept = 0), color = "blue") +
       ggplot2::geom_point(ggplot2::aes_string(x = "mean", y = "std")) +
-      ggplot2::geom_label(ggplot2::aes_string(x = "mean", y = "std", label = "varNames"),
-                          position = "nudge") +
+      ggrepel::geom_label_repel(ggplot2::aes_string(x = "mean", y = "std", label = "varNames")) +
       # coord_cartesian(xlim = c(min(sens$mean,0)-0.1*abs(min(sens$mean,0)), max(sens$mean)+0.1*abs(max(sens$mean))), ylim = c(0, max(sens$std)*1.1))+
       ggplot2::labs(x = "mean(Sens)", y = "std(Sens)")
 
