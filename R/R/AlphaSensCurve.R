@@ -10,6 +10,10 @@
 #' @param curve_equal_length make all the curves of the same length
 #' @param curve_equal_origin make all the curves begin at (1,0)
 #' @param curve_divided_max create second plot of curves divided by maximum alpha
+#' @param inp_var \code{character} indicating which input variable to show in density plot. Only useful when
+#' choosing plot_type='raw' to show the density plot of one input variable. If \code{NULL}, all variables
+#' are plotted in density plot. By default is \code{NULL}.
+#' @param line_width \code{int} width of the line in the plot.
 #' @return alpha-curves of the MLP function
 #' @examples
 #' \donttest{
@@ -22,11 +26,19 @@
 #' AlphaSensAnalysis(sens)
 #' }
 #' @export AlphaSensAnalysis
-AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 100, interpolate_alpha = FALSE, curve_equal_length = FALSE, curve_equal_origin = FALSE, curve_divided_max = FALSE) {
+AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 15, interpolate_alpha = FALSE,
+                              curve_equal_length = FALSE, curve_equal_origin = FALSE, curve_divided_max = FALSE,
+                              inp_var = NULL, line_width = 1
+                              ) {
   if (length(sens$raw_sens) != 1) {
     stop("This analysis is thought for MLPs focused on Regression, it does not work for Classiffication MLPs")
   }
   raw_sens <- sens$raw_sens[[1]]
+
+  if (!is.null(inp_var)) {
+    inp_var <- match.arg(inp_var, colnames(raw_sens), several.ok = TRUE)
+    raw_sens <- raw_sens[, inp_var, drop=FALSE]
+  }
   alpha_curves <- list()
   max_alpha_len <- 0
   for (input in 1:ncol(raw_sens)) {
@@ -36,9 +48,10 @@ AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 100, interpolate_alp
     alpha_begin_interpolate = NaN
     if (interpolate_alpha) {
       # Interpolate missing point to reach maximum sensitivity
-      alpha_begin_interpolate = alpha_curve[length(alpha_curve)]
-      m <- (alpha_curve[length(alpha_curve)] - alpha_curve[length(alpha_curve)-1])
-      alpha_curve <- c(alpha_curve, seq(alpha_curve[length(alpha_curve)], max(abs(raw_sens[,input])), m))
+      # alpha_begin_interpolate = alpha_curve[length(alpha_curve)]
+      # m <- (alpha_curve[length(alpha_curve)] - alpha_curve[length(alpha_curve)-1])
+      # alpha_curve <- c(alpha_curve, seq(alpha_curve[length(alpha_curve)], max(abs(raw_sens[,input])), m))
+      alpha_curve <- c(alpha_curve, max_sens)
     }
     if (curve_equal_origin) {
       max_sens <- max_sens - alpha_curve[1]
@@ -75,7 +88,7 @@ AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 100, interpolate_alp
 
   alpha_curves <- do.call("rbind",alpha_curves)
   p1 <- ggplot2::ggplot(alpha_curves) +
-    ggplot2::geom_line(ggplot2::aes_string(x = "alpha", y = "alpha_curve", color = "input_var")) +
+    ggplot2::geom_line(ggplot2::aes_string(x = "alpha", y = "alpha_curve", color = "input_var"), size=line_width) +
     ggplot2::geom_hline(ggplot2::aes_string(yintercept = "alpha_bi", color = "input_var"),
                         linetype = "dotted") +
     ggplot2::geom_hline(ggplot2::aes_string(yintercept = "alpha_max", color = "input_var"),
@@ -85,7 +98,7 @@ AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 100, interpolate_alp
   if (curve_divided_max) {
     alpha_curves$divided <- alpha_curves$alpha_curve / alpha_curves$alpha_max
     p2 <- ggplot2::ggplot(alpha_curves) +
-      ggplot2::geom_line(ggplot2::aes_string(x = "alpha", y = "divided", color = "input_var")) +
+      ggplot2::geom_line(ggplot2::aes_string(x = "alpha", y = "divided", color = "input_var"), size=line_width) +
       ggplot2::geom_hline(ggplot2::aes(yintercept = 1),
                           linetype = "dashed") +
       ggplot2::ylab("alpha value")+
