@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "neuralsens"
-version = "0.0.4.dev14"
+version = "0.0.14"
 description = "Calculate word counts in a text file."
 authors = ["Jaime Pizarroso Gonzalo", "Jose Portela Gonzalez", "Antonio Munoz San Roque"]
 license = "GPU-3"
@@ -12,11 +12,12 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.8,<3.12"
 matplotlib = "^3.5.2"
 numpy = "^1.22.4"
 pandas = "^1.4.2"
 scipy = "^1.8.1"
+plotly = "^5.11.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"

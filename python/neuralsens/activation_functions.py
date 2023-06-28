@@ -380,8 +380,8 @@ def der_3_activation_function(func: str, use_torch: bool = False):
             zeros_4d = np.zeros(
                 (x.shape[0], x.shape[0], x.shape[0], x.shape[0]), dtype=float
             )
-            fx = expit(x)
-            np.fill_diagonal(zeros_4d, fx * (1 - fx) * (1 - 2 * fx) * (1 - 3 * fx))
+            fx = np.exp(x)
+            np.fill_diagonal(zeros_4d, fx / (fx + 1) ** 2 - 6 * fx ** 2 / (fx + 1) ** 3 + 6 * fx ** 3 / (fx + 1) ** 4)
             return zeros_4d
 
         def identity(x):
@@ -402,9 +402,9 @@ def der_3_activation_function(func: str, use_torch: bool = False):
 
         def logistic(x):
             zeros_4d = zeros((x.size(0), x.size(0), x.size(0), x.size(0))).float()
-            fx = sigmoid(x)
+            fx = exp(-x)
             return fill_diagonal_torch(
-                zeros_4d, fx * (1 - fx) * (1 - 2 * fx) * (1 - 3 * fx)
+                zeros_4d, fx / (fx + 1) ** 2 - 6 * fx ** 2 / (fx + 1) ** 3 + 6 * fx ** 3 / (fx + 1) ** 4
             )
 
         def identity(x):
