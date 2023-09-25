@@ -6,9 +6,6 @@ try:
 
     allow_torch = True
 except ImportError:
-    print(
-        "torch installation could not be found, only numpy activation functions allowed"
-    )
     allow_torch = False
 
 
