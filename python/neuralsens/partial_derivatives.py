@@ -1,13 +1,11 @@
 import pandas as pd
-from numpy import triu_indices, meshgrid, nanmax, inf, linspace, vstack, empty, trapz, array, round, nan_to_num, trapz, append, logical_not, isnan
+from numpy import triu_indices, meshgrid, logical_not, isnan
+from matplotlib.patches import ConnectionPatch
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import matplotlib.patheffects as pe
 import warnings
 import seaborn as sns
-from brokenaxes import brokenaxes
 
-from traitlets import Float
 from neuralsens.activation_functions import (
     activation_function,
     der_activation_function,
@@ -18,51 +16,43 @@ from neuralsens.activation_functions import (
 plt.style.use("ggplot")
 
 
-def jacobian_mlp(
+def calculate_first_partial_derivatives(
     wts,
     bias,
     actfunc,
     X: pd.core.frame.DataFrame,
-    y: pd.core.frame.DataFrame,
+    dev: str = "cpu",
     sens_origin_layer: int = 0,
     sens_end_layer = "last",
     sens_origin_input: bool = True,
     sens_end_input: bool = False,
-    dev: str = "cpu",
-    use_torch: bool = False,
-):
-    """Obtain first derivatives of MLP model given an input space.
-    
-    First derivatives of MLP model may be used to analyze the variable
-    relationships between inputs and outputs. 
+    use_torch: bool = False
+    ):
+    """
+    Calculate the first partial derivatives of a Multi-Layer Perceptron (MLP) model.
 
-    Args:
-        wts (list[float]): list of weight matrixes of the MLP layers.
-        bias (list[float]): list of bias vectors of the MLP layers.
-        actfunc (list[str]): list of names of the activation function of the MLP layers.
-        X (pd.core.frame.DataFrame): data.frame with the input data
-        y (pd.core.frame.DataFrame): data.frame with the output data
-        sens_origin_layer (int, optional): layer from where the derivatives shall be calculated. 
-            Defaults to 0 (input layer).
-        sens_end_layer (str | int, optional): layer to where the derivatives shall be calculated. 
-            Defaults to "last" (output layer).
-        sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
-            of the origin layer or the outputs (False). Defaults to True.
-        sens_end_input (bool, optional): flag to indicate if derivatives shall be calculated to inputs (True)
-            of the end layer or the outputs (False). Defaults to False.
-        dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
-            Only available if pytorch installation could be found. Defaults to "cpu".
-        use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
-
-    Raises:
-        ValueError: End layer to analyze cannot be smaller or equal to zero.
-        ValueError: Origin layer to analyze cannot be smaller or equal to zero.
-        ValueError: There must be a layer of neurons or weights between end layer and origin layer.
-        ValueError: Origin layer should be less than number of layers in the model.
-        ValueError: End layer should be less than number of layers in the model.
+    Parameters:
+    wts (list of numpy arrays or torch tensors): List of weight matrices for each layer of the MLP.
+    bias (list of numpy arrays or torch tensors): List of bias vectors for each layer of the MLP.
+    actfunc (list of callable functions): List of activation functions for each layer of the MLP.
+    X (pd.core.frame.DataFrame): Input data as a pandas DataFrame.
+    dev (str): Device specification, either "cpu" or "gpu". If "gpu" is chosen or use_torch is True, it uses PyTorch for calculations, otherwise, it uses NumPy. Default is "cpu".
+    sens_origin_layer (int): The starting layer index for sensitivity calculation. Default is 0.
+    sens_end_layer (int or str): The ending layer index for sensitivity calculation. If "last", it calculates sensitivity up to the last layer. Default is "last".
+    sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
+        of the origin layer or the outputs (False). Defaults to True.
+    sens_end_input (bool, optional): flag to indicate if derivatives shall be calculated to inputs (True)
+        of the end layer or the outputs (False). Defaults to False.
+    use_torch (bool): If True, use PyTorch for calculations even if dev is "cpu". Default is False.
 
     Returns:
-        Jacobian_MLP: custom object storing the first partial derivatives of the MLP model.
+    W (list of numpy arrays or torch tensors): List of weight matrices for each layer of the MLP.
+    Z (list of numpy arrays or torch tensors): List of input values for each layer of the MLP.
+    O (list of numpy arrays or torch tensors): List of output values for each layer of the MLP.
+    D (list of numpy arrays or torch tensors): List of derivatives for each layer of the MLP.
+    D_accum (list of numpy arrays or torch tensors): List of accumulated sensitivity values for each calculated layer.
+    counter (int): Number of layers between sens_origin_layer and sens_end_layer. It serves to know the final derivatives to return in the jacobian_mlp.
+    mlpstr (list of integer): Structure of the mlp model.
     """
     # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
     if dev == "gpu" or use_torch:
@@ -71,16 +61,12 @@ def jacobian_mlp(
                 eye as identity,
                 vstack,
                 ones,
-                mean,
-                std,
                 tensor,
                 device,
-                square,
                 matmul,
                 from_numpy,
                 is_tensor,
                 stack,
-                sqrt
             )
             from numpy import ndarray, asarray
 
@@ -108,12 +94,8 @@ def jacobian_mlp(
                 vstack,
                 array,
                 ones,
-                mean,
-                std,
                 array,
-                square,
-                matmul,
-                sqrt
+                matmul
             )
 
             def float_array(x, dev="cpu") -> array:
@@ -127,45 +109,15 @@ def jacobian_mlp(
             vstack,
             array,
             ones,
-            mean,
-            std,
             array,
-            square,
-            matmul,
-            sqrt
+            matmul
         )
 
         def float_array(x, dev="cpu") -> array:
             return array(x)
 
         use_torch = False
-
-    # Check validity of inputs
-    if sens_end_layer == "last":
-        sens_end_layer = len(actfunc)
-
-    if sens_end_layer <= 0:
-        raise ValueError("End layer to analyze cannot be smaller or equal to zero.")
-
-    if sens_origin_layer < 0:
-        raise ValueError("Origin layer to analyze cannot be smaller or equal to zero.")
-
-    if not (sens_end_layer > sens_origin_layer) or (
-        (sens_end_layer == sens_origin_layer)
-        and (sens_origin_input and not sens_end_input)
-    ):
-        raise ValueError(
-            "There must be a layer of neurons or weights between end layer and origin layer."
-        )
-
-    if sens_origin_layer > len(actfunc):
-        raise ValueError(
-            "Origin layer should be less than number of layers in the model."
-        )
-
-    if sens_end_layer > len(actfunc):
-        raise ValueError("End layer should be less than number of layers in the model.")
-
+    
     ### Initialize all the necessary variables
     # Structure of the mlp model
     mlpstr = [wts[0].shape[0]] + [lyr.shape[1] for lyr in wts]
@@ -177,7 +129,7 @@ def jacobian_mlp(
     # Number of samples to be cached (it is used several times)
     n_samples = X.shape[0]
     r_samples = range(n_samples)
-
+    
     # Weights of input layer
     W = [identity(X.shape[1])]
 
@@ -225,6 +177,146 @@ def jacobian_mlp(
                 D_accum.append(D_accum[counter - 1] @ W[layer][1:, :])
             else:
                 D_accum.append(D_accum[counter - 1] @ W[layer][1:, :] @ D[layer])
+    return W, Z, O, D, D_accum, counter, mlpstr
+
+def jacobian_mlp(
+    wts,
+    bias,
+    actfunc,
+    X: pd.core.frame.DataFrame,
+    y: pd.core.frame.DataFrame,
+    sens_origin_layer: int = 0,
+    sens_end_layer = "last",
+    sens_origin_input: bool = True,
+    sens_end_input: bool = False,
+    dev: str = "cpu",
+    use_torch: bool = False
+):
+    """Obtain first derivatives of MLP model given an input space.
+    
+    First derivatives of MLP model may be used to analyze the variable
+    relationships between inputs and outputs. 
+
+    Args:
+        wts (list[float]): list of weight matrixes of the MLP layers.
+        bias (list[float]): list of bias vectors of the MLP layers.
+        actfunc (list[str]): list of names of the activation function of the MLP layers.
+        X (pd.core.frame.DataFrame): data.frame with the input data
+        y (pd.core.frame.DataFrame): data.frame with the output data
+        sens_origin_layer (int, optional): layer from where the derivatives shall be calculated. 
+            Defaults to 0 (input layer).
+        sens_end_layer (str | int, optional): layer to where the derivatives shall be calculated. 
+            Defaults to "last" (output layer).
+        sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
+            of the origin layer or the outputs (False). Defaults to True.
+        sens_end_input (bool, optional): flag to indicate if derivatives shall be calculated to inputs (True)
+            of the end layer or the outputs (False). Defaults to False.
+        dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
+            Only available if pytorch installation could be found. Defaults to "cpu".
+        use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
+
+    Raises:
+        ValueError: End layer to analyze cannot be smaller or equal to zero.
+        ValueError: Origin layer to analyze cannot be smaller or equal to zero.
+        ValueError: There must be a layer of neurons or weights between end layer and origin layer.
+        ValueError: Origin layer should be less than number of layers in the model.
+        ValueError: End layer should be less than number of layers in the model.
+
+    Returns:
+        Jacobian_MLP: custom object storing the first partial derivatives of the MLP model.
+    """
+    # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
+    if dev == "gpu" or use_torch:
+        try:
+            from torch import (
+                mean,
+                std,
+                tensor,
+                device,
+                square,
+                from_numpy,
+                is_tensor,
+                stack,
+                sqrt
+            )
+            from numpy import ndarray, asarray
+
+            def float_array(x, dev="cpu") -> tensor:
+                dev = device(dev)
+                if isinstance(x, pd.DataFrame):
+                    return from_numpy(x.to_numpy()).float().to(dev)
+                if isinstance(x, list):
+                    if isinstance(x[0], ndarray):
+                        x = asarray(x)
+                    elif is_tensor(x[0]):
+                        return stack(x).float().to(dev)
+                if isinstance(x, ndarray):
+                    return from_numpy(x).float().to(dev)
+                if is_tensor(x):
+                    return x.clone().detach().to(dev)
+                return tensor(x, device=dev)
+
+            use_torch = True
+
+        except ImportError:
+            
+            from numpy import (
+                array,
+                mean,
+                std,
+                array,
+                square,
+                sqrt
+            )
+
+            def float_array(x, dev="cpu") -> array:
+                return array(x.numpy())
+
+            use_torch = False
+
+    else:
+        from numpy import (
+            array,
+            mean,
+            std,
+            array,
+            square,
+            sqrt
+        )
+
+        def float_array(x, dev="cpu") -> array:
+            return array(x)
+
+        use_torch = False
+
+    # Check validity of inputs
+    if sens_end_layer == "last":
+        sens_end_layer = len(actfunc)
+
+    if sens_end_layer <= 0:
+        raise ValueError("End layer to analyze cannot be smaller or equal to zero.")
+
+    if sens_origin_layer < 0:
+        raise ValueError("Origin layer to analyze cannot be smaller or equal to zero.")
+
+    if not (sens_end_layer > sens_origin_layer) or (
+        (sens_end_layer == sens_origin_layer)
+        and (sens_origin_input and not sens_end_input)
+    ):
+        raise ValueError(
+            "There must be a layer of neurons or weights between end layer and origin layer."
+        )
+
+    if sens_origin_layer > len(actfunc):
+        raise ValueError(
+            "Origin layer should be less than number of layers in the model."
+        )
+
+    if sens_end_layer > len(actfunc):
+        raise ValueError("End layer should be less than number of layers in the model.")
+
+    _, _, _, _, D_accum, counter, mlpstr = calculate_first_partial_derivatives(wts, bias, actfunc, X, dev, sens_origin_layer, 
+                                                        sens_end_layer, sens_origin_input, sens_end_input, use_torch)
 
     # Calculate sensitivity measures for each input and output
     meanSens = mean(D_accum[counter], axis=0)
@@ -377,7 +469,7 @@ class Jacobian_mlp:
             print("$" + self.output_name[out], "\n")
             print(self.raw_sens[out][: min([n, self.raw_sens[out].shape[0]])])
 
-    def plot(self, type="sens"):
+    def plot(self, type="sens", **kwargs):
         """Generate plot based on partial derivatives.
 
         Args:
@@ -385,16 +477,16 @@ class Jacobian_mlp:
                 Defaults to "sens".
         """
         if type == "sens":
-            self.sensitivityPlots()
+            self.sensitivityPlots(**kwargs)
         elif type == "features":
-            self.featurePlots()
+            self.featurePlots(**kwargs)
         elif type == "time":
-            self.timePlots()
+            self.timePlots(**kwargs)
         else:
             print("The specifyed type", type, "is not an accepted plot type.")
 
-    def sensitivityPlots(self):
-        sensitivity_plots(self)
+    def sensitivityPlots(self, **kwargs):
+        sensitivity_plots(self, **kwargs)
 
     def featurePlots(self):
         pass
@@ -402,52 +494,43 @@ class Jacobian_mlp:
     def timePlots(self):
         pass
 
-
-def hessian_mlp(
+def calculate_second_partial_derivatives(
     wts,
     bias,
     actfunc,
     X: pd.core.frame.DataFrame,
-    y: pd.core.frame.DataFrame,
+    dev: str = "cpu",
     sens_origin_layer: int = 0,
     sens_end_layer = "last",
     sens_origin_input: bool = True,
-    sens_end_input: bool = False,
-    dev: str = "cpu",
-    use_torch: bool = False,
-):
-    """Obtain second derivatives of MLP model given an input space.
-    
-    Second derivatives of MLP model may be used to analyze the variable
-    relationships between inputs and outputs. 
+    use_torch: bool = False
+    ):
+    """
+    Calculate the first partial derivatives of a Multi-Layer Perceptron (MLP) model.
 
-    Args:
-        wts (list[float]): list of weight matrixes of the MLP layers.
-        bias (list[float]): list of bias vectors of the MLP layers.
-        actfunc (list[str]): list of names of the activation function of the MLP layers.
-        X (pd.core.frame.DataFrame): data.frame with the input data
-        y (pd.core.frame.DataFrame): data.frame with the output data
-        sens_origin_layer (int, optional): layer from where the derivatives shall be calculated. 
-            Defaults to 0 (input layer).
-        sens_end_layer (str | int, optional): layer to where the derivatives shall be calculated. 
-            Defaults to "last" (output layer).
-        sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
-            of the origin layer or the outputs (False). Defaults to True.
-        sens_end_input (bool, optional): flag to indicate if derivatives shall be calculated to inputs (True)
-            of the end layer or the outputs (False). Defaults to False.
-        dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
-            Only available if pytorch installation could be found. Defaults to "cpu".
-        use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
-
-    Raises:
-        ValueError: End layer to analyze cannot be smaller or equal to zero.
-        ValueError: Origin layer to analyze cannot be smaller or equal to zero.
-        ValueError: There must be a layer of neurons or weights between end layer and origin layer.
-        ValueError: Origin layer should be less than number of layers in the model.
-        ValueError: End layer should be less than number of layers in the model.
+    Parameters:
+    wts (list of numpy arrays or torch tensors): List of weight matrices for each layer of the MLP.
+    bias (list of numpy arrays or torch tensors): List of bias vectors for each layer of the MLP.
+    actfunc (list of callable functions): List of activation functions for each layer of the MLP.
+    X (pd.core.frame.DataFrame): Input data as a pandas DataFrame.
+    dev (str): Device specification, either "cpu" or "gpu". If "gpu" is chosen or use_torch is True, it uses PyTorch for calculations, otherwise, it uses NumPy. Default is "cpu".
+    sens_origin_layer (int): The starting layer index for sensitivity calculation. Default is 0.
+    sens_end_layer (int or str): The ending layer index for sensitivity calculation. If "last", it calculates sensitivity up to the last layer. Default is "last".
+    sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
+        of the origin layer or the outputs (False). Defaults to True.
+    use_torch (bool): If True, use PyTorch for calculations even if dev is "cpu". Default is False.
 
     Returns:
-        Hessian_MLP: custom object storing the second partial derivatives of the MLP model.
+    W (list of numpy arrays or torch tensors): List of weight matrices for each layer of the MLP.
+    Z (list of numpy arrays or torch tensors): List of input values for each layer of the MLP.
+    O (list of numpy arrays or torch tensors): List of output values for each layer of the MLP.
+    D (list of numpy arrays or torch tensors): List of derivatives for each layer of the MLP.
+    D2 (list of numpy arrays or torch tensors): List of second derivatives for each layer of the MLP.
+    D_accum (list of numpy arrays or torch tensors): List of accumulated sensitivity values for each calculated layer.
+    Q (list of numpy arrays or torch tensors): List of accumulated second partial derivatives of the input of the layer with respect to the inputs of the model.
+    H (list of numpy arrays or torch tensors): List of accumulated second partial derivatives of the output of the layer with respect to the inputs of the model.
+    counter (int): Number of layers between sens_origin_layer and sens_end_layer. It serves to know the final derivatives to return in the jacobian_mlp.
+    mlpstr (list of integer): Structure of the mlp model.
     """
     # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
     if dev == "gpu" or use_torch:
@@ -456,16 +539,13 @@ def hessian_mlp(
                 eye as identity,
                 vstack,
                 ones,
-                mean,
-                std,
                 tensor,
                 device,
-                square,
                 matmul,
                 from_numpy,
                 is_tensor,
                 stack,
-                zeros,
+                zeros
             )
             from numpy import ndarray, asarray
 
@@ -493,12 +573,9 @@ def hessian_mlp(
                 vstack,
                 array,
                 ones,
-                mean,
-                std,
                 array,
-                square,
-                zeros,
                 matmul,
+                zeros
             )
 
             def float_array(x, dev="cpu") -> array:
@@ -512,45 +589,16 @@ def hessian_mlp(
             vstack,
             array,
             ones,
-            mean,
-            std,
             array,
-            square,
             matmul,
-            zeros,
+            zeros
         )
 
         def float_array(x, dev="cpu") -> array:
             return array(x)
 
         use_torch = False
-
-    # Check validity of inputs
-    if sens_end_layer == "last":
-        sens_end_layer = len(actfunc)
-
-    if sens_end_layer <= 0:
-        raise ValueError("End layer to analyze cannot be smaller or equal to zero.")
-
-    if sens_origin_layer < 0:
-        raise ValueError("Origin layer to analyze cannot be smaller or equal to zero.")
-
-    if not (sens_end_layer > sens_origin_layer) or (
-        (sens_end_layer == sens_origin_layer)
-        and (sens_origin_input and not sens_end_input)
-    ):
-        raise ValueError(
-            "There must be a layer of neurons or weights between end layer and origin layer."
-        )
-
-    if sens_origin_layer > len(actfunc):
-        raise ValueError(
-            "Origin layer should be less than number of layers in the model."
-        )
-
-    if sens_end_layer > len(actfunc):
-        raise ValueError("End layer should be less than number of layers in the model.")
-
+    
     ### Initialize all the necessary variables
     # Structure of the mlp model
     mlpstr = [wts[0].shape[0]] + [lyr.shape[1] for lyr in wts]
@@ -642,6 +690,144 @@ def hessian_mlp(
             D_accum.append(d_accum)
             Q.append(q)
             H.append(h + q)
+            
+    return W, Z, O, D, D2, D_accum, Q, H, counter, mlpstr
+
+def hessian_mlp(
+    wts,
+    bias,
+    actfunc,
+    X: pd.core.frame.DataFrame,
+    y: pd.core.frame.DataFrame,
+    sens_origin_layer: int = 0,
+    sens_end_layer = "last",
+    sens_origin_input: bool = True,
+    sens_end_input: bool = False,
+    dev: str = "cpu",
+    use_torch: bool = False,
+):
+    """Obtain second derivatives of MLP model given an input space.
+    
+    Second derivatives of MLP model may be used to analyze the variable
+    relationships between inputs and outputs. 
+
+    Args:
+        wts (list[float]): list of weight matrixes of the MLP layers.
+        bias (list[float]): list of bias vectors of the MLP layers.
+        actfunc (list[str]): list of names of the activation function of the MLP layers.
+        X (pd.core.frame.DataFrame): data.frame with the input data
+        y (pd.core.frame.DataFrame): data.frame with the output data
+        sens_origin_layer (int, optional): layer from where the derivatives shall be calculated. 
+            Defaults to 0 (input layer).
+        sens_end_layer (str | int, optional): layer to where the derivatives shall be calculated. 
+            Defaults to "last" (output layer).
+        sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
+            of the origin layer or the outputs (False). Defaults to True.
+        sens_end_input (bool, optional): flag to indicate if derivatives shall be calculated to inputs (True)
+            of the end layer or the outputs (False). Defaults to False.
+        dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
+            Only available if pytorch installation could be found. Defaults to "cpu".
+        use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
+
+    Raises:
+        ValueError: End layer to analyze cannot be smaller or equal to zero.
+        ValueError: Origin layer to analyze cannot be smaller or equal to zero.
+        ValueError: There must be a layer of neurons or weights between end layer and origin layer.
+        ValueError: Origin layer should be less than number of layers in the model.
+        ValueError: End layer should be less than number of layers in the model.
+
+    Returns:
+        Hessian_MLP: custom object storing the second partial derivatives of the MLP model.
+    """
+    # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
+    if dev == "gpu" or use_torch:
+        try:
+            from torch import (
+                mean,
+                std,
+                tensor,
+                device,
+                square,
+                from_numpy,
+                is_tensor,
+                stack
+            )
+            from numpy import ndarray, asarray
+
+            def float_array(x, dev="cpu") -> tensor:
+                dev = device(dev)
+                if isinstance(x, pd.DataFrame):
+                    return from_numpy(x.to_numpy()).float().to(dev)
+                if isinstance(x, list):
+                    if isinstance(x[0], ndarray):
+                        x = asarray(x)
+                    elif is_tensor(x[0]):
+                        return stack(x).float().to(dev)
+                if isinstance(x, ndarray):
+                    return from_numpy(x).float().to(dev)
+                if is_tensor(x):
+                    return x.clone().detach().to(dev)
+                return tensor(x, device=dev)
+
+            use_torch = True
+
+        except ImportError:
+            
+            from numpy import (
+                array,
+                mean,
+                std,
+                array,
+                square
+            )
+
+            def float_array(x, dev="cpu") -> array:
+                return array(x.numpy())
+
+            use_torch = False
+
+    else:
+        from numpy import (
+            array,
+            mean,
+            std,
+            array,
+            square
+        )
+
+        def float_array(x, dev="cpu") -> array:
+            return array(x)
+
+        use_torch = False
+
+    # Check validity of inputs
+    if sens_end_layer == "last":
+        sens_end_layer = len(actfunc)
+
+    if sens_end_layer <= 0:
+        raise ValueError("End layer to analyze cannot be smaller or equal to zero.")
+
+    if sens_origin_layer < 0:
+        raise ValueError("Origin layer to analyze cannot be smaller or equal to zero.")
+
+    if not (sens_end_layer > sens_origin_layer) or (
+        (sens_end_layer == sens_origin_layer)
+        and (sens_origin_input and not sens_end_input)
+    ):
+        raise ValueError(
+            "There must be a layer of neurons or weights between end layer and origin layer."
+        )
+
+    if sens_origin_layer > len(actfunc):
+        raise ValueError(
+            "Origin layer should be less than number of layers in the model."
+        )
+
+    if sens_end_layer > len(actfunc):
+        raise ValueError("End layer should be less than number of layers in the model.")
+
+    _, _, _, _, _, _, D_accum, Q, H, counter, mlpstr = calculate_second_partial_derivatives(wts, bias, actfunc, X, dev, 
+                                            sens_origin_layer, sens_end_layer, sens_origin_input, use_torch)
 
     if sens_end_input:
         raw_sens = Q[counter]
@@ -813,7 +999,7 @@ class Hessian_mlp:
             print("$" + self.output_name[out], "\n")
             print(self.raw_sens[out][: min([n, self.raw_sens[out].shape[0]])])
 
-    def plot(self, type="sens"):
+    def plot(self, type="sens", **kwargs):
         """Generate plot based on second partial derivatives.
 
         Args:
@@ -821,17 +1007,17 @@ class Hessian_mlp:
                 Defaults to "sens".
         """
         if type == "sens":
-            self.sensitivityPlots()
+            self.sensitivityPlots(**kwargs)
         elif type == "features":
-            self.featurePlots()
+            self.featurePlots(**kwargs)
         elif type == "time":
-            self.timePlots()
+            self.timePlots(**kwargs)
         else:
             print("The specifyed type", type, "is not an accepted plot type.")
 
-    def sensitivityPlots(self):
+    def sensitivityPlots(self, **kwargs):
         temp_self = self.hesstosens()
-        sensitivity_plots(temp_self)
+        sensitivity_plots(temp_self, **kwargs)
 
     def featurePlots(self):
         pass
@@ -844,19 +1030,13 @@ class Hessian_mlp:
         if dev == "gpu" or use_torch:
             try:
                 from torch import (
-                    eye as identity,
-                    vstack,
-                    ones,
                     mean,
                     std,
                     tensor,
                     device,
-                    square,
-                    matmul,
                     from_numpy,
                     is_tensor,
-                    stack,
-                    zeros,
+                    stack
                 )
                 from numpy import ndarray, asarray
 
@@ -879,16 +1059,9 @@ class Hessian_mlp:
 
             except ImportError:
                 from numpy import (
-                    identity,
-                    vstack,
                     array,
-                    ones,
                     mean,
                     std,
-                    array,
-                    square,
-                    zeros,
-                    matmul,
                 )
 
                 def float_array(x, dev="cpu") -> array:
@@ -898,16 +1071,9 @@ class Hessian_mlp:
 
         else:
             from numpy import (
-                identity,
-                vstack,
-                array,
-                ones,
                 mean,
                 std,
-                array,
-                square,
-                matmul,
-                zeros,
+                array
             )
 
             def float_array(x, dev="cpu") -> array:
@@ -951,55 +1117,47 @@ class Hessian_mlp:
             )
         return temp_self
 
-
-
-def jerkian_mlp(
+def calculate_third_partial_derivatives(
     wts,
     bias,
     actfunc,
     X: pd.core.frame.DataFrame,
-    y: pd.core.frame.DataFrame,
+    dev: str = "cpu",
     sens_origin_layer: int = 0,
     sens_end_layer = "last",
     sens_origin_input: bool = True,
-    sens_end_input: bool = False,
-    dev: str = "cpu",
-    use_torch: bool = False,
-):
-    """Obtain third derivatives of MLP model given an input space.
-    
-    Third derivatives of MLP model may be used to analyze the variable
-    relationships between inputs and outputs. 
+    use_torch: bool = False
+    ):
+    """
+    Calculate the first partial derivatives of a Multi-Layer Perceptron (MLP) model.
 
-    Args:
-        wts (list[float]): list of weight matrixes of the MLP layers.
-        bias (list[float]): list of bias vectors of the MLP layers.
-        actfunc (list[str]): list of names of the activation function of the MLP layers.
-        X (pd.core.frame.DataFrame): data.frame with the input data
-        y (pd.core.frame.DataFrame): data.frame with the output data
-        sens_origin_layer (int, optional): layer from where the derivatives shall be calculated. 
-            Defaults to 0 (input layer).
-        sens_end_layer (str | int, optional): layer to where the derivatives shall be calculated. 
-            Defaults to "last" (output layer).
-        sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
-            of the origin layer or the outputs (False). Defaults to True.
-        sens_end_input (bool, optional): flag to indicate if derivatives shall be calculated to inputs (True)
-            of the end layer or the outputs (False). Defaults to False.
-        dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
-            Only available if pytorch installation could be found. Defaults to "cpu".
-        use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
-
-    Raises:
-        ValueError: End layer to analyze cannot be smaller or equal to zero.
-        ValueError: Origin layer to analyze cannot be smaller or equal to zero.
-        ValueError: There must be a layer of neurons or weights between end layer and origin layer.
-        ValueError: Origin layer should be less than number of layers in the model.
-        ValueError: End layer should be less than number of layers in the model.
+    Parameters:
+    wts (list of numpy arrays or torch tensors): List of weight matrices for each layer of the MLP.
+    bias (list of numpy arrays or torch tensors): List of bias vectors for each layer of the MLP.
+    actfunc (list of callable functions): List of activation functions for each layer of the MLP.
+    X (pd.core.frame.DataFrame): Input data as a pandas DataFrame.
+    dev (str): Device specification, either "cpu" or "gpu". If "gpu" is chosen or use_torch is True, it uses PyTorch for calculations, otherwise, it uses NumPy. Default is "cpu".
+    sens_origin_layer (int): The starting layer index for sensitivity calculation. Default is 0.
+    sens_end_layer (int or str): The ending layer index for sensitivity calculation. If "last", it calculates sensitivity up to the last layer. Default is "last".
+    sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
+        of the origin layer or the outputs (False). Defaults to True.
+    use_torch (bool): If True, use PyTorch for calculations even if dev is "cpu". Default is False.
 
     Returns:
-        Jerkian_MLP: custom object storing the third partial derivatives of the MLP model.
+    W (list of numpy arrays or torch tensors): List of weight matrices for each layer of the MLP.
+    Z (list of numpy arrays or torch tensors): List of input values for each layer of the MLP.
+    O (list of numpy arrays or torch tensors): List of output values for each layer of the MLP.
+    D (list of numpy arrays or torch tensors): List of derivatives for each layer of the MLP.
+    D2 (list of numpy arrays or torch tensors): List of second derivatives for each layer of the MLP.
+    D3 (list of numpy arrays or torch tensors): List of third derivatives for each layer of the MLP.
+    D_accum (list of numpy arrays or torch tensors): List of accumulated sensitivity values for each calculated layer.
+    Q (list of numpy arrays or torch tensors): List of accumulated second partial derivatives of the input of the layer with respect to the inputs of the model.
+    H (list of numpy arrays or torch tensors): List of accumulated second partial derivatives of the output of the layer with respect to the inputs of the model.
+    J (list of numpy arrays or torch tensors): List of accumulated third partial derivatives of the input of the layer with respect to the inputs of the model.
+    K (list of numpy arrays or torch tensors): List of accumulated third partial derivatives of the output of the layer with respect to the inputs of the model.
+    counter (int): Number of layers between sens_origin_layer and sens_end_layer. It serves to know the final derivatives to return in the jacobian_mlp.
+    mlpstr (list of integer): Structure of the mlp model.
     """
-    
     # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
     if dev == "gpu" or use_torch:
         try:
@@ -1007,43 +1165,30 @@ def jerkian_mlp(
                 eye as identity,
                 vstack,
                 ones,
-                mean,
-                std,
                 tensor,
                 device,
-                square,
                 matmul,
-                zeros,
                 from_numpy,
                 is_tensor,
-                einsum,
-                nanmean,
-                any
+                stack,
+                zeros,
+                einsum
             )
             from numpy import ndarray, asarray
-            def nanstd(x, axis):
-                #Flatten:
-                shape = x.shape
-                x_reshaped = x.reshape(shape[0],-1)
-                #Drop all rows containing any nan:
-                x_reshaped = x_reshaped[~any(x_reshaped.isnan(),dim=1)]
-                #Reshape back:
-                x = x_reshaped.reshape(x_reshaped.shape[0],*shape[1:])
-                return std(x, axis=axis)
 
             def float_array(x, dev="cpu") -> tensor:
                 dev = device(dev)
                 if isinstance(x, pd.DataFrame):
-                    return from_numpy(x.to_numpy()).float()
+                    return from_numpy(x.to_numpy()).float().to(dev)
                 if isinstance(x, list):
-                    try:
-                        x = asarray([y.numpy() for y in x])
-                    except:
+                    if isinstance(x[0], ndarray):
                         x = asarray(x)
+                    elif is_tensor(x[0]):
+                        return stack(x).float().to(dev)
                 if isinstance(x, ndarray):
-                    return from_numpy(x).float()
+                    return from_numpy(x).float().to(dev)
                 if is_tensor(x):
-                    return x.clone().detach()
+                    return x.clone().detach().to(dev)
                 return tensor(x, device=dev)
 
             use_torch = True
@@ -1055,15 +1200,10 @@ def jerkian_mlp(
                 vstack,
                 array,
                 ones,
-                mean,
-                std,
                 array,
-                square,
                 matmul,
                 zeros,
-                einsum,
-                nanmean,
-                nanstd
+                einsum
             )
 
             def float_array(x, dev="cpu") -> array:
@@ -1077,48 +1217,17 @@ def jerkian_mlp(
             vstack,
             array,
             ones,
-            mean,
-            std,
             array,
-            square,
             matmul,
             zeros,
-            einsum,
-            nanmean,
-            nanstd
+            einsum
         )
 
         def float_array(x, dev="cpu") -> array:
             return array(x)
 
         use_torch = False
-
-    # Check validity of inputs
-    if sens_end_layer == "last":
-        sens_end_layer = len(actfunc)
-
-    if sens_end_layer <= 0:
-        raise ValueError("End layer to analyze cannot be smaller or equal to zero.")
-
-    if sens_origin_layer < 0:
-        raise ValueError("Origin layer to analyze cannot be smaller or equal to zero.")
-
-    if not (sens_end_layer > sens_origin_layer) or (
-        (sens_end_layer == sens_origin_layer)
-        and (sens_origin_input and not sens_end_input)
-    ):
-        raise ValueError(
-            "There must be a layer of neurons or weights between end layer and origin layer."
-        )
-
-    if sens_origin_layer > len(actfunc):
-        raise ValueError(
-            "Origin layer should be less than number of layers in the model."
-        )
-
-    if sens_end_layer > len(actfunc):
-        raise ValueError("End layer should be less than number of layers in the model.")
-
+    
     ### Initialize all the necessary variables
     # Structure of the mlp model
     mlpstr = [wts[0].shape[0]] + [lyr.shape[1] for lyr in wts]
@@ -1237,6 +1346,130 @@ def jerkian_mlp(
             
             J.append(j)
             K.append(k + j + l)
+            
+    return W, Z, O, D, D2, D3, D_, Q, H, J, K, counter, mlpstr
+
+
+
+def jerkian_mlp(
+    wts,
+    bias,
+    actfunc,
+    X: pd.core.frame.DataFrame,
+    y: pd.core.frame.DataFrame,
+    sens_origin_layer: int = 0,
+    sens_end_layer = "last",
+    sens_origin_input: bool = True,
+    sens_end_input: bool = False,
+    dev: str = "cpu",
+    use_torch: bool = False,
+):
+    """Obtain third derivatives of MLP model given an input space.
+    
+    Third derivatives of MLP model may be used to analyze the variable
+    relationships between inputs and outputs. 
+
+    Args:
+        wts (list[float]): list of weight matrixes of the MLP layers.
+        bias (list[float]): list of bias vectors of the MLP layers.
+        actfunc (list[str]): list of names of the activation function of the MLP layers.
+        X (pd.core.frame.DataFrame): data.frame with the input data
+        y (pd.core.frame.DataFrame): data.frame with the output data
+        sens_origin_layer (int, optional): layer from where the derivatives shall be calculated. 
+            Defaults to 0 (input layer).
+        sens_end_layer (str | int, optional): layer to where the derivatives shall be calculated. 
+            Defaults to "last" (output layer).
+        sens_origin_input (bool, optional): flag to indicate if derivatives shall be calculated from inputs (True)
+            of the origin layer or the outputs (False). Defaults to True.
+        sens_end_input (bool, optional): flag to indicate if derivatives shall be calculated to inputs (True)
+            of the end layer or the outputs (False). Defaults to False.
+        dev (str, optional): device where calculations shall be performed ("gpu" or "cpu"). 
+            Only available if pytorch installation could be found. Defaults to "cpu".
+        use_torch (bool, optional): Flag to indicate if pytorch Tensor shall be used. Defaults to False.
+
+    Raises:
+        ValueError: End layer to analyze cannot be smaller or equal to zero.
+        ValueError: Origin layer to analyze cannot be smaller or equal to zero.
+        ValueError: There must be a layer of neurons or weights between end layer and origin layer.
+        ValueError: Origin layer should be less than number of layers in the model.
+        ValueError: End layer should be less than number of layers in the model.
+
+    Returns:
+        Jerkian_MLP: custom object storing the third partial derivatives of the MLP model.
+    """
+    
+    # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
+    if dev == "gpu" or use_torch:
+        try:
+            from torch import (
+                mean,
+                std,
+                square,
+                nanmean,
+                any
+            )
+            def nanstd(x, axis):
+                #Flatten:
+                shape = x.shape
+                x_reshaped = x.reshape(shape[0],-1)
+                #Drop all rows containing any nan:
+                x_reshaped = x_reshaped[~any(x_reshaped.isnan(),dim=1)]
+                #Reshape back:
+                x = x_reshaped.reshape(x_reshaped.shape[0],*shape[1:])
+                return std(x, axis=axis)
+
+            use_torch = True
+
+        except ImportError:
+            
+            from numpy import (
+                mean,
+                std,
+                square,
+                nanmean,
+                nanstd
+            )
+
+            use_torch = False
+
+    else:
+        from numpy import (
+            mean,
+            std,
+            square,
+            nanmean,
+            nanstd
+        )
+
+        use_torch = False
+
+    # Check validity of inputs
+    if sens_end_layer == "last":
+        sens_end_layer = len(actfunc)
+
+    if sens_end_layer <= 0:
+        raise ValueError("End layer to analyze cannot be smaller or equal to zero.")
+
+    if sens_origin_layer < 0:
+        raise ValueError("Origin layer to analyze cannot be smaller or equal to zero.")
+
+    if not (sens_end_layer > sens_origin_layer) or (
+        (sens_end_layer == sens_origin_layer)
+        and (sens_origin_input and not sens_end_input)
+    ):
+        raise ValueError(
+            "There must be a layer of neurons or weights between end layer and origin layer."
+        )
+
+    if sens_origin_layer > len(actfunc):
+        raise ValueError(
+            "Origin layer should be less than number of layers in the model."
+        )
+
+    if sens_end_layer > len(actfunc):
+        raise ValueError("End layer should be less than number of layers in the model.")
+
+    _, _, _, _, _, _, D_, _, _, J, K, counter, mlpstr = calculate_third_partial_derivatives(wts, bias, actfunc, X, dev, sens_origin_layer, sens_end_layer, sens_origin_input, use_torch)
 
     if sens_end_input:
         raw_sens = J[counter]
@@ -1250,7 +1483,6 @@ def jerkian_mlp(
 
     # Store the information extracted from sensitivity analysis
     input_name = X.columns.values.tolist()
-    metrics = ["mean", "std", "mean_squared"]
 
     sens = [
         pd.concat([pd.DataFrame(meanSens[:, :, :, out].T.reshape(meanSens.shape[0],-1), index=input_name,columns=pd.MultiIndex.from_product(
@@ -1277,11 +1509,6 @@ def jerkian_mlp(
         )
         for out in range(raw_sens.shape[4])
     ]
-    # for out in range(meanSens.shape[3]):
-    #     # Replace values on measures because don't know why they are not ordered correctly
-    #     sens[out]["mean"] = meanSens[:, :, :, out]
-    #     sens[out]["std"] = stdSens[:, :, :, out]
-    #     sens[out]["mean_squared"] = meansquareSens[:, :, :, out]
 
     # Create output name for creating self
     output_name = y.columns.to_list()
@@ -1354,7 +1581,7 @@ class Jerkian_mlp:
 
     @property
     def input_name(self):
-        return self.__input_names
+        return self.__input_name
 
     @property
     def output_name(self):
@@ -1387,19 +1614,19 @@ class Jerkian_mlp:
             print("$" + self.output_name[out], "\n")
             print(self.raw_sens[out][: min([n, self.raw_sens[out].shape[0]])])
 
-    def plot(self, type="sens"):
+    def plot(self, type="sens", **kwargs):
         if type == "sens":
-            self.sensitivityPlots()
+            self.sensitivityPlots(**kwargs)
         elif type == "features":
-            self.featurePlots()
+            self.featurePlots(**kwargs)
         elif type == "time":
-            self.timePlots()
+            self.timePlots(**kwargs)
         else:
             print("The specifyed type", type, "is not an accepted plot type.")
 
-    def sensitivityPlots(self):
+    def sensitivityPlots(self, **kwargs):
         temp_self = self.hesstosens()
-        sensitivity_plots(temp_self)
+        sensitivity_plots(temp_self, **kwargs)
 
     def featurePlots(self):
         pass
@@ -1411,7 +1638,7 @@ class Jerkian_mlp:
         pass
 
 
-def sensitivity_plots(jacobian, plot_type=None, inp_var=None):
+def sensitivity_plots(jacobian, plot_type=None, inp_var=None, figsize=(15,10)):
     """Generate plots to interpret sensitivities of MLP
     
     Generate three plots based on partial derivatives of a Jacobian_MLP object:
@@ -1423,17 +1650,18 @@ def sensitivity_plots(jacobian, plot_type=None, inp_var=None):
     Args:
         jacobian (Jacobian_mlp): Jacobian_mlp object with the partial derivatives of the MLP model.
         plot_type (list[str]): Name of the plots that shall be shown. If None, all plots are created. 
-            Name of plots are 'mean_sd', 'square' and 'raw' respectively.Default to None.
+            Name of plots are 'mean_sd', 'square' and 'raw' respectively. Default to None.
         inp_var (list[str]): Name of input variables to include in the plots. If None, 
             all variables are included. Default to None. 
+        figsize (tuple(int, int)): Size of the plot figure. Default to (15, 10).
     """
     sens = jacobian.sens
     raw_sens = jacobian.raw_sens
     
-    fig, ax = plt.subplots(3, len(jacobian.raw_sens))
-    fig.suptitle("Sensitivity plots")
     if plot_type is None:
         plot_type = ['mean_sd', 'square', 'raw']
+    fig, ax = plt.subplots(len(plot_type), len(jacobian.raw_sens), figsize=figsize)
+    fig.suptitle("Sensitivity plots")
     
     if type(plot_type) == str:
         plot_type = [plot_type]
@@ -1443,10 +1671,14 @@ def sensitivity_plots(jacobian, plot_type=None, inp_var=None):
         raw_sens = raw_sens.loc[:, inp_var]
         
     for out, raw_sens in enumerate(jacobian.raw_sens):
-        if len(ax.shape) > 1:
-            axes = [[out, i] for i in range(len(plot_type))]
+        if hasattr(ax, 'shape'):
+            if len(ax.shape) > 1:
+                axes = [[out, i] for i in range(len(plot_type))]
+            else:
+                axes = [i for i in range(len(plot_type))]
         else:
             axes = [i for i in range(len(plot_type))]
+            ax = [ax]
         sens_out = sens[out]
 
         # Plot mean-std plot
@@ -1498,6 +1730,7 @@ def sensitivity_plots(jacobian, plot_type=None, inp_var=None):
             plt.tight_layout()
 
 from adjustText import adjust_text
+from matplotlib.patches import ConnectionPatch
 def alpha_sens_curves(
     jacobian,
     tol: float = None,
@@ -1510,8 +1743,7 @@ def alpha_sens_curves(
     alpha_bar: int = 1,
     inp_var=None,
     kind: str = 'line',
-    figsize: tuple = (10, 8),
-    include_inf: bool = True
+    figsize: tuple = (10, 8)
 ):
     """Generate plots of alpha curves of partial derivatives
 
@@ -1534,8 +1766,6 @@ def alpha_sens_curves(
         kind [str]: type of alpha plot that should be created. Options are 'bar' (alpha mean value for a given alpha_bar)
             or 'line' (default alpha-means plot). Defaults to 'line'.
         figsize [tuple(int, int)]: Size of figure created. Defaults to (10, 8).
-        include_inf [bool]: flag to determine if extra point of alpha = inf shall be included in the chart.
-            Defaults to True.
     """
     # Import necessary modules based on processor, use torch when processor is gpu or use_torch is True
     if dev == "gpu" or use_torch:
@@ -1611,19 +1841,14 @@ def alpha_sens_curves(
     # Go through each output although this analysis is meant only for regression
     if kind == 'line':
         texts = []
-        if not include_inf:
-            fig, ax = plt.subplots(len(raw_sens), 2, figsize=figsize)
-        else:
-            fig = plt.figure(figsize=figsize)
-            ax = brokenaxes(
-                xlims=((1, max_alpha + 1), (max_alpha + 2, max_alpha + 4))
-            )
-        # fig.suptitle("Alpha sensitivity curves")
+        fig, ax = plt.subplots(len(raw_sens), 2, sharey=True, gridspec_kw=dict(width_ratios=[max_alpha, 4]))
+        fig.subplots_adjust(wspace=0.1)  # adjust space between axes
+                 
         for out, rs in enumerate(raw_sens):
             if len(raw_sens) > 1:
-                axes = [[out, 0]]
+                axes = ax[[out, 0]]
             else:
-                axes = [0]
+                axes = ax
             for inp, input in enumerate(input_name):
                 alpha_curves = alpha_curve(
                     rs.loc[:, input], tol=tol, max_alpha=max_alpha, alpha_step=alpha_step, dev=dev
@@ -1633,71 +1858,50 @@ def alpha_sens_curves(
                 
                 var_color = cmap(inp / rs.shape[1])
                 
-                    
-                ax.plot(
-                    alphas, alpha_curves, label=input, color=var_color
+                axes[0].plot(
+                    alphas[logical_not(isnan(alpha_curves)) | logical_not(alpha_curves == float('+inf'))], 
+                    alpha_curves[logical_not(isnan(alpha_curves)) | logical_not(alpha_curves == float('+inf'))], 
+                    label=input, color=var_color
                 )
-                # ax.text(
-                #     alphas[-1], alpha_curves[-1],
-                #     input, 
-                #     color=var_color,
-                #     path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
-                # )
-                # ax.text(
-                #     max([1,max_alpha - 20]), max_alpha_mean,
-                #     'max({0}): {1:.{2}f}'.format(input, max_alpha_mean, 2),
-                #     color=var_color,
-                #     path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
-                # )
-                if include_inf:
-                    max_alpha_mean = max(abs(rs.iloc[:, inp]))
-                    alpha_notnan = alpha_curves[logical_not(isnan(alpha_curves))]
-                    alpha_notinf = alpha_notnan[logical_not(alpha_notnan == float('+inf'))]
-                    try:
-                        ax.plot(
-                            [alphas[len(alpha_notinf) - 1], max_alpha + 3],
-                            [alpha_notinf[-1], max_alpha_mean], 
-                            color=var_color, 
-                            linestyle="dashed"
-                        )
-                    except IndexError:
-                        ax.plot(
-                            [max_alpha, max_alpha + 3],
-                            [alpha_curves[-1], max_alpha_mean], 
-                            color=var_color, 
-                            linestyle="dashed"
-                        )
-                    ax.scatter(max_alpha + 3, max_alpha_mean, color=var_color)
-                    texts.append(
-                        ax.axs[1].text(
-                                    max_alpha + 3.1, max_alpha_mean,
-                                    s=input,
-                                    #s='max({0}): {1:.{2}f}'.format(input, max_alpha_mean, 2), 
-                                    #xy=(max_alpha + 3, max_alpha_mean),
-                                    #xytext=(max_alpha + 3.1, max_alpha_mean),
-                                    # color=var_color,
-                                    # arrowprops=dict(color=var_color, arrowstyle="<-", lw=3),
-                                    #textcoords='offset points',
-                                    bbox=dict(boxstyle="round,pad=0.2", facecolor='lightgray', edgecolor=var_color, linewidth=1)
-                                    )
-                        )
-                    # ax.text(
-                    #     max_alpha + 3, max_alpha_mean,
-                    #     input, 
-                    #     color=var_color,
-                    #     path_effects=[pe.withStroke(linewidth=1, foreground="gray")]
-                    # )
+                
+                
+                alpha_notnan = alpha_curves[logical_not(isnan(alpha_curves))]
+                alpha_notinf = alpha_notnan[logical_not(alpha_notnan == float('+inf'))]
+                max_alpha_mean = max(abs(rs.iloc[:, inp]))
+                try:
+                    con = ConnectionPatch(xyA=[alphas[len(alpha_notinf) - 1], alpha_notinf[-1]], 
+                                        xyB=[max_alpha + 3, max_alpha_mean], 
+                                        coordsA="data", 
+                                        coordsB="data",
+                                        axesA=ax[0], 
+                                        axesB=ax[1], 
+                                        color=var_color,
+                                        lw=1,
+                                        linestyle='dashed')
+                    ax[1].add_artist(con)
+                except IndexError:
+                    pass
+                ax[1].plot([max_alpha + 3, max_alpha + 3.1], [max_alpha_mean, max_alpha_mean], color=var_color)
+                ax[1].scatter(max_alpha + 3.1, max_alpha_mean, color=var_color)
+                texts.append(
+                    ax[1].text(
+                            max_alpha + 3.2, max_alpha_mean,
+                            s=input,
+                            bbox=dict(boxstyle="round,pad=0.2", facecolor='lightgray', edgecolor=var_color, linewidth=1)
+                            )
+                    )
             adjust_text(texts)
-            ax.set_ylabel(r'$(ms_{X,j}^\alpha(f))$')
-            ax.set_xlabel(r'$\alpha$')
-            # xlabels = alphas.astype(str).tolist()
-            # xlabels[-1] = r"$\infty$"
-            # ax.set_xticks(ticks=alphas, labels=xlabels)
-            if include_inf:
-                ax.axs[1].set_xticks(ticks=[max_alpha+3], labels=[r"$\infty$"])
-                sec_yaxis = ax.axs[1].secondary_yaxis('right')
-                sec_yaxis.set_ylabel(r'$(ms_{X,j}^\alpha(f))^\alpha$')
-            ax.set_title(title)
+            ax[0].set_ylabel(r'$(ms_{X,j}^\alpha(f))$')
+            ax[0].set_xlabel(r'$\alpha$')
+            xlabels = alphas.astype(str).tolist()
+            ax[0].set_xticks(ticks=alphas, labels=xlabels)
+            ax[1].set_xticks(ticks=[max_alpha + 3.1], labels=[r"$\infty$"])
+            ax[1].yaxis.tick_right()
+            ax[1].set_xlim([max_alpha + 2.9, max_alpha + 3.25])
+            sec_yaxis = ax[1].secondary_yaxis('right')
+            sec_yaxis.set_ylabel(r'$(ms_{X,j}^\alpha(f))^\alpha$')
+            fig.suptitle(title)
+            
     elif kind == 'bar':
         fig, ax = plt.subplots(len(raw_sens), 1)
         for out, rs in enumerate(raw_sens):
