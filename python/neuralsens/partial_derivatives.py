@@ -16,7 +16,7 @@ from neuralsens.activation_functions import (
 plt.style.use("ggplot")
 
 
-def calculate_first_partial_derivatives(
+def calculate_first_partial_derivatives_mlp(
     wts,
     bias,
     actfunc,
@@ -315,7 +315,7 @@ def jacobian_mlp(
     if sens_end_layer > len(actfunc):
         raise ValueError("End layer should be less than number of layers in the model.")
 
-    _, _, _, _, D_accum, counter, mlpstr = calculate_first_partial_derivatives(wts, bias, actfunc, X, dev, sens_origin_layer, 
+    _, _, _, _, D_accum, counter, mlpstr = calculate_first_partial_derivatives_mlp(wts, bias, actfunc, X, dev, sens_origin_layer, 
                                                         sens_end_layer, sens_origin_input, sens_end_input, use_torch)
 
     # Calculate sensitivity measures for each input and output
@@ -494,7 +494,7 @@ class Jacobian_mlp:
     def timePlots(self):
         pass
 
-def calculate_second_partial_derivatives(
+def calculate_second_partial_derivatives_mlp(
     wts,
     bias,
     actfunc,
@@ -826,7 +826,7 @@ def hessian_mlp(
     if sens_end_layer > len(actfunc):
         raise ValueError("End layer should be less than number of layers in the model.")
 
-    _, _, _, _, _, _, D_accum, Q, H, counter, mlpstr = calculate_second_partial_derivatives(wts, bias, actfunc, X, dev, 
+    _, _, _, _, _, _, D_accum, Q, H, counter, mlpstr = calculate_second_partial_derivatives_mlp(wts, bias, actfunc, X, dev, 
                                             sens_origin_layer, sens_end_layer, sens_origin_input, use_torch)
 
     if sens_end_input:
@@ -1117,7 +1117,7 @@ class Hessian_mlp:
             )
         return temp_self
 
-def calculate_third_partial_derivatives(
+def calculate_third_partial_derivatives_mlp(
     wts,
     bias,
     actfunc,
@@ -1469,7 +1469,7 @@ def jerkian_mlp(
     if sens_end_layer > len(actfunc):
         raise ValueError("End layer should be less than number of layers in the model.")
 
-    _, _, _, _, _, _, D_, _, _, J, K, counter, mlpstr = calculate_third_partial_derivatives(wts, bias, actfunc, X, dev, sens_origin_layer, sens_end_layer, sens_origin_input, use_torch)
+    _, _, _, _, _, _, D_, _, _, J, K, counter, mlpstr = calculate_third_partial_derivatives_mlp(wts, bias, actfunc, X, dev, sens_origin_layer, sens_end_layer, sens_origin_input, use_torch)
 
     if sens_end_input:
         raw_sens = J[counter]
