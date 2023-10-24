@@ -664,7 +664,7 @@ def calculate_second_partial_derivatives_mlp(
     if sens_origin_input:
         D_accum = [D[sens_origin_layer]]
     Q = [zeros((n_samples, n_inputs, n_inputs, n_inputs))]
-    H = [D2[0]]
+    H = [D2[sens_origin_layer]]
 
     counter = 0
     # Only perform further operations if origin is not equal to end layer
@@ -672,11 +672,11 @@ def calculate_second_partial_derivatives_mlp(
         for layer in range(sens_origin_layer + 1, sens_end_layer):
             counter += 1
             # First derivatives
-            d_accum = D_accum[counter - 1] @ D[layer - 1] @ W[layer][1:, :]
+            d_accum = D_accum[counter - 1] @ W[layer][1:, :]
 
             # Second derivatives
             q = matmul(
-                matmul(H[counter - 1], W[layer][1:, :]).swapaxes(0, 1), D[counter]
+                matmul(H[counter - 1], W[layer][1:, :]).swapaxes(0, 1), D[layer]
             ).swapaxes(0, 1)
             h = (
                 matmul(
@@ -687,8 +687,8 @@ def calculate_second_partial_derivatives_mlp(
             )
 
             # Store results
-            D_accum.append(d_accum)
-            Q.append(q)
+            D_accum.append(d_accum @ D[layer])
+            Q.append(matmul(H[counter - 1], W[layer][1:, :]))
             H.append(h + q)
             
     return W, Z, O, D, D2, D_accum, Q, H, counter, mlpstr
@@ -826,7 +826,7 @@ def hessian_mlp(
     if sens_end_layer > len(actfunc):
         raise ValueError("End layer should be less than number of layers in the model.")
 
-    _, _, _, _, _, _, D_accum, Q, H, counter, mlpstr = calculate_second_partial_derivatives_mlp(wts, bias, actfunc, X, dev, 
+    _, _, _, _, _, D_accum, Q, H, counter, mlpstr = calculate_second_partial_derivatives_mlp(wts, bias, actfunc, X, dev, 
                                             sens_origin_layer, sens_end_layer, sens_origin_input, use_torch)
 
     if sens_end_input:
@@ -1306,10 +1306,10 @@ def calculate_third_partial_derivatives_mlp(
     if sens_origin_input:
         D_ = [D[sens_origin_layer]]
     Q = [zeros((n_samples, n_inputs, n_inputs, n_inputs))]
-    H = [D2[0]]
+    H = [D2[sens_origin_layer]]
 
     K = [zeros((n_samples, n_inputs, n_inputs, n_inputs, n_inputs))]
-    J = [D3[0]]
+    J = [D3[sens_origin_layer]]
     
     counter = 0
     # Only perform further operations if origin is not equal to end layer
