@@ -5,15 +5,14 @@
 #' @param sens sensitivity object returned by \code{\link[NeuralSens]{SensAnalysisMLP}}
 #' @param tol difference between M_alpha and maximum sensitivity of the sensitivity of each input variable
 #' @param max_alpha maximum alpha value to analyze
-#' @param interpolate_alpha interpolate alpha mean if difference of maximum sensitivity
-#'  and last alpha evaluated is less than \code{tol}
-#' @param curve_equal_length make all the curves of the same length
 #' @param curve_equal_origin make all the curves begin at (1,0)
-#' @param curve_divided_max create second plot of curves divided by maximum alpha
 #' @param inp_var \code{character} indicating which input variable to show in density plot. Only useful when
 #' choosing plot_type='raw' to show the density plot of one input variable. If \code{NULL}, all variables
 #' are plotted in density plot. By default is \code{NULL}.
 #' @param line_width \code{int} width of the line in the plot.
+#' @param title \code{char} title of the alpha-curves plot
+#' @param alpha_bar \code{int} alpha value to show as column plot.
+#' @param kind \code{char} select the type of plot: "line" or "bar"
 #' @return alpha-curves of the MLP function
 #' @examples
 #' \donttest{
@@ -26,13 +25,20 @@
 #' AlphaSensAnalysis(sens)
 #' }
 #' @export AlphaSensAnalysis
-AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 15, interpolate_alpha = FALSE,
-                              curve_equal_length = FALSE, curve_equal_origin = FALSE, curve_divided_max = FALSE,
-                              inp_var = NULL, line_width = 1
+AlphaSensAnalysis <- function(sens,
+                              tol = NULL,
+                              max_alpha = 15,
+                              curve_equal_origin = FALSE,
+                              inp_var = NULL,
+                              line_width = 1,
+                              title='Alpha curve of Lp norm values',
+                              alpha_bar = 1,
+                              kind = "line"
                               ) {
   if (length(sens$raw_sens) != 1) {
     stop("This analysis is thought for MLPs focused on Regression, it does not work for Classiffication MLPs")
   }
+
   raw_sens <- sens$raw_sens[[1]]
 
   if (!is.null(inp_var)) {
@@ -40,19 +46,10 @@ AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 15, interpolate_alph
     raw_sens <- raw_sens[, inp_var, drop=FALSE]
   }
   alpha_curves <- list()
-  max_alpha_len <- 0
   for (input in 1:ncol(raw_sens)) {
     alpha_curve <- AlphaSensCurve(raw_sens[,input], tol, max_alpha)
 
     max_sens <- max(abs(raw_sens[,input]))
-    alpha_begin_interpolate = NaN
-    if (interpolate_alpha) {
-      # Interpolate missing point to reach maximum sensitivity
-      # alpha_begin_interpolate = alpha_curve[length(alpha_curve)]
-      # m <- (alpha_curve[length(alpha_curve)] - alpha_curve[length(alpha_curve)-1])
-      # alpha_curve <- c(alpha_curve, seq(alpha_curve[length(alpha_curve)], max(abs(raw_sens[,input])), m))
-      alpha_curve <- c(alpha_curve, max_sens)
-    }
     if (curve_equal_origin) {
       max_sens <- max_sens - alpha_curve[1]
       alpha_curve <- alpha_curve - alpha_curve[1]
@@ -60,58 +57,78 @@ AlphaSensAnalysis <- function(sens, tol = NULL, max_alpha = 15, interpolate_alph
     alpha_curves[[input]] <- data.frame(
       input_var   = colnames(raw_sens)[input],
       alpha_curve = alpha_curve,
-      alpha       = 1:length(alpha_curve),
-      alpha_max   = max_sens,
-      alpha_bi    = alpha_begin_interpolate
+      alpha       = 1:length(alpha_curve)
       )
 
-    max_alpha_len <- max(max_alpha_len, length(alpha_curve))
+    alpha_curves[[input]] <- rbind(alpha_curves[[input]], data.frame(
+      input_var   = colnames(raw_sens)[input],
+      alpha_curve = max_sens,
+      alpha       = as.numeric('Inf')
+    ))
   }
-  if (curve_equal_length) {
-    # Fill missing alpha in shorter curves
-    for (input in 1:ncol(raw_sens)) {
-      length_curve <- nrow(alpha_curves[[input]])
-      if (length_curve < max_alpha_len) {
-        alpha_curves[[input]] <- rbind(
-          alpha_curves[[input]],
-          data.frame(
-            input_var = colnames(raw_sens)[input],
-            alpha_curve = alpha_curves[[input]][length_curve,"alpha_curve"],
-            alpha = (length_curve+1):max_alpha_len,
-            alpha_max = alpha_curves[[input]][length_curve,"alpha_max"],
-            alpha_bi = alpha_curves[[input]][length_curve,"alpha_bi"]
-          )
-        )
-      }
-    }
-  }
-
   alpha_curves <- do.call("rbind",alpha_curves)
-  p1 <- ggplot2::ggplot(alpha_curves) +
-    ggplot2::geom_line(ggplot2::aes_string(x = "alpha", y = "alpha_curve", color = "input_var"), size=line_width) +
-    ggplot2::geom_hline(ggplot2::aes_string(yintercept = "alpha_bi", color = "input_var"),
-                        linetype = "dotted") +
-    ggplot2::geom_hline(ggplot2::aes_string(yintercept = "alpha_max", color = "input_var"),
-                        linetype = "dashed") +
-    ggplot2::ylab("alpha value") +
-    ggplot2::ggtitle("Alpha curve of Lp norm values")
-  if (curve_divided_max) {
-    alpha_curves$divided <- alpha_curves$alpha_curve / alpha_curves$alpha_max
-    p2 <- ggplot2::ggplot(alpha_curves) +
-      ggplot2::geom_line(ggplot2::aes_string(x = "alpha", y = "divided", color = "input_var"), size=line_width) +
-      ggplot2::geom_hline(ggplot2::aes(yintercept = 1),
-                          linetype = "dashed") +
-      ggplot2::ylab("alpha value")+
-      ggplot2::ggtitle("Alpha curve of Lp norm values divided by maximum")
-    g <- gridExtra::grid.arrange(grobs=list(p1, p2), ncol = 2)
-    plot(g)
-    return(invisible(g))
-  } else {
-    plot(p1)
-    return(invisible(p1))
+  if (kind == 'line'){
+    # Let's create a new data frame for the max sensitivity points
+    max_sens_df <- alpha_curves %>%
+      dplyr::filter(alpha_curves$alpha == Inf) %>%
+      dplyr::mutate(
+        xbeg = max_alpha,
+        xend = max_alpha * 1.1,
+        xend2 = max_alpha * 1.12
+        )
+
+    for (input in unique(alpha_curves$input_var)) {
+      max_sens_df[max_sens_df$input_var == input, 'alpha_prev'] = max(alpha_curves[!is.infinite(alpha_curves$alpha) & (alpha_curves$input_var == input) ,'alpha_curve'])
+    }
+
+
+    alpha_curves <- alpha_curves %>%
+      dplyr::filter(!(alpha_curves$alpha == Inf))
+
+    breaks <- c(seq_len(max_alpha), max_alpha * 1.12)
+    labels <- c(as.character(seq_len(max_alpha)), expression(infinity))
+    # Create the plot for alpha curves with segments extending to the right
+    p <- ggplot2::ggplot(alpha_curves,
+                         ggplot2::aes_string(x="alpha", y="alpha_curve", color="input_var", group="input_var")) +
+      ggplot2::geom_line(linewidth=1) +
+      ggplot2::geom_segment(data = max_sens_df,
+                            ggplot2::aes_string(x="xbeg", xend="xend",
+                                                y="alpha_prev", yend="alpha_curve",
+                                                color="input_var"),
+                            linetype="dotted", linewidth=1) +
+      ggplot2::geom_segment(data=max_sens_df,
+                            ggplot2::aes_string(x="xend", xend="xend2",
+                                                y="alpha_curve", yend="alpha_curve",
+                                                color="input_var"), linewidth=1) +
+      ggplot2::labs(x = expression(alpha), y = expression("(m"*s[italic("X")*","~italic("j")]^alpha*"(f))"),
+                    color='Input') +
+      ggrepel::geom_text_repel(
+        data = max_sens_df,
+        ggplot2::aes_string(label="input_var", x="xend2", y="alpha_curve"),
+        nudge_x = 0.5,
+        direction = 'y'
+      ) +
+      ggbreak::scale_x_break(c(max_alpha * 1.01, max_alpha * 1.09), space = 0.3) +
+      ggplot2::scale_x_continuous(breaks = breaks, labels = labels) +
+      ggplot2::ggtitle(title)
+
+    print(p)
+    return(invisible(p))
+  } else if(kind == 'bar') {
+    if (alpha_bar == 'inf') {
+      alpha_df <- alpha_curves[alpha_curves$alpha == max(alpha_curves$alpha),]
+    } else {
+      alpha_df <- alpha_curves[alpha_curves$alpha == alpha_bar,]
+    }
+    p <- ggplot2::ggplot(alpha_df) +
+      ggplot2::geom_col(ggplot2::aes_string(x = 'input_var', y = 'alpha_curve', fill = 'input_var')) +
+      ggplot2::labs(x = "Input variables", y = expression("(m"*s[italic("X")*","~italic("j")]^alpha*"(f))")) +
+      ggplot2::ggtitle(title) +
+      ggplot2::theme(legend.position = "none")
+
+    print(p)
+    return(invisible(p))
   }
-
-
 }
 
 #' Sensitivity alpha-curve associated to MLP function of an input variable

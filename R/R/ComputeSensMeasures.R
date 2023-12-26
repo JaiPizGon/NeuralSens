@@ -130,9 +130,9 @@ ComputeSensMeasures <- function(sens) {
   out <- list()
   for (i in 1:dim(der)[3]) {
     out[[i]] <- data.frame(
-      mean = colMeans(der[, , i], na.rm = TRUE),
-      std = apply(der[, , i], 2, stats::sd, na.rm = TRUE),
-      meanSensSQ = sqrt(colMeans(der[, , i] ^ 2, na.rm = TRUE)),
+      mean = colMeans(der[, , i, drop=FALSE], na.rm = TRUE),
+      std = apply(der[, , i, drop=FALSE], 2, stats::sd, na.rm = TRUE),
+      meanSensSQ = sqrt(colMeans(der[, , i, drop=FALSE] ^ 2, na.rm = TRUE)),
       row.names = varnames
     )
     rs[[i]] <- der[,,i]

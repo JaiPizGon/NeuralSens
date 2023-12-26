@@ -4,8 +4,6 @@ from neuralsens.activation_functions import activation_function
 from numpy import meshgrid, array
 import plotly.express as px
 from numpy import log
-import copy
-from plotly.subplots import make_subplots
 
 # Define self class
 class Interaction_invariant:
@@ -365,7 +363,6 @@ def interaction_invariant_mlp(
                 identity,
                 array,
                 ones,
-                array,
                 matmul,
                 exp,
                 linspace,

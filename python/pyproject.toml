@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "neuralsens"
-version = "0.0.22"
+version = "0.0.24"
 description = "The neuralsens package facilitates sensitivity analysis on neural network models, quantifying input importance. It provides functions for calculating and plotting input significance, and obtaining neuron layer activation functions and derivatives. Compatible with models created in R and Python, it's a robust toolkit for understanding input contributions in neural networks."
 authors = ["Jaime Pizarroso Gonzalo", "Jose Portela Gonzalez", "Antonio Munoz San Roque"]
 license = "GPU-3"

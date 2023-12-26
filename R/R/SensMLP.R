@@ -7,6 +7,10 @@
 #' @param trData \code{data.frame} with the data used to calculate the sensitivities
 #' @param coefnames \code{character} vector with the name of the predictor(s)
 #' @param output_name \code{character} vector with the name of the output(s)
+#' @param cv \code{list} list with critical values of significance for std and mean square.
+#' @param boot \code{array} bootstrapped sensitivity measures.
+#' @param boot.alpha \code{array} significance level.
+#' Defaults to \code{NULL}. Only available for analyzed \code{caret::train} models.
 #' @return \code{SensMLP} object
 #' @references
 #' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
@@ -17,7 +21,10 @@ SensMLP <- function(sens = list(),
                     mlp_struct = numeric(),
                     trData = data.frame(),
                     coefnames = character(),
-                    output_name = character()
+                    output_name = character(),
+                    cv = NULL,
+                    boot = NULL,
+                    boot.alpha = NULL
                     ) {
   stopifnot(is.list(sens))
   stopifnot(is.list(raw_sens))
@@ -35,7 +42,10 @@ SensMLP <- function(sens = list(),
       mlp_struct = mlp_struct,
       trData = trData,
       coefnames = coefnames,
-      output_name = output_name
+      output_name = output_name,
+      cv = cv,
+      boot = boot,
+      boot.alpha = boot.alpha
     ),
     class = "SensMLP"
   )
@@ -160,6 +170,12 @@ summary.SensMLP <- function(object, ...) {
 #' @export
 print.summary.SensMLP <- function(x, round_digits = NULL, ...) {
   cat("Sensitivity analysis of ", paste(x$mlp_struct, collapse = "-"), " MLP network.\n\n", sep = "")
+  if (!is.null(x$cv)) {
+    cat(paste0("Bootstrapped sensitivity measures with significance level \u03B1=", as.character(x$boot.alpha), ". \n"))
+    cat(paste0("Bootstrapped metrics with ", as.character(dim(x$boot)[3]), " repetitions. \n\n"))
+    x$sens[[1]][,"linearity"] <- ifelse(x$cv[[1]]$signif, "non-linear", "linear")
+    x$sens[[1]][,"signif."] <- ifelse(x$cv[[2]]$signif, "***", "")
+  }
   # cat("Measures are calculated using the partial derivatives of ", x$layer_end, " layer's ",
   #     ifelse(x$layer_end_input,"input","output"), "\nwith respect to ", x$layer_origin, " layer's ",
   #     ifelse(x$layer_origin_input,"input","output"),".\n\n",

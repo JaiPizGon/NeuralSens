@@ -3,7 +3,6 @@ import numpy as np
 
 try:
     from torch import sigmoid, tanh, eye, diag, zeros, exp, max, matmul, ones
-    from torch.functional import softmax
     allow_torch = True
 except ImportError:
     allow_torch = False

@@ -15,6 +15,9 @@
 #' @param inp_var \code{character} indicating which input variable to show in density plot. Only useful when
 #' choosing plot_type='raw' to show the density plot of one input variable. If \code{NULL}, all variables
 #' are plotted in density plot. By default is \code{NULL}.
+#' @param title \code{character} title of the sensitivity plots
+#' @param dodge_var \code{bool} Flag to indicate that x ticks in meanSensSQ plot must dodge between them. Useful with
+#' too long input names.
 #' @return List with the following plot for each output: \itemize{ \item Plot 1: colorful plot with the
 #'   classification of the classes in a 2D map \item Plot 2: b/w plot with
 #'   probability of the chosen class in a 2D map \item Plot 3: plot with the
@@ -64,7 +67,8 @@
 SensitivityPlots <- function(sens = NULL, der = TRUE,
                              zoom = TRUE, quit.legend = FALSE,
                              output = 1, plot_type=NULL,
-                             inp_var=NULL) {
+                             inp_var=NULL, title='Sensitivity Plots',
+                             dodge_var = FALSE) {
   if (is.array(der)) stop("der argument is no more the raw sensitivities due to creation of SensMLP class. Check ?SensitivityPlots for more information")
   if (is.HessMLP(sens)) {
     sens <- HessToSensMLP(sens)
@@ -76,7 +80,8 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
     sens <- sens_orig$sens[[out]]
     raw_sens <- sens_orig$raw_sens[[out]]
     # Order sensitivity measures by importance order
-    sens <- sens[order(sens$meanSensSQ),]
+    orig_order <- order(sens$meanSensSQ)
+    sens <- sens[orig_order,]
     sens$varNames <- factor(rownames(sens), levels = rownames(sens)[order(sens$meanSensSQ)])
 
     plotlist[[1]] <- ggplot2::ggplot(sens) +
@@ -84,22 +89,90 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
       ggplot2::geom_hline(ggplot2::aes(yintercept = 0), color = "blue") +
       ggplot2::geom_vline(ggplot2::aes(xintercept = 0), color = "blue") +
       ggplot2::geom_point(ggplot2::aes_string(x = "mean", y = "std")) +
-      ggrepel::geom_label_repel(ggplot2::aes_string(x = "mean", y = "std", label = "varNames")) +
-      # coord_cartesian(xlim = c(min(sens$mean,0)-0.1*abs(min(sens$mean,0)), max(sens$mean)+0.1*abs(max(sens$mean))), ylim = c(0, max(sens$std)*1.1))+
-      ggplot2::labs(x = "mean(Sens)", y = "std(Sens)")
+      ggplot2::labs(x = "mean(Sens)", y = "std(Sens)") +
+      ggplot2::ggtitle(title)
 
+    if (!is.null(sens_orig$cv)) {
+      bootstrapped_mean <- t(apply(sens_orig$boot[orig_order,1,],1, stats::quantile, c(0.05,0.95)))
+      bootstrapped_mean <- data.frame('mean_ci_lower' = bootstrapped_mean[,1],
+                                      'mean_ci_upper' = bootstrapped_mean[,2],
+                                      'std' = sens$std,
+                                      'mean' = sens$mean
+                                      )
+      significance_std <- data.frame('std_min' = sens$std - sens_orig$cv[[1]]$cv,
+                                     'std' = sens$std,
+                                     'mean' = sens$mean
+                                     )
 
-    plotlist[[2]] <- ggplot2::ggplot(sens) +
-      ggplot2::geom_col(ggplot2::aes_string(x = "varNames", y = "meanSensSQ", fill = "meanSensSQ")) +
-      ggplot2::labs(x = "Input variables", y = "mean(Sens^2)") + ggplot2::guides(fill = "none")
+      signif <- sens$meanSensSQ - sens_orig$cv[[2]]$cv[orig_order]
+      bootstrapped_mean$color <- ifelse(signif < 0, "black",
+                                       ifelse(sens$mean > 0, "chartreuse3", "red"))
+      significance_std$color <- ifelse(signif < 0, "black",
+                                       ifelse(sens$mean > 0, "chartreuse3", "red"))
+      plotlist[[1]] <- plotlist[[1]] +
+        ggplot2::geom_errorbarh(data=bootstrapped_mean,
+                                ggplot2::aes_string(xmin = "mean_ci_lower",
+                                                    xmax = "mean_ci_upper",
+                                                    y = "std",
+                                                    color = "color")) +
+        ggplot2::geom_errorbar(data=significance_std,
+                               ggplot2::aes_string(ymin = "std_min",
+                                                   ymax = "std",
+                                                   x = "mean",
+                                                   color = "color")) +
+        ggplot2::scale_color_identity()
+
+    }
+
+    plotlist[[1]] <- plotlist[[1]] +
+      ggrepel::geom_label_repel(ggplot2::aes_string(x = "mean", y = "std", label = "varNames"),
+                                max.overlaps = ifelse(nrow(sens)>10, 2 * nrow(sens), nrow(sens)))
+
+    if (is.null(sens_orig$cv)) {
+      plotlist[[2]] <- ggplot2::ggplot(sens) +
+        ggplot2::geom_col(ggplot2::aes_string(x = "varNames", y = "meanSensSQ", fill = "mean")) +
+        ggplot2::scale_fill_gradient2(
+          low='red', mid='black',
+          high='chartreuse3', midpoint = 0
+        )
+    } else {
+      sq_data <- data.frame(mean = sens$mean,
+                         meanSq = sens$meanSensSQ,
+                         cv = signif,
+                         Index = row.names(sens))
+
+      sq_data$color <- ifelse(signif < 0, "black",
+                              ifelse(sq_data$mean > 0, "chartreuse3", "red"))
+
+      plotlist[[2]] <- ggplot2::ggplot(sq_data,
+                                       ggplot2::aes_string(x = "Index",
+                                                           y = "meanSq")) +
+        ggplot2::geom_point(ggplot2::aes_string()) +
+        ggplot2::geom_errorbar(ggplot2::aes_string(ymin = "cv",
+                                                   ymax = "meanSq",
+                                                   color = "color"),
+                               width = 0.2) +
+        ggplot2::geom_hline(ggplot2::aes(yintercept = 0), color = "black")  +
+        ggplot2::theme(legend.position = "none") +
+        ggplot2::scale_color_identity()
+    }
+
+    plotlist[[2]] <- plotlist[[2]] +
+      ggplot2::labs(x = "Input variables", y = "sqrt(mean(S^2))") +
+      ggplot2::guides(fill = "none")
+
+    if (dodge_var) {
+      plotlist[[2]] <- plotlist[[2]] +
+        ggplot2::scale_x_discrete(guide = ggplot2::guide_axis(n.dodge=ifelse(nrow(sens) > 3, 4 + nrow(sens) %% 2, 2 + nrow(sens) %% 2)))
+    }
 
     if (der) {
       # If the raw values of the derivatives has been passed to the function
       # the density plots of each of these derivatives can be extracted and plotted
       der2 <- as.data.frame(raw_sens)
-      names(der2) <- dimnames(raw_sens)[[2]]
+      names(der2) <- row.names(sens)
       # Remove any variable which is all zero -> pruned variable
-      der2 <- der2[,!sapply(der2,function(x){all(x ==  0)})]
+      der2 <- der2[,!sapply(der2,function(x){all(x ==  0)}), drop=FALSE]
       if (!is.null(inp_var)) {
         inp_var <- match.arg(inp_var, names(der2), several.ok = TRUE)
       } else {
@@ -151,6 +224,7 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
           }
         }
       }
+      plotlist[[3]] <- plotlist[[3]] + ggplot2::theme(legend.position='bottom')
       if (quit.legend) {
         plotlist[[3]] <- plotlist[[3]] +
           ggplot2::theme(legend.position = "none")

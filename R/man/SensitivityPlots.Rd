@@ -11,7 +11,9 @@ SensitivityPlots(
   quit.legend = FALSE,
   output = 1,
   plot_type = NULL,
-  inp_var = NULL
+  inp_var = NULL,
+  title = "Sensitivity Plots",
+  dodge_var = FALSE
 )
 }
 \arguments{
@@ -35,6 +37,11 @@ all plots are shown at the same time. By default is \code{NULL}.}
 \item{inp_var}{\code{character} indicating which input variable to show in density plot. Only useful when
 choosing plot_type='raw' to show the density plot of one input variable. If \code{NULL}, all variables
 are plotted in density plot. By default is \code{NULL}.}
+
+\item{title}{\code{character} title of the sensitivity plots}
+
+\item{dodge_var}{\code{bool} Flag to indicate that x ticks in meanSensSQ plot must dodge between them. Useful with
+too long input names.}
 }
 \value{
 List with the following plot for each output: \itemize{ \item Plot 1: colorful plot with the

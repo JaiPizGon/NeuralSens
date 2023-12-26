@@ -8,12 +8,12 @@ AlphaSensAnalysis(
   sens,
   tol = NULL,
   max_alpha = 15,
-  interpolate_alpha = FALSE,
-  curve_equal_length = FALSE,
   curve_equal_origin = FALSE,
-  curve_divided_max = FALSE,
   inp_var = NULL,
-  line_width = 1
+  line_width = 1,
+  title = "Alpha curve of Lp norm values",
+  alpha_bar = 1,
+  kind = "line"
 )
 }
 \arguments{
@@ -23,20 +23,19 @@ AlphaSensAnalysis(
 
 \item{max_alpha}{maximum alpha value to analyze}
 
-\item{interpolate_alpha}{interpolate alpha mean if difference of maximum sensitivity
-and last alpha evaluated is less than \code{tol}}
-
-\item{curve_equal_length}{make all the curves of the same length}
-
 \item{curve_equal_origin}{make all the curves begin at (1,0)}
-
-\item{curve_divided_max}{create second plot of curves divided by maximum alpha}
 
 \item{inp_var}{\code{character} indicating which input variable to show in density plot. Only useful when
 choosing plot_type='raw' to show the density plot of one input variable. If \code{NULL}, all variables
 are plotted in density plot. By default is \code{NULL}.}
 
 \item{line_width}{\code{int} width of the line in the plot.}
+
+\item{title}{\code{char} title of the alpha-curves plot}
+
+\item{alpha_bar}{\code{int} alpha value to show as column plot.}
+
+\item{kind}{\code{char} select the type of plot: "line" or "bar"}
 }
 \value{
 alpha-curves of the MLP function
