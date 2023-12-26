@@ -7,7 +7,7 @@ Romano, Joseph P., Azeem M. Shaikh, and Michael Wolf. "Formalized data snooping 
 New tests to determine the significance and linearity of the relationships modeled by the MLP model between inputs and output. Reference has been added to the correspondent function.
 
 ## Update alpha curves plotting figure
-
+Based on new developments of the alpha-curves analysis, plot of the AlphaSensAnalysis function has been updated.
 
 ## donttest{} examples
 
