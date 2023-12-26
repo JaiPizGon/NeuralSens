@@ -1,8 +1,8 @@
 # cran-comments.md
 
-## Add `inp_var` argument in plotting functions 
-In some use cases there are too many variables in the plotting functions to be useful. This argument
-allows to choose which variables shall be plotted.
+## Significance and linearity test
+Based on the paper:
+
 
 ## donttest{} examples
 

@@ -9,6 +9,9 @@
 #' @param alpha A numeric value specifying the significance level.
 #'
 #' @return The smallest x such that P(X <= x) >= 1 - alpha.
+#' @references
+#' Romano, Joseph P., Azeem M. Shaikh, and Michael Wolf. "Formalized data snooping
+#' based on generalized error rates." Econometric Theory 24.2 (2008): 404-447.
 #' @examples
 #' data <- rnorm(100)
 #' ecdf_data <- ecdf(data)

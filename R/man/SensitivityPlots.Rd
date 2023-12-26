@@ -27,7 +27,7 @@ created by \code{\link[NeuralSens]{HessianMLP}}.}
 
 \item{quit.legend}{\code{logical} indicating if legend of the third plot should be removed. By default is \code{FALSE}}
 
-\item{output}{\code{numeric} or {character} specifying the output neuron or output name to be plotted.
+\item{output}{\code{numeric} or \code{character} specifying the output neuron or output name to be plotted.
 By default is the first output (\code{output = 1}).}
 
 \item{plot_type}{\code{character} indicating which of the 3 plots to show. Useful when several variables are analyzed.
