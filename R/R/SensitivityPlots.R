@@ -7,7 +7,7 @@
 #' @param zoom \code{logical} indicating if the distributions should be zoomed when there is any of them which is too tiny to be appreciated in the third plot.
 #' \code{\link[ggforce]{facet_zoom}} function from \code{ggforce} package is required.
 #' @param quit.legend \code{logical} indicating if legend of the third plot should be removed. By default is \code{FALSE}
-#' @param output \code{numeric} or {character} specifying the output neuron or output name to be plotted.
+#' @param output \code{numeric} or \code{character} specifying the output neuron or output name to be plotted.
 #' By default is the first output (\code{output = 1}).
 #' @param plot_type \code{character} indicating which of the 3 plots to show. Useful when several variables are analyzed.
 #' Acceptable values are 'mean_sd', 'square', 'raw' corresponding to first, second and third plot respectively. If \code{NULL},
