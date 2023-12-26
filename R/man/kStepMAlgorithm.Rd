@@ -33,3 +33,7 @@ original_stats <- rnorm(10)
 bootstrap_stats <- matrix(rnorm(1000), ncol = 10)
 result <- kStepMAlgorithm(original_stats, bootstrap_stats, 10, 0.05, 1)
 }
+\references{
+Romano, Joseph P., Azeem M. Shaikh, and Michael Wolf. "Formalized data snooping
+based on generalized error rates." Econometric Theory 24.2 (2008): 404-447.
+}

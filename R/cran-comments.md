@@ -2,6 +2,11 @@
 
 ## Significance and linearity test
 Based on the paper:
+Romano, Joseph P., Azeem M. Shaikh, and Michael Wolf. "Formalized data snooping based on generalized error rates." Econometric Theory 24.2 (2008): 404-447.
+
+New tests to determine the significance and linearity of the relationships modeled by the MLP model between inputs and output. Reference has been added to the correspondent function.
+
+## Update alpha curves plotting figure
 
 
 ## donttest{} examples

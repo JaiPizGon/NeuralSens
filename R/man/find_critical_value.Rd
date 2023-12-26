@@ -25,7 +25,3 @@ data <- rnorm(100)
 ecdf_data <- ecdf(data)
 critical_val <- find_critical_value(ecdf_data, 0.05)
 }
-\references{
-Romano, Joseph P., Azeem M. Shaikh, and Michael Wolf. "Formalized data snooping
-based on generalized error rates." Econometric Theory 24.2 (2008): 404-447.
-}

@@ -9,9 +9,6 @@
 #' @param alpha A numeric value specifying the significance level.
 #'
 #' @return The smallest x such that P(X <= x) >= 1 - alpha.
-#' @references
-#' Romano, Joseph P., Azeem M. Shaikh, and Michael Wolf. "Formalized data snooping
-#' based on generalized error rates." Econometric Theory 24.2 (2008): 404-447.
 #' @examples
 #' data <- rnorm(100)
 #' ecdf_data <- ecdf(data)
@@ -46,6 +43,9 @@ find_critical_value <- function(ecdf_func, alpha) {
 #'
 #' @return A list containing two elements: 'signif', a logical vector indicating which hypotheses
 #'         are rejected, and 'cv', a numeric vector of critical values used for each hypothesis.
+#' @references
+#' Romano, Joseph P., Azeem M. Shaikh, and Michael Wolf. "Formalized data snooping
+#' based on generalized error rates." Econometric Theory 24.2 (2008): 404-447.
 #' @examples
 #' original_stats <- rnorm(10)
 #' bootstrap_stats <- matrix(rnorm(1000), ncol = 10)
