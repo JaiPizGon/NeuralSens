@@ -31,48 +31,6 @@ NULL
 #'   \item{TEMP}{weather temperature}
 #' }
 NULL
-#' List of 4 dataframes to test the functions with different variables types
-#'
-#' @description List of 4 dataframes to test the functions with different
-#' variables types (numeric and character output and inputs)
-#' @name syntheticdata
-#' @author Jose Portela Gonzalez
-#' @references
-#' Pizarroso J, Portela J, Muñoz A (2022). NeuralSens: Sensitivity Analysis of
-#' Neural Networks. Journal of Statistical Software, 102(7), 1-36.
-#' @keywords data
-#' @format list of 4 data.frames with 4 columns for 3 inputs and one output:
-#' \describe{
-#'   \item{RegOutNumInp}{data.frame}
-#'   \itemize{
-#'       \item{X1} {Input 1 of the subset 1 (numeric)}
-#'       \item{X2} {Input 2 of the subset 1 (numeric)}
-#'       \item{X3} {Input 3 of the subset 1 (numeric)}
-#'       \item{Y} {Output of the subset 1 (numeric)}
-#'   }
-#'   \item{ClsOutNumInp}{data.frame}
-#'   \itemize{
-#'       \item{X1} {Input 1 of the subset 2 (numeric)}
-#'       \item{X2} {Input 2 of the subset 2 (numeric)}
-#'       \item{X3} {Input 3 of the subset 2 (numeric)}
-#'       \item{Y} {Output of the subset 2 (character)}
-#'   }
-#'   \item{ClsOutClsInp}{data.frame}
-#'   \itemize{
-#'       \item{X1} {Input 1 of the subset 3 (character)}
-#'       \item{X2} {Input 2 of the subset 3 (numeric)}
-#'       \item{X3} {Input 3 of the subset 3 (numeric)}
-#'       \item{Y} {Output of the subset 3 (character)}
-#'   }
-#'   \item{ClsOutClsInp}{data.frame}
-#'   \itemize{
-#'       \item{X1} {Input 1 of the subset 4 (numeric)}
-#'       \item{X2} {Input 2 of the subset 4 (character)}
-#'       \item{X3} {Input 3 of the subset 4 (numeric)}
-#'       \item{Y} {Output of the subset 4 (numeric)}
-#'   }
-#' }
-NULL
 #' Simulated data to test the package functionalities
 #'
 #' @description \code{data.frame} with 2000 rows of 4 columns with 3
