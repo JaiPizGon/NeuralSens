@@ -93,9 +93,9 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
       ggplot2::ggtitle(title)
 
     if (!is.null(sens_orig$cv)) {
-      bootstrapped_mean <- t(apply(sens_orig$boot[orig_order,1,],1, stats::quantile, c(0.05,0.95)))
-      bootstrapped_mean <- data.frame('mean_ci_lower' = bootstrapped_mean[,1],
-                                      'mean_ci_upper' = bootstrapped_mean[,2],
+      bootstrapped_mean <- apply(sens_orig$boot[orig_order,1,], 1, stats::sd)
+      bootstrapped_mean <- data.frame('mean_ci_lower' = sens$mean - bootstrapped_mean,
+                                      'mean_ci_upper' = sens$mean + bootstrapped_mean,
                                       'std' = sens$std,
                                       'mean' = sens$mean
                                       )
@@ -114,12 +114,14 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
                                 ggplot2::aes_string(xmin = "mean_ci_lower",
                                                     xmax = "mean_ci_upper",
                                                     y = "std",
-                                                    color = "color")) +
+                                                    color = "color"),
+                                linewidth=1) +
         ggplot2::geom_errorbar(data=significance_std,
                                ggplot2::aes_string(ymin = "std_min",
                                                    ymax = "std",
                                                    x = "mean",
-                                                   color = "color")) +
+                                                   color = "color"),
+                               width=0, linewidth=1) +
         ggplot2::scale_color_identity()
 
     }
@@ -151,8 +153,8 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
         ggplot2::geom_errorbar(ggplot2::aes_string(ymin = "cv",
                                                    ymax = "meanSq",
                                                    color = "color"),
-                               width = 0.2) +
-        ggplot2::geom_hline(ggplot2::aes(yintercept = 0), color = "black")  +
+                               width = 0.1, linewidth=1) +
+        ggplot2::geom_hline(ggplot2::aes(yintercept = 0), color = "blue")  +
         ggplot2::theme(legend.position = "none") +
         ggplot2::scale_color_identity()
     }

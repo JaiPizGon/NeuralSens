@@ -554,14 +554,17 @@ SensAnalysisMLP.train <- function(MLP.fit,
     #   stop("Data argument not found in model train call")
     # }
 
-    model_call <- gsub("\\b\\w+\\s*~", ".outcome ~", model_call)
+    model_call <- gsub("\\b\\w+\\s*~", paste0(ifelse("output_name" %in% names(args),args$output_name,".outcome")," ~"), model_call)
 
-    model_call <- paste0('train', model_call)
+    model_call <- paste0('caret::train', model_call)
 
-    n <- nrow(MLP.fit$trainingData)  # Number of data points
+    n <- nrow(data)  # Number of data points
 
-    # Initialize a matrix to store results
-    Tnj_b <- array(NA, dim=c(nrow(sens_mlp$sens[[1]]), 3, boot.R))
+    # Initialize an array to store results
+    Tnj_b <- array(NA, dim=c(dim(sens_mlp$sens[[1]]), boot.R))
+
+    # Initialize an array to store boot derivatives
+    boot_sens <- array(NA, dim=c(dim(sens_mlp$raw_sens[[1]]), boot.R))
 
     # Initialize progress bar
     pb <- utils::txtProgressBar(min = 0, max = boot.R, style = 3)
@@ -574,7 +577,7 @@ SensAnalysisMLP.train <- function(MLP.fit,
       indices <- sample(n, n, replace = TRUE)
 
       # Resample the dataset
-      resampled_data <- MLP.fit$trainingData[indices, ]
+      resampled_data <- data[indices, ]
 
       # Retrain the model on the resampled data
       set.seed(123)
@@ -584,6 +587,8 @@ SensAnalysisMLP.train <- function(MLP.fit,
       sensitivity_results <- SensAnalysisMLP(model, plot = FALSE, boot.R=NULL)
       Tnj_b[,,i] <- data.matrix(sensitivity_results$sens[[1]])
 
+      boot_sens[,,i] <- data.matrix(sensitivity_results$raw_sens[[1]])
+
 
       # Update progress bar
       utils::setTxtProgressBar(pb, i)
@@ -592,7 +597,7 @@ SensAnalysisMLP.train <- function(MLP.fit,
     # Configuration of significance test
     num_hypotheses <- nrow(sens_mlp$sens[[1]])
 
-    # Obtain Tnj_b
+    # Obtain Tnj
     Tnj <- data.matrix(sens_mlp$sens[[1]])
 
     # Statistical test of std and mean square
@@ -608,6 +613,7 @@ SensAnalysisMLP.train <- function(MLP.fit,
     sens_mlp$cv <- cv
     sens_mlp$boot <- Tnj_b
     sens_mlp$boot.alpha <- boot.alpha
+    sens_mlp$boot.sens <- boot_sens
   }
   if (plot){
     plot(sens_mlp, ...)
