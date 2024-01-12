@@ -15,13 +15,13 @@ The `SensAnalysisMLP.R` function contains `\donttest{}` examples which produce a
 The manipulations before the animation rending is already tested in the examples which are not wrapped by `\donttest{}`.
 
 ## Test environments
-* Windows 10 Home x64, R 4.3.0
-* Ubuntu Linux 22.04 LTS, R-release, GCC (r-hub)
+* Windows 10 Home x64, R 4.3.2
+* Ubuntu Linux 22.04.1 LTS, R-release, GCC (r-hub)
 * Fedora Linux, R-devel, clang, gfortran (r-hub)
 * win-builder, R (oldrelease, release and devel)
 
 ### R CMD check
-── R CMD check results ─────── NeuralSens 1.0.2 ────
+── R CMD check results ─────── NeuralSens 1.1.1 ────
 Duration: 6m 41.6s
 
 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
