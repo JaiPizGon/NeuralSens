@@ -1,13 +1,8 @@
 # cran-comments.md
 
-## Significance and linearity test
-Based on the paper:
-Romano, Joseph P., Azeem M. Shaikh, and Michael Wolf. "Formalized data snooping based on generalized error rates." Econometric Theory 24.2 (2008): 404-447.
+## Bugfix
 
-New tests to determine the significance and linearity of the relationships modeled by the MLP model between inputs and output. Reference has been added to the correspondent function.
-
-## Update alpha curves plotting figure
-Based on new developments of the alpha-curves analysis, plot of the AlphaSensAnalysis function has been updated.
+Variables names of third plot of `SensitivityPlots` function had not the same order as the first two variables. 
 
 ## donttest{} examples
 
