@@ -171,7 +171,7 @@ SensitivityPlots <- function(sens = NULL, der = TRUE,
     if (der) {
       # If the raw values of the derivatives has been passed to the function
       # the density plots of each of these derivatives can be extracted and plotted
-      der2 <- as.data.frame(raw_sens)
+      der2 <- as.data.frame(raw_sens[,orig_order, drop=FALSE])
       names(der2) <- row.names(sens)
       # Remove any variable which is all zero -> pruned variable
       der2 <- der2[,!sapply(der2,function(x){all(x ==  0)}), drop=FALSE]

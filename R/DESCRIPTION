@@ -1,5 +1,5 @@
 Package: NeuralSens
-Version: 1.1.1
+Version: 1.1.2
 Title: Sensitivity Analysis of Neural Networks
 Description: Analysis functions to quantify inputs importance in neural network models.
   Functions are available for calculating and plotting the inputs importance and obtaining
@@ -26,6 +26,7 @@ Imports:
   dplyr
 Suggests:
   h2o,
+  
   RSNNS,
   nnet,
   neuralnet,
