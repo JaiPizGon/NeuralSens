@@ -26,7 +26,6 @@ Imports:
   dplyr
 Suggests:
   h2o,
-  
   RSNNS,
   nnet,
   neuralnet,
