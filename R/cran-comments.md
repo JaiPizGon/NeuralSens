@@ -1,8 +1,7 @@
 # cran-comments.md
 
-## Bugfix
-
-Variables names of third plot of `SensitivityPlots` function had not the same order as the first two variables. 
+## Feature
+Significance test uses bootstrap with the call of the `caret::train()` function. However, this is very sensitive to changes in how the model is trained, giving errors when some necessary variable is not correctly stored in the global environment (due to calling the `caret::train()` function inside another function, for example). Therefore, necessary variables can now be passed as extra arguments to the `SensAnalysisMLP()` function.
 
 ## donttest{} examples
 
