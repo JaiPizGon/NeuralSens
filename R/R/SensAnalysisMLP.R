@@ -570,7 +570,7 @@ SensAnalysisMLP.train <- function(MLP.fit,
     pb <- utils::txtProgressBar(min = 0, max = boot.R, style = 3)
 
     # Obtain all arguments as variables
-    list2env(args)
+    list2env(args, envir=environment())
 
     # Bootstrap loop
     for (i in 1:boot.R) {
