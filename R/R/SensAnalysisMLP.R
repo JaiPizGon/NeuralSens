@@ -499,39 +499,39 @@ SensAnalysisMLP.train <- function(MLP.fit,
                   plot = FALSE,
                   args[!names(args) %in% c("output_name","trData","preProc","terms")])
 
-  if (!is.null(boot.R)) {
-    substitute_argument_value <- function(model_call, arg_name, new_value) {
-      # Find start of the argument
-      pattern <- paste0(arg_name, "\\s*=")
-      start <- regexpr(pattern, model_call)
-      if (start == -1) return(model_call)  # Argument not found
+    if (!is.null(boot.R)) {
+      substitute_argument_value <- function(model_call, arg_name, new_value) {
+        # Find start of the argument
+        pattern <- paste0(arg_name, "\\s*=")
+        start <- regexpr(pattern, model_call)
+        if (start == -1) return(model_call)  # Argument not found
 
-      # Find the end of the argument
-      rest_of_string <- substr(model_call, start, nchar(model_call))
-      depth <- 0
-      end <- -1
-      for (i in 1:nchar(rest_of_string)) {
-        char <- substr(rest_of_string, i, i)
-        if (char == "(" || char == "[") {
-          depth <- depth + 1
-        } else if (char == ")" || char == "]") {
-          depth <- depth - 1
-        } else if (char == "," && depth == 0) {
-          end <- i
-          break
+        # Find the end of the argument
+        rest_of_string <- substr(model_call, start, nchar(model_call))
+        depth <- 0
+        end <- -1
+        for (i in 1:nchar(rest_of_string)) {
+          char <- substr(rest_of_string, i, i)
+          if (char == "(" || char == "[") {
+            depth <- depth + 1
+          } else if (char == ")" || char == "]") {
+            depth <- depth - 1
+          } else if (char == "," && depth == 0) {
+            end <- i
+            break
+          }
         }
-      }
 
-      if (end == -1) end <- nchar(rest_of_string) + 1
+        if (end == -1) end <- nchar(rest_of_string) + 1
 
-      # Replace the argument value
-      modified_call <- paste0(
-        substr(model_call, 1, start + nchar(arg_name) + 1),
-        new_value,
-        substr(rest_of_string, end, nchar(rest_of_string))
-      )
+        # Replace the argument value
+        modified_call <- paste0(
+          substr(model_call, 1, start + nchar(arg_name) + 1),
+          new_value,
+          substr(rest_of_string, end, nchar(rest_of_string))
+        )
 
-      return(modified_call)
+        return(modified_call)
     }
     cat("# Calculating bootstrap sensitivity measures\n")
     if (!("train.formula" %in% class(MLP.fit))){
@@ -568,6 +568,9 @@ SensAnalysisMLP.train <- function(MLP.fit,
 
     # Initialize progress bar
     pb <- utils::txtProgressBar(min = 0, max = boot.R, style = 3)
+
+    # Obtain all arguments as variables
+    list2env(args, envir=environment())
 
     # Bootstrap loop
     for (i in 1:boot.R) {

@@ -925,7 +925,7 @@ testing = ["Django (<3.1)", "attrs", "colorama", "docopt", "pytest (<7.0.0)"]
 
 [[package]]
 name = "jinja2"
-version = "3.1.2"
+version = "3.1.4"
 description = "A very fast and expressive template engine."
 optional = false
 python-versions = ">=3.7"
@@ -1124,7 +1124,7 @@ test = ["click", "coverage", "pre-commit", "pytest (>=7.0)", "pytest-asyncio (>=
 
 [[package]]
 name = "jupyter-lsp"
-version = "2.2.0"
+version = "2.2.2"
 description = "Multi-Language Server WebSocket proxy for Jupyter Notebook/Lab server"
 optional = false
 python-versions = ">=3.8"
@@ -1653,7 +1653,7 @@ files = [
 
 [[package]]
 name = "notebook"
-version = "7.0.0"
+version = "7.0.7"
 description = "Jupyter Notebook - A web-based notebook environment for interactive computing"
 optional = false
 python-versions = ">=3.8"
@@ -1663,7 +1663,6 @@ files = [
 ]
 
 [package.dependencies]
-importlib-resources = {version = ">=5.0", markers = "python_version < \"3.9\""}
 jupyter-server = ">=2.4.0,<3"
 jupyterlab = ">=4.0.2,<5"
 jupyterlab-server = ">=2.22.1,<3"
@@ -1674,6 +1673,7 @@ tornado = ">=6.2.0"
 dev = ["hatch", "pre-commit"]
 docs = ["myst-parser", "nbsphinx", "pydata-sphinx-theme", "sphinx (>=1.3.6)", "sphinxcontrib-github-alt", "sphinxcontrib-spelling"]
 test = ["ipykernel", "jupyter-server[test] (>=2.4.0,<3)", "jupyterlab-server[test] (>=2.22.1,<3)", "nbval", "pytest (>=7.0)", "pytest-console-scripts", "pytest-timeout", "pytest-tornasync", "requests"]
+
 
 [[package]]
 name = "notebook-shim"
@@ -2434,7 +2434,7 @@ rpds-py = ">=0.7.0"
 
 [[package]]
 name = "requests"
-version = "2.31.0"
+version = "2.32.0"
 description = "Python HTTP for Humans."
 optional = false
 python-versions = ">=3.7"
