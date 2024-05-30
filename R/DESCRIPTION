@@ -1,5 +1,5 @@
 Package: NeuralSens
-Version: 1.1.2
+Version: 1.1.3
 Title: Sensitivity Analysis of Neural Networks
 Description: Analysis functions to quantify inputs importance in neural network models.
   Functions are available for calculating and plotting the inputs importance and obtaining
@@ -31,7 +31,7 @@ Suggests:
   neuralnet,
   plotly,
   e1071
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 NeedsCompilation: no
 URL: https://github.com/JaiPizGon/NeuralSens
 BugReports: https://github.com/JaiPizGon/NeuralSens/issues
