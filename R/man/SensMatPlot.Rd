@@ -18,7 +18,7 @@ SensMatPlot(
 
 \item{sens}{\code{SensMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}.}
 
-\item{output}{\code{numeric} or {character} specifying the output neuron or output name to be plotted.
+\item{output}{\code{numeric} or \code{character} specifying the output neuron or output name to be plotted.
 By default is the first output (\code{output = 1}).}
 
 \item{metric}{\code{character} specifying the metric to be plotted. It can be "mean",

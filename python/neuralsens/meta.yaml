@@ -1,5 +1,5 @@
 {% set name = "neuralsens" %}
-{% set version = "0.0.4.dev11" %}
+{% set version = "0.0.8" %}
 
 package:
   name: "{{ name|lower }}"
@@ -7,7 +7,7 @@ package:
 
 source:
   url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
-  sha256: 7c903e2a60d7e837519ad86904a702c74eacf0b210d7fb21cb3e79cac34c3107
+  sha256: 6eec63014ab50bd53f4b299dc7105fcbf76de68a99a66d55fc14297064d940f9
 
 
 build:

@@ -2,13 +2,9 @@ from scipy.special import expit
 import numpy as np
 
 try:
-    from torch import sigmoid, tanh, eye, diag, zeros
-
+    from torch import sigmoid, tanh, eye, diag, zeros, exp, max, matmul, ones
     allow_torch = True
 except ImportError:
-    print(
-        "torch installation could not be found, only numpy activation functions allowed"
-    )
     allow_torch = False
 
 
@@ -72,6 +68,7 @@ def activation_function(func: str, use_torch: bool = False):
             * identity
             * tanh
             * relu
+            * softmax
         
     Examples:
         >>> import numpy as np
@@ -93,6 +90,9 @@ def activation_function(func: str, use_torch: bool = False):
 
         def stanh(x):
             return np.tanh(x)
+        
+        def softmax(x):
+            return np.exp(x)/sum(np.exp(x))
 
     elif use_torch and allow_torch:
 
@@ -102,6 +102,8 @@ def activation_function(func: str, use_torch: bool = False):
         def stanh(x):
             return tanh(x)
 
+        def softmax(x):
+            return exp(x)/sum(exp(x))
     actfunc = {
         "logistic": logistic,
         "sigmoid": logistic,
@@ -109,6 +111,7 @@ def activation_function(func: str, use_torch: bool = False):
         "identity": identity,
         "tanh": stanh,
         "relu": relu,
+        "softmax": softmax
     }
     return actfunc[func]
 
@@ -135,6 +138,7 @@ def der_activation_function(func: str, use_torch: bool = False):
             * identity
             * tanh
             * relu
+            * softmax
         
     Examples:
         >>> import numpy as np
@@ -159,6 +163,10 @@ def der_activation_function(func: str, use_torch: bool = False):
 
         def relu(x):
             return np.diag(x > 0)
+        
+        def softmax(x):
+            x = np.exp(x - np.max(x)) / np.sum(np.exp(x - np.max(x))) # numerical stability
+            return np.matmul(x, np.ones((1, x.shape[0]))) * (np.identity(x.shape[0]) - np.matmul(np.ones((x.shape[0], 1)), x.T))
 
     elif use_torch and allow_torch:
 
@@ -174,6 +182,10 @@ def der_activation_function(func: str, use_torch: bool = False):
 
         def relu(x):
             return diag(x > 0).float()
+        
+        def softmax(x):
+            x = exp(x - max(x)) / sum(exp(x - max(x))) # numerical stability
+            return matmul(x, ones((1, x.size(0)))) * (identity(x.size(0)) - matmul(ones((x.size(0), 1)), x.T))
 
     deractfunc = {
         "logistic": logistic,
@@ -182,6 +194,7 @@ def der_activation_function(func: str, use_torch: bool = False):
         "identity": identity,
         "tanh": stanh,
         "relu": relu,
+        "softmax": softmax
     }
     return deractfunc[func]
 
@@ -208,6 +221,7 @@ def der_2_activation_function(func: str, use_torch: bool = False):
             * identity
             * tanh
             * relu
+            * softmax
         
     Examples:
         >>> import numpy as np
@@ -245,7 +259,19 @@ def der_2_activation_function(func: str, use_torch: bool = False):
 
         def relu(x):
             return np.zeros((x.shape[0], x.shape[0], x.shape[0]), dtype=int)
-
+        
+        def softmax(x):
+            x = np.exp(x - np.max(x)) / np.sum(np.exp(x - np.max(x))) # numerical stability
+            # build 'delta' arrays
+            d_i_m = np.broadcast_to(np.eye(x.shape[0]),(x.shape[0],)+np.eye(x.shape[0]).shape)
+            d_m_p = d_i_m.transpose((1,2,0))
+            d_i_p = d_i_m.transpose((1,0,2))
+            # Build 'a' arrays
+            am = np.broadcast_to(x @ d_i_m,(x.shape[0],)+np.eye(x.shape[0]).shape)
+            ai = am.transpose((1,2,0))
+            ap = am.transpose((2,1,0))
+            # Create second derivative array
+            return ai * ((d_i_p - ap) * (d_i_m - am) - am * (d_m_p * ap))
     elif use_torch and allow_torch:
 
         def logistic(x):
@@ -263,6 +289,9 @@ def der_2_activation_function(func: str, use_torch: bool = False):
 
         def relu(x):
             return zeros((x.size(0), x.size(0), x.size(0)), dtype=int)
+        
+        def softmax(x):
+            x = exp(x - max(x)) / sum(exp(x - max(x))) # numerical stability
 
     der2actfunc = {
         "logistic": logistic,
@@ -271,6 +300,7 @@ def der_2_activation_function(func: str, use_torch: bool = False):
         "identity": identity,
         "tanh": stanh,
         "relu": relu,
+        "softmax": softmax
     }
     return der2actfunc[func]
 
@@ -297,6 +327,7 @@ def der_3_activation_function(func: str, use_torch: bool = False):
             * identity
             * tanh
             * relu
+            * softmax
         
     Examples:
         >>> import numpy as np
@@ -347,10 +378,9 @@ def der_3_activation_function(func: str, use_torch: bool = False):
             zeros_4d = np.zeros(
                 (x.shape[0], x.shape[0], x.shape[0], x.shape[0]), dtype=float
             )
-            fx = expit(x)
-            np.fill_diagonal(zeros_4d, fx * (1 - fx) * (1 - 2 * fx) * (1 - 3 * fx))
+            fx = np.exp(x)
+            np.fill_diagonal(zeros_4d, fx / (fx + 1) ** 2 - 6 * fx ** 2 / (fx + 1) ** 3 + 6 * fx ** 3 / (fx + 1) ** 4)
             return zeros_4d
-
         def identity(x):
             return np.zeros((x.shape[0], x.shape[0], x.shape[0], x.shape[0]), dtype=int)
 
@@ -359,19 +389,44 @@ def der_3_activation_function(func: str, use_torch: bool = False):
                 (x.shape[0], x.shape[0], x.shape[0], x.shape[0]), dtype=float
             )
             fx = tanh(x)
-            np.fill_diagonal(zeros_4d, -2 * (1 - 4 * fx ** 2 + fx ** 4))
+            np.fill_diagonal(zeros_4d, -2 * (1 - 4 * fx ** 2 + fx ** 4) * (12 * fx ** 2 - 12))
             return zeros_4d
 
         def relu(x):
             return np.zeros((x.shape[0], x.shape[0], x.shape[0], x.shape[0]), dtype=int)
+        
+        def softmax(x):
+            # Calculate softmax first and then third derivatives
+            fx = np.exp(x - np.max(x)) / np.sum(np.exp(x - np.max(x)))  # numerical stability
+
+            # Build 'delta' arrays
+            d_i_m = np.broadcast_to(
+                np.eye(x.shape[0]), (x.shape[0],) + np.eye(x.shape[0]).shape
+            )
+            d_m_p = d_i_m.transpose((1, 2, 0))
+            d_i_p = d_i_m.transpose((1, 0, 2))
+
+            # Build 'a' arrays
+            am = np.broadcast_to(fx @ d_i_m, (x.shape[0],) + np.eye(x.shape[0]).shape)
+            ai = am.transpose((1, 2, 0))
+            ap = am.transpose((2, 1, 0))
+
+            # Create third derivative array
+            third_derivative = ai * (
+                (d_i_p - ap) * (d_i_m - am)
+                - 2 * (d_i_m - am)
+                - 2 * (d_m_p - ap)
+                + 3 * (d_m_p - ap) * (d_i_m - am)
+            )
+            return third_derivative
 
     elif use_torch and allow_torch:
 
         def logistic(x):
             zeros_4d = zeros((x.size(0), x.size(0), x.size(0), x.size(0))).float()
-            fx = sigmoid(x)
+            fx = exp(-x)
             return fill_diagonal_torch(
-                zeros_4d, fx * (1 - fx) * (1 - 2 * fx) * (1 - 3 * fx)
+                zeros_4d, fx / (fx + 1) ** 2 - 6 * fx ** 2 / (fx + 1) ** 3 + 6 * fx ** 3 / (fx + 1) ** 4
             )
 
         def identity(x):
@@ -380,10 +435,35 @@ def der_3_activation_function(func: str, use_torch: bool = False):
         def stanh(x):
             zeros_4d = zeros((x.size(0), x.size(0), x.size(0), x.size(0))).float()
             fx = tanh(x)
-            return fill_diagonal_torch(zeros_4d, -2 * (1 - 4 * fx ** 2 + fx ** 4))
+            return fill_diagonal_torch(zeros_4d, -2 * (1 - 4 * fx ** 2 + fx ** 4) * (12 * fx ** 2 - 12))
 
         def relu(x):
             return zeros((x.size(0), x.size(0), x.size(0), x.size(0)), dtype=int)
+        
+        def softmax(x):
+            # Calculate softmax first and then third derivatives
+            fx = softmax(x, dim=0)
+
+            # Build 'delta' tensors
+            d_i_m = eye(fx.size(0)).unsqueeze(0).expand(
+                x.size(0), -1, -1
+            )
+            d_m_p = d_i_m.transpose(1, 2)
+            d_i_p = d_i_m.transpose(2, 1)
+
+            # Build 'a' tensors
+            am = matmul(x, d_i_m)
+            ai = am.transpose(1, 2)
+            ap = am.transpose(2, 1)
+
+            # Create third derivative tensor
+            third_derivative = ai * (
+                (d_i_p - ap) * (d_i_m - am)
+                - 2 * (d_i_m - am)
+                - 2 * (d_m_p - ap)
+                + 3 * (d_m_p - ap) * (d_i_m - am)
+            )
+            return third_derivative
 
     der3actfunc = {
         "logistic": logistic,
@@ -392,5 +472,6 @@ def der_3_activation_function(func: str, use_torch: bool = False):
         "identity": identity,
         "tanh": stanh,
         "relu": relu,
+        "softmax": softmax
     }
     return der3actfunc[func]

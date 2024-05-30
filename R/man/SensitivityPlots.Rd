@@ -9,7 +9,11 @@ SensitivityPlots(
   der = TRUE,
   zoom = TRUE,
   quit.legend = FALSE,
-  output = 1
+  output = 1,
+  plot_type = NULL,
+  inp_var = NULL,
+  title = "Sensitivity Plots",
+  dodge_var = FALSE
 )
 }
 \arguments{
@@ -23,8 +27,21 @@ created by \code{\link[NeuralSens]{HessianMLP}}.}
 
 \item{quit.legend}{\code{logical} indicating if legend of the third plot should be removed. By default is \code{FALSE}}
 
-\item{output}{\code{numeric} or {character} specifying the output neuron or output name to be plotted.
+\item{output}{\code{numeric} or \code{character} specifying the output neuron or output name to be plotted.
 By default is the first output (\code{output = 1}).}
+
+\item{plot_type}{\code{character} indicating which of the 3 plots to show. Useful when several variables are analyzed.
+Acceptable values are 'mean_sd', 'square', 'raw' corresponding to first, second and third plot respectively. If \code{NULL},
+all plots are shown at the same time. By default is \code{NULL}.}
+
+\item{inp_var}{\code{character} indicating which input variable to show in density plot. Only useful when
+choosing plot_type='raw' to show the density plot of one input variable. If \code{NULL}, all variables
+are plotted in density plot. By default is \code{NULL}.}
+
+\item{title}{\code{character} title of the sensitivity plots}
+
+\item{dodge_var}{\code{bool} Flag to indicate that x ticks in meanSensSQ plot must dodge between them. Useful with
+too long input names.}
 }
 \value{
 List with the following plot for each output: \itemize{ \item Plot 1: colorful plot with the
