@@ -4,12 +4,15 @@
 \alias{print.summary.SensMLP}
 \title{Print method of the summary SensMLP Class}
 \usage{
-\method{print}{summary.SensMLP}(x, round_digits = NULL, ...)
+\method{print}{summary.SensMLP}(x, round_digits = NULL, boot.alpha = NULL, ...)
 }
 \arguments{
 \item{x}{\code{summary.SensMLP} object created by summary method of \code{SensMLP} object}
 
 \item{round_digits}{\code{integer} number of decimal places, default \code{NULL}}
+
+\item{boot.alpha}{\code{float} significance level to show statistical metrics. If \code{NULL},
+boot.alpha inherits from \code{x} is used. Defaults to \code{NULL}.}
 
 \item{...}{additional parameters}
 }

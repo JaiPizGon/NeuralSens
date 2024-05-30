@@ -8,9 +8,8 @@
 
 - R : [![CRAN status](https://www.r-pkg.org/badges/version/NeuralSens)](https://CRAN.R-project.org/package=NeuralSens)
 [![CRAN_Download_Badge](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)](https://cranlogs.r-pkg.org/badges/grand-total/NeuralSens)
-[![R-CMD-check](https://github.com/JaiPizGon/NeuralSens/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/JaiPizGon/NeuralSens/actions/workflows/R-CMD-check.yaml)
-- Python : [![Documentation Status](https://readthedocs.org/projects/neuralsens/badge/?version=latest)](https://neuralsens.readthedocs.io/en/latest/?version=latest)
-[![pypi](https://img.shields.io/pypi/v/neuralsens.svg)](https://pypi.python.org/pypi/neuralsens)
+- Python : [![pypi](https://img.shields.io/pypi/v/neuralsens.svg)](https://pypi.python.org/pypi/neuralsens)
+[![Downloads](https://static.pepy.tech/badge/neuralsens)](https://pepy.tech/project/neuralsens)
 [![python](https://img.shields.io/badge/python-%5E3.8-blue)]()
 [![os](https://img.shields.io/badge/OS-Ubuntu%2C%20Mac%2C%20Windows-purple)]()
 <!-- badges: end -->

@@ -53,6 +53,9 @@ SensAnalysisMLP(
   sens_end_layer = "last",
   sens_origin_input = TRUE,
   sens_end_input = FALSE,
+  boot.R = NULL,
+  boot.seed = 1,
+  boot.alpha = 0.05,
   ...
 )
 
@@ -212,6 +215,14 @@ also \code{\link[caret]{train}}}
 \item{output_name}{\code{character} name of the output variable in order to
 avoid changing the name of the output variable in \code{trData} to
 '.outcome'}
+
+\item{boot.R}{\code{int} Number of bootstrap samples to calculate. Used
+to detect significant inputs and significant non-linearities. Only
+available for \code{train} objects. Defaults to \code{NULL}.}
+
+\item{boot.seed}{\code{int} Seed of bootstrap evaluations.}
+
+\item{boot.alpha}{\code{float} Significance level of statistical test.}
 }
 \value{
 \code{SensMLP} object with the sensitivity metrics and sensitivities of

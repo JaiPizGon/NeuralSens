@@ -32,6 +32,11 @@
 #' @param sens_end_input \code{logical} specifies if the derivative calculated
 #'   is of the output (\code{FALSE}) or from the input (\code{TRUE}) of the
 #'   \code{sens_end_layer} layer of the model. By default is \code{FALSE}.
+#' @param boot.R \code{int} Number of bootstrap samples to calculate. Used
+#'  to detect significant inputs and significant non-linearities. Only
+#'  available for \code{train} objects. Defaults to \code{NULL}.
+#' @param boot.seed \code{int} Seed of bootstrap evaluations.
+#' @param boot.alpha \code{float} Significance level of statistical test.
 #' @param ...	additional arguments passed to or from other methods
 #' @return \code{SensMLP} object with the sensitivity metrics and sensitivities of
 #' the MLP model passed to the function.
@@ -391,21 +396,6 @@ SensAnalysisMLP.default <- function(MLP.fit,
   args <- list(...)
 
   if (!"return_all_sens" %in% names(args[[1]])) {
-    # out <- structure(list(
-    #   sens = NULL,
-    #   raw_sens = NULL,
-    #   layer_derivatives = D,
-    #   mlp_struct = mlpstr,
-    #   mlp_wts = W,
-    #   layer_origin = sens_origin_layer,
-    #   layer_origin_input = sens_origin_input,
-    #   layer_end = sens_end_layer,
-    #   layer_end_input = sens_end_input,
-    #   trData = trData,
-    #   coefnames = varnames,
-    #   output_name = output_name
-    # ),
-    # class = "SensMLP")
     out <- list(
       sens = NULL,
       raw_sens = NULL,
@@ -490,9 +480,12 @@ SensAnalysisMLP.train <- function(MLP.fit,
                                   sens_end_layer = "last",
                                   sens_origin_input = TRUE,
                                   sens_end_input = FALSE,
+                                  boot.R = NULL,
+                                  boot.seed = 1,
+                                  boot.alpha = 0.05,
                                   ...) {
   args <- list(...)
-  SensAnalysisMLP(MLP.fit$finalModel,
+  sens_mlp <- SensAnalysisMLP(MLP.fit$finalModel,
                   trData = if ("trData" %in% names(args)) {args$trData} else {MLP.fit$trainingData},
                   .returnSens = .returnSens,
                   .rawSens = .rawSens,
@@ -503,8 +496,132 @@ SensAnalysisMLP.train <- function(MLP.fit,
                   preProc = if ("preProc" %in% names(args)) {args$preProc} else {MLP.fit$preProcess},
                   terms = if ("terms" %in% names(args)) {args$terms} else {MLP.fit$terms},
                   output_name = if("output_name" %in% names(args)){args$output_name}else{".outcome"},
-                  plot = plot,
+                  plot = FALSE,
                   args[!names(args) %in% c("output_name","trData","preProc","terms")])
+
+    if (!is.null(boot.R)) {
+      substitute_argument_value <- function(model_call, arg_name, new_value) {
+        # Find start of the argument
+        pattern <- paste0(arg_name, "\\s*=")
+        start <- regexpr(pattern, model_call)
+        if (start == -1) return(model_call)  # Argument not found
+
+        # Find the end of the argument
+        rest_of_string <- substr(model_call, start, nchar(model_call))
+        depth <- 0
+        end <- -1
+        for (i in 1:nchar(rest_of_string)) {
+          char <- substr(rest_of_string, i, i)
+          if (char == "(" || char == "[") {
+            depth <- depth + 1
+          } else if (char == ")" || char == "]") {
+            depth <- depth - 1
+          } else if (char == "," && depth == 0) {
+            end <- i
+            break
+          }
+        }
+
+        if (end == -1) end <- nchar(rest_of_string) + 1
+
+        # Replace the argument value
+        modified_call <- paste0(
+          substr(model_call, 1, start + nchar(arg_name) + 1),
+          new_value,
+          substr(rest_of_string, end, nchar(rest_of_string))
+        )
+
+        return(modified_call)
+    }
+    cat("# Calculating bootstrap sensitivity measures\n")
+    if (!("train.formula" %in% class(MLP.fit))){
+      stop("Bootstrapping sensitivity measures only available for train.formula models.")
+    }
+    data <- if ("trData" %in% names(args)) {args$trData} else {MLP.fit$trainingData}
+
+    model_call <- paste(deparse(MLP.fit$call), collapse='')
+
+    model_call <- regmatches(model_call, gregexpr("\\((?>[^()]|(?R))*\\)", model_call, perl=TRUE))[[1]]
+
+    model_call <- substitute_argument_value(model_call, "tuneGrid", "MLP.fit$bestTune")
+
+    model_call <- substitute_argument_value(model_call, "data", "resampled_data")
+
+    # if (grepl("data\\s*=\\s*[^,)]+", model_call)) {
+    #   # Replace the value assigned to 'data'
+    #   model_call <- gsub("data\\s*=\\s*[^,)]+", "data = resampled_data", model_call)
+    # } else {
+    #   stop("Data argument not found in model train call")
+    # }
+
+    model_call <- gsub("\\b\\w+\\s*~", paste0(ifelse("output_name" %in% names(args),args$output_name,".outcome")," ~"), model_call)
+
+    model_call <- paste0('caret::train', model_call)
+
+    n <- nrow(data)  # Number of data points
+
+    # Initialize an array to store results
+    Tnj_b <- array(NA, dim=c(dim(sens_mlp$sens[[1]]), boot.R))
+
+    # Initialize an array to store boot derivatives
+    boot_sens <- array(NA, dim=c(dim(sens_mlp$raw_sens[[1]]), boot.R))
+
+    # Initialize progress bar
+    pb <- utils::txtProgressBar(min = 0, max = boot.R, style = 3)
+
+    # Obtain all arguments as variables
+    list2env(args, envir=environment())
+
+    # Bootstrap loop
+    for (i in 1:boot.R) {
+      set.seed(boot.seed + i)  # Set seed for reproducibility
+
+      # Sample indices with replacement
+      indices <- sample(n, n, replace = TRUE)
+
+      # Resample the dataset
+      resampled_data <- data[indices, ]
+
+      # Retrain the model on the resampled data
+      set.seed(123)
+      model <- eval(parse(text=model_call))
+
+      # Calculate the mean of squared partial derivatives
+      sensitivity_results <- SensAnalysisMLP(model, plot = FALSE, boot.R=NULL)
+      Tnj_b[,,i] <- data.matrix(sensitivity_results$sens[[1]])
+
+      boot_sens[,,i] <- data.matrix(sensitivity_results$raw_sens[[1]])
+
+
+      # Update progress bar
+      utils::setTxtProgressBar(pb, i)
+    }
+
+    # Configuration of significance test
+    num_hypotheses <- nrow(sens_mlp$sens[[1]])
+
+    # Obtain Tnj
+    Tnj <- data.matrix(sens_mlp$sens[[1]])
+
+    # Statistical test of std and mean square
+    cv <- list()
+    for (i in 1:2) {
+      cv[[i]] <- NeuralSens::kStepMAlgorithm(
+                                 bootstrap_stats = data.matrix(aperm(Tnj_b, c(3,2,1))[,i+1,]),
+                                 original_stats = Tnj[,i+1],
+                                 num_hypotheses = num_hypotheses,
+                                 alpha = boot.alpha,
+                                 k = 1)
+    }
+    sens_mlp$cv <- cv
+    sens_mlp$boot <- Tnj_b
+    sens_mlp$boot.alpha <- boot.alpha
+    sens_mlp$boot.sens <- boot_sens
+  }
+  if (plot){
+    plot(sens_mlp, ...)
+  }
+  return(sens_mlp)
 }
 
 #' @rdname SensAnalysisMLP

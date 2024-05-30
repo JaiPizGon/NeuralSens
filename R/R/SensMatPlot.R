@@ -3,7 +3,7 @@
 #' @description Function to plot the sensitivities created by \code{\link[NeuralSens]{HessianMLP}}.
 #' @param hess \code{HessMLP} object created by \code{\link[NeuralSens]{HessianMLP}}.
 #' @param sens \code{SensMLP} object created by \code{\link[NeuralSens]{SensAnalysisMLP}}.
-#' @param output \code{numeric} or {character} specifying the output neuron or output name to be plotted.
+#' @param output \code{numeric} or \code{character} specifying the output neuron or output name to be plotted.
 #' By default is the first output (\code{output = 1}).
 #' @param senstype \code{character} specifying the type of plot to be plotted. It can be "matrix" or
 #'  "interactions". If type = "matrix", only the second derivatives are plotted. If type = "interactions"

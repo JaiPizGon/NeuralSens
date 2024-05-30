@@ -10,7 +10,10 @@ SensMLP(
   mlp_struct = numeric(),
   trData = data.frame(),
   coefnames = character(),
-  output_name = character()
+  output_name = character(),
+  cv = NULL,
+  boot = NULL,
+  boot.alpha = NULL
 )
 }
 \arguments{
@@ -25,6 +28,13 @@ SensMLP(
 \item{coefnames}{\code{character} vector with the name of the predictor(s)}
 
 \item{output_name}{\code{character} vector with the name of the output(s)}
+
+\item{cv}{\code{list} list with critical values of significance for std and mean square.}
+
+\item{boot}{\code{array} bootstrapped sensitivity measures.}
+
+\item{boot.alpha}{\code{array} significance level.
+Defaults to \code{NULL}. Only available for analyzed \code{caret::train} models.}
 }
 \value{
 \code{SensMLP} object

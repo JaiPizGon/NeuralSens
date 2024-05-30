@@ -2,9 +2,28 @@
 % Please edit documentation in R/NeuralSens-package.R
 \docType{package}
 \name{NeuralSens}
+\alias{NeuralSens-package}
 \alias{NeuralSens}
 \title{NeuralSens: Sensitivity Analysis of Neural Networks}
 \description{
 Visualization and analysis tools to aid in the interpretation of
 neural network models.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/JaiPizGon/NeuralSens}
+  \item Report bugs at \url{https://github.com/JaiPizGon/NeuralSens/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Jaime Pizarroso Gonzalo \email{jpizarroso@comillas.edu} [contributor]
+
+Authors:
+\itemize{
+  \item José Portela González \email{Jose.Portela@iit.comillas.edu}
+  \item Antonio Muñoz San Roque \email{antonio.munoz@iit.comillas.edu}
+}
+
 }
