@@ -148,6 +148,7 @@ files = [
 [package.dependencies]
 typing-extensions = {version = ">=4.0.0", markers = "python_version < \"3.11\""}
 
+
 [[package]]
 name = "attrs"
 version = "23.1.0"
@@ -179,6 +180,7 @@ files = [
 
 [package.dependencies]
 pytz = {version = ">=2015.7", markers = "python_version < \"3.9\""}
+
 
 [[package]]
 name = "backcall"
@@ -637,6 +639,7 @@ name = "exceptiongroup"
 version = "1.1.2"
 description = "Backport of PEP 654 (exception groups)"
 optional = false
+
 python-versions = ">=3.7"
 files = [
     {file = "exceptiongroup-1.1.2-py3-none-any.whl", hash = "sha256:e346e69d186172ca7cf029c8c1d16235aa0e04035e5750b4b95039e65204328f"},
@@ -659,6 +662,7 @@ files = [
 
 [package.extras]
 tests = ["asttokens", "littleutils", "pytest", "rich"]
+
 
 [[package]]
 name = "fastjsonschema"
@@ -864,6 +868,7 @@ pexpect = {version = ">4.3", markers = "sys_platform != \"win32\""}
 pickleshare = "*"
 prompt-toolkit = ">=3.0.30,<3.0.37 || >3.0.37,<3.1.0"
 pygments = ">=2.4.0"
+setuptools = ">=18.5"
 stack-data = "*"
 traitlets = ">=5"
 typing-extensions = {version = "*", markers = "python_version < \"3.10\""}
@@ -880,6 +885,7 @@ parallel = ["ipyparallel"]
 qtconsole = ["qtconsole"]
 test = ["pytest (<7.1)", "pytest-asyncio", "testpath"]
 test-extra = ["curio", "matplotlib (!=3.2.0)", "nbformat", "numpy (>=1.21)", "pandas", "pytest (<7.1)", "pytest-asyncio", "testpath", "trio"]
+
 
 [[package]]
 name = "ipython-genutils"
@@ -1445,6 +1451,7 @@ files = [
 
 [[package]]
 name = "matplotlib"
+
 version = "3.7.2"
 description = "Python plotting package"
 optional = false
