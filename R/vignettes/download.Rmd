@@ -21,7 +21,7 @@ Choose the appropriate installer for your operating system:
 
 ### Windows
 
-[Windows installer](../../inst/extdata/neuralsens.exe)
+[Windows installer](https://github.com/JaiPizGon/NeuralSens_windows/raw/master/neuralsens.exe)
 
 
 ### Mac
