@@ -33,7 +33,7 @@ Suggests:
   e1071
 RoxygenNote: 7.3.1
 NeedsCompilation: no
-URL: https://github.com/JaiPizGon/NeuralSens
+URL: https://github.com/JaiPizGon/NeuralSens, https://jaipizgon.github.io/NeuralSens/
 BugReports: https://github.com/JaiPizGon/NeuralSens/issues
 License: GPL (>= 2)
 Encoding: UTF-8

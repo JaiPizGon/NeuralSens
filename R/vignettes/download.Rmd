@@ -1,0 +1,31 @@
+---
+title: "Download"
+output: rmarkdown::html_document
+---
+
+# NeuralSens Application
+
+We are pleased to announce the availability of an application to run the NeuralSens library. This application provides an easy-to-use interface for leveraging the powerful features of the NeuralSens package.
+
+The development of this application was made possible thanks to the support of the Cátedra Santalucía Analytics for Education.
+
+<div style="text-align: center;">
+  <a href="https://www.comillas.edu/catedras-de-investigacion/catedra-santalucia-de-analytics-for-education/">
+    <img src="../man/figures/catedra_logo.png" alt="Cátedra Santalucía Analytics for Education" style="width: 400px;">
+  </a>
+</div>
+
+## Download the Installer
+
+Choose the appropriate installer for your operating system:
+
+### Windows
+
+[Windows installer](../../inst/extdata/neuralsens.exe)
+
+
+### Mac
+
+Mac application coming soon!
+<!-- [![Mac Installer](../inst/extdata/mac-icon.png)](../inst/extdata/your-mac-installer.dmg) -->
+<!-- **[Download Mac Installer](../inst/extdata/your-mac-installer.dmg)** -->

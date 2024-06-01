@@ -13,3 +13,6 @@ README.html
 ^CRAN-SUBMISSION$
 LICENSE
 ^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
