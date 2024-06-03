@@ -21,8 +21,8 @@ Choose the appropriate installer for your operating system:
 
 ### Windows
 
-[Windows installer](https://github.com/JaiPizGon/NeuralSens_windows/raw/master/neuralsens.exe)
-
+[Windows installer](https://upcomillas-my.sharepoint.com/:u:/g/personal/jpizarroso_comillas_edu/Eb94kskj39xHsZIp5d3o9XEBX8suidvqK5og4PHdfwsG0w?e=teeeck)
+<!-- Windows application coming soon! -->
 
 ### Mac
 
