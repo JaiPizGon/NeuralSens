@@ -22,10 +22,8 @@ Choose the appropriate installer for your operating system:
 ### Windows
 
 [Windows installer](https://upcomillas-my.sharepoint.com/:u:/g/personal/jpizarroso_comillas_edu/Eb94kskj39xHsZIp5d3o9XEBX8suidvqK5og4PHdfwsG0w?e=teeeck)
-<!-- Windows application coming soon! -->
+
 
 ### Mac
 
-Mac application coming soon!
-<!-- [![Mac Installer](../inst/extdata/mac-icon.png)](../inst/extdata/your-mac-installer.dmg) -->
-<!-- **[Download Mac Installer](../inst/extdata/your-mac-installer.dmg)** -->
+[Mac Installer](https://upcomillas-my.sharepoint.com/:u:/g/personal/jpizarroso_comillas_edu/Edb7BcT7G71AjB50640bxdkBmU2FD-ZxNpoKk4I38R4I2Q?e=gHx8y0)
