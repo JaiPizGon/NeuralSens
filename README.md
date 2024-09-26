@@ -1,4 +1,4 @@
-# NeuralSens <img src="R/man/figures/NeuralSens.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
+# NeuralSens  <img src="R/man/figures/logo.PNG" width="135px" height="140px" align="right" style="padding-left:10px;background-color:white;" />
 
 #### *Jaime Pizarroso Gonzalo, jpizarroso@comillas.edu*
 #### *Antonio Muñoz San Roque, Antonio.Munoz@iit.comillas.edu*
